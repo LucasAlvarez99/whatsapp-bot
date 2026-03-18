@@ -1,0 +1,32 @@
+[
+  {
+    "nombre": "María García",
+    "numero": "5491112345678",
+    "empresa": "TechCorp",
+    "producto": "Plan Pro"
+  },
+  {
+    "nombre": "Juan Pérez",
+    "numero": "5491198765432",
+    "empresa": "StartupBA",
+    "producto": "Plan Básico"
+  },
+  {
+    "nombre": "Laura Rodríguez",
+    "numero": "5491155443322",
+    "empresa": "Freelancer",
+    "producto": "Plan Free"
+  },
+  {
+    "nombre": "Carlos López",
+    "numero": "5491177889900",
+    "empresa": "López & Asociados",
+    "producto": "Plan Empresarial"
+  },
+  {
+    "nombre": "Ana Martínez",
+    "numero": "5491133221100",
+    "empresa": "Retail Shop",
+    "producto": "Plan Pro"
+  }
+]
