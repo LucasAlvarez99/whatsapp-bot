@@ -1,9 +1,0 @@
-Hola {nombre}, ¿cómo estás? 👋
-
-Te escribo de parte de nuestro equipo para contarte sobre {producto}.
-
-Sabemos que en {empresa} siempre buscan las mejores opciones, y creemos que podemos ayudarte.
-
-¿Tenés 5 minutos para que te cuente más detalles? 😊
-
-¡Quedamos a tu disposición!

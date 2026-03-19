@@ -1,6 +1,11 @@
-nombre,numero,empresa,producto
-María García,5491112345678,TechCorp,Plan Pro
-Juan Pérez,5491198765432,StartupBA,Plan Básico
-Laura Rodríguez,5491155443322,Freelancer,Plan Free
-Carlos López,5491177889900,López & Asociados,Plan Empresarial
-Ana Martínez,5491133221100,Retail Shop,Plan Pro
+nombre,numero,tipo,empresa
+María García,5491112345678,cliente,
+Juan Pérez,5491198765432,cliente_nuevo,
+Salón El Gran Evento,5491155443322,salon,El Gran Evento
+Laura Rodríguez,5491177889900,cliente,
+Carlos López,5491133221100,cliente_nuevo,
+Eventos y Fiestas SA,5491166778899,empresa,Eventos y Fiestas SA
+Ana Martínez,5491144556677,cliente,
+Salón Los Robles,5491188990011,salon,Los Robles
+TechCorp Argentina,5491122334455,empresa,TechCorp Argentina
+Pedro Suárez,5491199887766,cliente_nuevo,

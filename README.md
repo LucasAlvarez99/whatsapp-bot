@@ -1,167 +1,106 @@
-# 📱 WhatsApp Bot — Mensajes Automáticos
+# 🎩 Magic Show Bot v2 — Mensajes por tipo de contacto
 
-Bot de envío automatizado de mensajes por WhatsApp Web, construido con Node.js y Puppeteer.
-
----
-
-## 📋 Tabla de contenidos
-
-- [Requisitos previos](#-requisitos-previos)
-- [Instalación paso a paso](#-instalación-paso-a-paso)
-- [Estructura del proyecto](#-estructura-del-proyecto)
-- [Cómo cargar contactos](#-cómo-cargar-contactos)
-- [Cómo personalizar mensajes](#-cómo-personalizar-mensajes)
-- [Cómo ejecutar](#-cómo-ejecutar)
-- [Controles durante la ejecución](#-controles-durante-la-ejecución)
-- [Buenas prácticas para evitar bloqueos](#-buenas-prácticas-para-evitar-bloqueos)
-- [Configuración avanzada](#-configuración-avanzada)
-- [Solución de problemas](#-solución-de-problemas)
-- [Advertencias importantes](#-advertencias-importantes)
-
----
-
-## ✅ Requisitos previos
-
-- **Node.js** versión 18 o superior → [nodejs.org](https://nodejs.org)
-- **Google Chrome** instalado (Puppeteer lo usa internamente)
-- **Cuenta de WhatsApp** activa en tu celular
-- **Conexión a internet** estable
-
-Verificá que tenés Node instalado:
-
-```bash
-node --version
-# Debe mostrar v18.x.x o superior
-```
-
----
-
-## 🚀 Instalación paso a paso
-
-### 1. Descargá o cloná el proyecto
-
-```bash
-git clone https://github.com/tu-usuario/whatsapp-bot.git
-cd whatsapp-bot
-```
-
-O simplemente copiá los archivos a una carpeta en tu computadora.
-
-### 2. Instalá las dependencias
-
-```bash
-npm install
-```
-
-Esto instalará Puppeteer (~300MB, incluye Chromium).
-
-### 3. Configurá tus contactos
-
-Editá el archivo `contactos.json` con tus datos (ver sección de contactos).
-
-### 4. Configurá tu mensaje
-
-Editá el archivo `mensajes.txt` con el texto que querés enviar.
-
-### 5. Ejecutá el bot
-
-```bash
-npm start
-```
+Bot de WhatsApp para enviar mensajes personalizados según el tipo de contacto: **cliente**, **cliente_nuevo**, **salon** y **empresa**.
 
 ---
 
 ## 📁 Estructura del proyecto
 
 ```
-whatsapp-bot/
-├── index.js          → Código principal del bot
-├── contactos.json    → Lista de contactos (formato JSON)
-├── contactos.csv     → Lista de contactos (formato CSV alternativo)
-├── mensajes.txt      → Plantilla del mensaje a enviar
-├── package.json      → Configuración del proyecto
-├── README.md         → Este archivo
-├── session/          → Carpeta de sesión (se crea automáticamente)
-│   └── ...           → Datos de sesión de WhatsApp (no borrar)
+whatsapp-magic-bot/
+├── index.js                         → Código principal
+├── contactos.csv                    → Tu lista de contactos
+├── mensajes/
+│   ├── mensaje_cliente.txt          → Mensaje para clientes existentes
+│   ├── mensaje_cliente_nuevo.txt    → Mensaje para clientes nuevos
+│   ├── mensaje_salon.txt            → Mensaje para salones de eventos
+│   └── mensaje_empresa.txt          → Mensaje para empresas
+├── package.json
+├── session/                         → Sesión guardada (se crea solo)
 └── logs/
-    └── envios.log    → Historial completo de envíos
+    └── envios.log                   → Historial de todos los envíos
 ```
 
 ---
 
-## 👥 Cómo cargar contactos
+## ✅ Instalación
 
-### Formato JSON (recomendado)
-
-Editá `contactos.json`. Cada contacto es un objeto con al menos `nombre` y `numero`:
-
-```json
-[
-  {
-    "nombre": "María García",
-    "numero": "5491112345678",
-    "empresa": "TechCorp",
-    "producto": "Plan Pro"
-  },
-  {
-    "nombre": "Juan Pérez",
-    "numero": "5491198765432",
-    "empresa": "StartupBA",
-    "producto": "Plan Básico"
-  }
-]
+```bash
+# 1. Instalá las dependencias (una sola vez)
+npm install
 ```
 
-### Formato CSV (alternativo)
+---
 
-También podés usar `contactos.csv`. Cambiá `contactsFile` en la config a `'./contactos.csv'`:
+## 👥 El archivo contactos.csv
 
-```csv
-nombre,numero,empresa,producto
-María García,5491112345678,TechCorp,Plan Pro
-Juan Pérez,5491198765432,StartupBA,Plan Básico
+Este es el corazón del sistema. Cada fila es un contacto con su tipo asignado.
+
+### Formato
+
 ```
+nombre,numero,tipo,empresa
+María García,5491112345678,cliente,
+Juan Pérez,5491198765432,cliente_nuevo,
+Salón Los Robles,5491155443322,salon,Los Robles
+TechCorp Argentina,5491166778899,empresa,TechCorp Argentina
+```
+
+### Columnas
+
+| Columna  | Obligatorio | Descripción                                              |
+|----------|-------------|----------------------------------------------------------|
+| nombre   | ✅ Sí        | Nombre del contacto o negocio                            |
+| numero   | ✅ Sí        | Número con código de país, sin espacios (ej: 5491112...) |
+| tipo     | ✅ Sí        | `cliente`, `cliente_nuevo`, `salon` o `empresa`          |
+| empresa  | Solo para salones/empresas | Nombre del salón o empresa (usado en el mensaje) |
+
+### Tipos válidos
+
+| Tipo           | Mensaje que recibe              | Cuándo usarlo                         |
+|----------------|---------------------------------|---------------------------------------|
+| `cliente`      | mensaje_cliente.txt             | Ya contrató tus servicios antes       |
+| `cliente_nuevo`| mensaje_cliente_nuevo.txt       | Nunca te contrató, primera vez        |
+| `salon`        | mensaje_salon.txt               | Salones de eventos, no personas       |
+| `empresa`      | mensaje_empresa.txt             | Empresas para eventos corporativos    |
 
 ### Formato del número de teléfono
 
-El número debe incluir el **código de país** sin espacios, guiones ni símbolos:
+Siempre con código de país, sin espacios ni símbolos:
 
-| País        | Prefijo | Ejemplo correcto    |
-|-------------|---------|---------------------|
-| Argentina   | 54      | `5491112345678`     |
-| México      | 52      | `5215512345678`     |
-| España      | 34      | `34612345678`       |
-| Colombia    | 57      | `5731512345678`     |
-| Chile       | 56      | `56912345678`       |
+| País      | Ejemplo correcto   |
+|-----------|--------------------|
+| Argentina | `5491112345678`    |
+| México    | `5215512345678`    |
+| España    | `34612345678`      |
+| Colombia  | `5731512345678`    |
 
-> ⚠️ Para Argentina: incluí el 9 después del 54 (ej: 54**9**11...). Sin el 9 puede fallar.
-
-### Podés agregar cualquier campo personalizado
-
-Agregá los campos que necesites al JSON/CSV, y luego usalos en el mensaje con `{nombre_del_campo}`.
+> ⚠️ Argentina: el 9 entre el 54 y el código de área es obligatorio.
 
 ---
 
-## 💬 Cómo personalizar mensajes
+## 💬 Cómo editar los mensajes
 
-Editá el archivo `mensajes.txt`. Usá `{nombre_del_campo}` para insertar datos del contacto:
+Cada tipo tiene su propio archivo en la carpeta `mensajes/`. Editá directamente el texto:
 
+**mensajes/mensaje_salon.txt**
 ```
-Hola {nombre}, ¿cómo estás? 👋
+Hola, buen día! Me comunico desde nuestro grupo de magia profesional 🎩
 
-Te escribo sobre {producto} para tu empresa {empresa}.
-
-¿Tenés 5 minutos para que te cuente más? 😊
+Nos gustaría colaborar con {empresa} para sus próximos eventos...
 ```
 
-Los `{campos}` se reemplazan automáticamente con los datos de cada contacto.
+### Variables disponibles en los mensajes
 
-**Campos disponibles por defecto:**
-- `{nombre}` → Nombre del contacto
-- `{numero}` → Número de teléfono
-- `{empresa}` → Empresa (si lo agregaste al JSON)
-- `{producto}` → Producto (si lo agregaste al JSON)
-- Cualquier campo extra que hayas definido en el JSON/CSV
+Usá `{nombre_de_columna}` para insertar cualquier dato del CSV:
+
+| Variable    | Reemplaza con...             |
+|-------------|------------------------------|
+| `{nombre}`  | El nombre del contacto       |
+| `{empresa}` | El nombre del salón/empresa  |
+| `{numero}`  | El número de teléfono        |
+
+Si la variable no existe en el CSV para ese contacto, queda tal cual (`{empresa}`).
 
 ---
 
@@ -171,130 +110,44 @@ Los `{campos}` se reemplazan automáticamente con los datos de cada contacto.
 npm start
 ```
 
-Al ejecutar por primera vez:
-
+Al ejecutar:
 1. Se abre Chrome con WhatsApp Web
-2. Aparece el código QR
-3. Abrí WhatsApp en tu celular → Dispositivos vinculados → Vincular dispositivo
-4. Escaneá el QR con tu celular
-5. El bot detecta el login y comienza a enviar
-
-**Desde la segunda ejecución:** Si la sesión está guardada en `./session/`, no necesitás escanear el QR nuevamente.
+2. Escaneá el QR con tu celular (solo la primera vez)
+3. El bot muestra un resumen de contactos por tipo
+4. Comienza a enviar con delays aleatorios de 28-35 segundos
 
 ---
 
-## 🎮 Controles durante la ejecución
+## 🎮 Controles
 
-| Tecla   | Acción                        |
-|---------|-------------------------------|
-| `P`     | Pausar / Reanudar envíos      |
-| `Ctrl+C`| Detener el bot completamente  |
-
-Los logs se muestran en tiempo real en la consola y se guardan en `logs/envios.log`.
+| Tecla    | Acción                    |
+|----------|---------------------------|
+| `P`      | Pausar / reanudar envíos  |
+| `Ctrl+C` | Detener el bot            |
 
 ---
 
-## 🛡️ Buenas prácticas para evitar bloqueos
+## 📊 Logs
 
-WhatsApp puede detectar y bloquear números que envían mensajes de forma masiva. Seguí estas recomendaciones:
+Cada envío queda registrado en `logs/envios.log`:
 
-### ✅ Hacé esto
-
-- **Usá delays de al menos 28-35 segundos** entre mensajes (ya configurado por defecto)
-- **Enviá a contactos que te conocen** o que dieron consentimiento
-- **Comenzá con listas pequeñas** (10-20 contactos) para probar
-- **Usá el número de forma normal** también (respondé mensajes, usalo a diario)
-- **Varía ligeramente los mensajes** si podés, para que no sean idénticos
-
-### ❌ Evitá esto
-
-- Enviar a cientos de contactos en una sola sesión
-- Usar números nuevos o recién registrados para volumen alto
-- Enviar el mismo mensaje exacto a muchos contactos seguidos
-- Dejar el bot corriendo 24/7 sin pausas
-
-### 📊 Límites sugeridos por sesión
-
-| Situación                    | Máximo recomendado |
-|------------------------------|--------------------|
-| Número nuevo (< 1 mes)       | 20-30 mensajes/día |
-| Número normal (> 3 meses)    | 50-80 mensajes/día |
-| Número muy activo (> 1 año)  | 100-150 mensajes/día |
-
----
-
-## ⚙️ Configuración avanzada
-
-En `index.js`, encontrás el objeto `CONFIG` al inicio del archivo:
-
-```javascript
-const CONFIG = {
-  delayMin: 28000,        // Delay mínimo entre mensajes (ms)
-  delayMax: 35000,        // Delay máximo entre mensajes (ms)
-  loginTimeout: 120000,   // Tiempo para escanear el QR (ms)
-  sessionDir: './session',
-  contactsFile: './contactos.json',  // o './contactos.csv'
-  mensajesFile: './mensajes.txt',
-  logFile: './logs/envios.log',
-  headless: false,        // true = sin ventana (no recomendado)
-};
+```
+[2025-03-19T14:32:01.000Z] [OK]    [1/10] ✅ OK — María García
+[2025-03-19T14:32:31.000Z] [ERROR] [2/10] ❌ ERROR — Número inválido
+[2025-03-19T14:33:05.000Z] [OK]    [3/10] ✅ OK — Salón Los Robles
 ```
 
-Modificá los valores según tus necesidades.
+---
+
+## 🛡️ Buenas prácticas
+
+- Empezá con listas cortas (10-20 contactos) para probar
+- No enviés más de 80-100 mensajes por día con un número normal
+- Usá el celular de forma natural además del bot
+- Hacé pausas entre tandas de envíos
 
 ---
 
-## 🔧 Solución de problemas
+## ⚠️ Advertencia
 
-### "No se pudo iniciar sesión"
-- El QR expiró antes de escanearlo (tenés 2 minutos)
-- Solucion: Volvé a ejecutar `npm start`
-
-### "El número no existe" / Error al enviar
-- El número no tiene WhatsApp activo
-- El formato del número es incorrecto (falta código de país)
-- WhatsApp bloqueó temporalmente el envío
-
-### El bot se abre pero no hace nada
-- WhatsApp Web puede haber cambiado sus selectores internos
-- Revisá si hay una actualización del bot disponible
-
-### "Cannot find module 'puppeteer'"
-```bash
-npm install
-```
-
-### El QR no aparece en pantalla
-- Asegurate que `headless: false` en el CONFIG
-- Esperá unos segundos, a veces tarda en cargar
-
-### Sesión expirada (te pide QR de nuevo)
-- WhatsApp cierra sesiones inactivas periódicamente
-- Es normal, solo escaneás el QR nuevamente
-
----
-
-## ⚠️ Advertencias importantes
-
-> **Este bot es para uso personal y educativo.**
-
-- **WhatsApp prohíbe** el uso de bots no oficiales en sus Términos de Servicio
-- Usar bots para spam puede resultar en el **bloqueo permanente** de tu número
-- **No envíes mensajes no solicitados** — respetá la privacidad de las personas
-- El autor no se responsabiliza por cuentas suspendidas o bloqueadas
-- Para uso comercial masivo, considerá la **API oficial de WhatsApp Business**
-
----
-
-## 📈 Escalabilidad futura
-
-Si necesitás escalar, considerá:
-
-- **API oficial de WhatsApp Business** (Meta) — para envíos masivos legales
-- **Twilio WhatsApp API** — integración sencilla para empresas
-- Agregar una base de datos (SQLite/MongoDB) en lugar de archivos JSON
-- Interfaz web con estado en tiempo real
-
----
-
-*Creado con Node.js + Puppeteer*
+El uso de bots no oficiales puede violar los Términos de Servicio de WhatsApp y resultar en el bloqueo del número. Usá el bot con responsabilidad y solo para contactos que consintieron recibir mensajes.

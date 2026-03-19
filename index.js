@@ -1,155 +1,169 @@
 /**
- * WhatsApp Web Automation Bot
- * Envía mensajes personalizados a una lista de contactos con delays seguros.
+ * WhatsApp Magic Show Bot 🎩
+ * Envía mensajes personalizados según el tipo de contacto:
+ * cliente | cliente_nuevo | salon | empresa
  */
 
 const puppeteer = require('puppeteer');
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+const fs        = require('fs');
+const path      = require('path');
+const readline  = require('readline');
 
-// ─── Configuración ─────────────────────────────────────────────────────────────
+// ─── Configuración ──────────────────────────────────────────────────────────────
 const CONFIG = {
-  delayMin: 28000,        // Delay mínimo entre mensajes (ms)
-  delayMax: 35000,        // Delay máximo entre mensajes (ms)
-  loginTimeout: 120000,   // Tiempo máximo para escanear QR (ms)
-  sessionDir: './session',
-  contactsFile: './contactos.json',
-  mensajesFile: './mensajes.txt',
-  logFile: './logs/envios.log',
-  headless: false,        // false = muestra el navegador (necesario para QR)
+  delayMin:     28000,           // ms mínimo entre mensajes
+  delayMax:     35000,           // ms máximo entre mensajes
+  loginTimeout: 120000,          // ms para escanear el QR
+  sessionDir:   './session',
+  contactsFile: './contactos.csv',
+  mensajesDir:  './mensajes',    // carpeta con los .txt de cada tipo
+  logFile:      './logs/envios.log',
+  headless:     false,
+};
+
+// Tipos válidos y el archivo .txt que corresponde a cada uno
+const TIPOS = {
+  cliente:       'mensaje_cliente.txt',
+  cliente_nuevo: 'mensaje_cliente_nuevo.txt',
+  salon:         'mensaje_salon.txt',
+  empresa:       'mensaje_empresa.txt',
 };
 
 // ─── Estado global ──────────────────────────────────────────────────────────────
-let pausado = false;
+let pausado       = false;
 let totalEnviados = 0;
-let totalErrores = 0;
-let browser = null;
-let page = null;
+let totalErrores  = 0;
+let browser       = null;
+let page          = null;
 
-// ─── Utilidades ─────────────────────────────────────────────────────────────────
-
-/**
- * Espera un tiempo aleatorio entre min y max milisegundos.
- */
-function esperarRandom(min, max) {
-  const ms = Math.floor(Math.random() * (max - min + 1)) + min;
-  const segundos = (ms / 1000).toFixed(1);
-  log(`⏳ Esperando ${segundos}s antes del próximo mensaje...`);
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * Logger con timestamp, salida en consola y archivo.
- */
+// ─── Logger ─────────────────────────────────────────────────────────────────────
 function log(mensaje, nivel = 'INFO') {
   const timestamp = new Date().toISOString();
   const linea = `[${timestamp}] [${nivel}] ${mensaje}`;
   console.log(linea);
-
-  // Guardar en archivo de log
   const logDir = path.dirname(CONFIG.logFile);
   if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
   fs.appendFileSync(CONFIG.logFile, linea + '\n');
 }
 
-/**
- * Lee y parsea el archivo de contactos (JSON o CSV).
- */
+// ─── Lectura de contactos CSV ───────────────────────────────────────────────────
 function leerContactos() {
   const archivo = CONFIG.contactsFile;
   if (!fs.existsSync(archivo)) {
-    throw new Error(`Archivo de contactos no encontrado: ${archivo}`);
+    throw new Error(`No se encontró el archivo: ${archivo}`);
   }
 
-  const ext = path.extname(archivo).toLowerCase();
+  const lineas = fs.readFileSync(archivo, 'utf-8')
+    .split('\n')
+    .map(l => l.trim())
+    .filter(Boolean);
 
-  if (ext === '.json') {
-    const raw = fs.readFileSync(archivo, 'utf-8');
-    return JSON.parse(raw);
+  if (lineas.length < 2) throw new Error('El CSV está vacío o solo tiene encabezado.');
+
+  const headers = lineas[0].split(',').map(h => h.trim().toLowerCase());
+  const requeridos = ['nombre', 'numero', 'tipo'];
+  for (const campo of requeridos) {
+    if (!headers.includes(campo)) {
+      throw new Error(`El CSV debe tener la columna "${campo}". Columnas encontradas: ${headers.join(', ')}`);
+    }
   }
 
-  if (ext === '.csv') {
-    const lineas = fs.readFileSync(archivo, 'utf-8').split('\n').filter(Boolean);
-    const headers = lineas[0].split(',').map(h => h.trim());
-    return lineas.slice(1).map(linea => {
-      const valores = linea.split(',').map(v => v.trim());
-      const obj = {};
-      headers.forEach((h, i) => { obj[h] = valores[i] || ''; });
-      return obj;
-    });
-  }
-
-  throw new Error(`Formato de contactos no soportado: ${ext}. Usá .json o .csv`);
-}
-
-/**
- * Lee el mensaje plantilla desde mensajes.txt.
- */
-function leerMensajePlantilla() {
-  if (!fs.existsSync(CONFIG.mensajesFile)) {
-    throw new Error(`Archivo de mensajes no encontrado: ${CONFIG.mensajesFile}`);
-  }
-  return fs.readFileSync(CONFIG.mensajesFile, 'utf-8').trim();
-}
-
-/**
- * Personaliza el mensaje reemplazando {variables} con datos del contacto.
- */
-function personalizarMensaje(plantilla, contacto) {
-  return plantilla.replace(/\{(\w+)\}/g, (match, clave) => {
-    return contacto[clave] !== undefined ? contacto[clave] : match;
+  return lineas.slice(1).map((linea, i) => {
+    const valores = linea.split(',').map(v => v.trim());
+    const obj = {};
+    headers.forEach((h, idx) => { obj[h] = valores[idx] || ''; });
+    obj._fila = i + 2; // número de fila real en el CSV (con encabezado)
+    return obj;
   });
 }
 
-/**
- * Valida que el contacto tenga número y nombre.
- */
-function validarContacto(contacto) {
-  if (!contacto.numero) return 'Falta el campo "numero"';
-  const numLimpio = contacto.numero.replace(/\D/g, '');
-  if (numLimpio.length < 10) return `Número inválido: ${contacto.numero}`;
-  return null;
+// ─── Carga de plantillas de mensajes ───────────────────────────────────────────
+function cargarPlantillas() {
+  const plantillas = {};
+  const dir = CONFIG.mensajesDir;
+
+  if (!fs.existsSync(dir)) {
+    throw new Error(`No se encontró la carpeta de mensajes: ${dir}`);
+  }
+
+  for (const [tipo, archivo] of Object.entries(TIPOS)) {
+    const rutaCompleta = path.join(dir, archivo);
+    if (!fs.existsSync(rutaCompleta)) {
+      throw new Error(`Falta el archivo de mensaje: ${rutaCompleta}`);
+    }
+    plantillas[tipo] = fs.readFileSync(rutaCompleta, 'utf-8').trim();
+    log(`📄 Plantilla cargada: ${archivo}`);
+  }
+
+  return plantillas;
 }
 
-// ─── Control de teclado (pausa/reanudar) ───────────────────────────────────────
+// ─── Personalización del mensaje ───────────────────────────────────────────────
+function personalizarMensaje(plantilla, contacto) {
+  return plantilla.replace(/\{(\w+)\}/g, (match, clave) => {
+    return contacto[clave] !== undefined && contacto[clave] !== ''
+      ? contacto[clave]
+      : match;
+  });
+}
 
+// ─── Validación de contacto ─────────────────────────────────────────────────────
+function validarContacto(contacto) {
+  if (!contacto.nombre) return 'Falta el campo "nombre"';
+  if (!contacto.numero) return 'Falta el campo "numero"';
+
+  const numLimpio = contacto.numero.replace(/\D/g, '');
+  if (numLimpio.length < 10) return `Número inválido: "${contacto.numero}"`;
+
+  const tipoLimpio = contacto.tipo ? contacto.tipo.trim().toLowerCase() : '';
+  if (!tipoLimpio) return 'Falta el campo "tipo"';
+  if (!TIPOS[tipoLimpio]) {
+    return `Tipo desconocido: "${contacto.tipo}". Válidos: ${Object.keys(TIPOS).join(', ')}`;
+  }
+
+  return null; // sin error
+}
+
+// ─── Control de teclado ─────────────────────────────────────────────────────────
 function iniciarControlTeclado() {
   readline.emitKeypressEvents(process.stdin);
   if (process.stdin.isTTY) process.stdin.setRawMode(true);
 
   process.stdin.on('keypress', (str, key) => {
-    if (key.name === 'p') {
+    if (key && key.name === 'p') {
       pausado = !pausado;
-      log(pausado ? '⏸  Envíos PAUSADOS. Presioná P para reanudar.' : '▶️  Envíos REANUDADOS.', 'CTRL');
+      log(pausado
+        ? '⏸  Envíos PAUSADOS. Presioná P para reanudar.'
+        : '▶️  Envíos REANUDADOS.',
+        'CTRL');
     }
-    if (key.ctrl && key.name === 'c') {
-      log(`🛑 Interrupción manual. Enviados: ${totalEnviados} | Errores: ${totalErrores}`, 'CTRL');
+    if (key && key.ctrl && key.name === 'c') {
+      log(`🛑 Detenido manualmente. Enviados: ${totalEnviados} | Errores: ${totalErrores}`, 'CTRL');
       if (browser) browser.close();
       process.exit(0);
     }
   });
 
-  log('💡 Presioná P para pausar/reanudar. Ctrl+C para salir.', 'INFO');
+  log('💡 P = pausar/reanudar  |  Ctrl+C = salir');
 }
 
-// ─── WhatsApp Web ───────────────────────────────────────────────────────────────
+// ─── Delay aleatorio ────────────────────────────────────────────────────────────
+function esperarRandom(min, max) {
+  const ms = Math.floor(Math.random() * (max - min + 1)) + min;
+  log(`⏳ Esperando ${(ms / 1000).toFixed(1)}s...`);
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-/**
- * Lanza el navegador y abre WhatsApp Web.
- * Reutiliza sesión si existe para evitar escanear QR cada vez.
- */
+// ─── Puppeteer: iniciar navegador ───────────────────────────────────────────────
 async function iniciarNavegador() {
-  // Crear carpeta de sesión si no existe
   if (!fs.existsSync(CONFIG.sessionDir)) {
     fs.mkdirSync(CONFIG.sessionDir, { recursive: true });
   }
 
   log('🚀 Iniciando navegador...');
-
   browser = await puppeteer.launch({
     headless: CONFIG.headless,
-    userDataDir: CONFIG.sessionDir, // Guarda cookies/sesión aquí
+    userDataDir: CONFIG.sessionDir,
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
@@ -162,152 +176,155 @@ async function iniciarNavegador() {
   await page.setViewport({ width: 1280, height: 800 });
 
   log('🌐 Abriendo WhatsApp Web...');
-  await page.goto('https://web.whatsapp.com', { waitUntil: 'networkidle2', timeout: 60000 });
+  await page.goto('https://web.whatsapp.com', {
+    waitUntil: 'networkidle2',
+    timeout: 60000,
+  });
 }
 
-/**
- * Espera a que el usuario inicie sesión (escaneo de QR o sesión existente).
- */
+// ─── Puppeteer: esperar login ────────────────────────────────────────────────────
 async function esperarLogin() {
-  log('🔄 Verificando sesión...');
-
+  log('🔄 Esperando inicio de sesión (escaneá el QR si es necesario)...');
   try {
-    // Selector del panel principal de WhatsApp Web (indica login exitoso)
-    await page.waitForSelector('#app > div > div.two._3bpqn', {
+    await page.waitForSelector('[data-testid="chat-list"]', {
       timeout: CONFIG.loginTimeout,
     });
-    log('✅ Sesión iniciada correctamente.');
+    log('✅ Sesión iniciada.');
   } catch {
-    // Fallback: esperar cualquier indicador de que cargó
-    try {
-      await page.waitForSelector('[data-testid="chat-list"]', {
-        timeout: CONFIG.loginTimeout,
-      });
-      log('✅ Sesión iniciada correctamente.');
-    } catch {
-      throw new Error('No se pudo iniciar sesión. Asegurate de escanear el QR dentro de los 2 minutos.');
-    }
+    throw new Error('No se detectó el inicio de sesión. Asegurate de escanear el QR dentro de los 2 minutos.');
   }
 }
 
-/**
- * Envía un mensaje a un número de WhatsApp.
- * @param {string} numero - Número con código de país, sin espacios ni símbolos
- * @param {string} mensaje - Texto a enviar
- */
+// ─── Puppeteer: enviar mensaje ───────────────────────────────────────────────────
 async function enviarMensaje(numero, mensaje) {
   const numLimpio = numero.replace(/\D/g, '');
-
-  // Navegamos directamente a la URL de chat (no necesitamos buscar el contacto)
   const url = `https://web.whatsapp.com/send?phone=${numLimpio}&text=${encodeURIComponent(mensaje)}`;
+
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-  // Esperar que aparezca el campo de texto
   const selectorInput = '[data-testid="conversation-compose-box-input"]';
   await page.waitForSelector(selectorInput, { timeout: 20000 });
 
-  // Pequeña pausa humana antes de enviar
-  await new Promise(r => setTimeout(r, 1500 + Math.random() * 1000));
+  // Pausa humana antes de enviar
+  await new Promise(r => setTimeout(r, 1200 + Math.random() * 1000));
 
-  // Enviar con Enter
   await page.keyboard.press('Enter');
 
-  // Esperar confirmación visual (checkmarks)
+  // Esperar que el mensaje se envíe
   await new Promise(r => setTimeout(r, 3000));
 
-  // Verificar que no aparezca el diálogo de "número inválido"
+  // Detectar error de número inválido
   const hayError = await page.$('[data-testid="popup-contents"]');
   if (hayError) {
     const textoError = await page.evaluate(el => el.innerText, hayError);
-    throw new Error(`WhatsApp reportó error: ${textoError.substring(0, 80)}`);
+    throw new Error(`WhatsApp reportó: ${textoError.substring(0, 100)}`);
   }
 }
 
-// ─── Loop principal ─────────────────────────────────────────────────────────────
-
+// ─── Loop principal ──────────────────────────────────────────────────────────────
 async function main() {
-  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('   📱 WhatsApp Bot - Mensajes Automáticos  ');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('   🎩 Magic Show Bot — Mensajes por tipo     ');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
-  // Cargar recursos
-  let contactos, plantilla;
+  // 1. Cargar contactos y plantillas
+  let contactos, plantillas;
   try {
-    contactos = leerContactos();
-    plantilla = leerMensajePlantilla();
-    log(`📋 ${contactos.length} contactos cargados.`);
-    log(`💬 Plantilla: "${plantilla.substring(0, 60)}..."`);
+    contactos  = leerContactos();
+    plantillas = cargarPlantillas();
   } catch (err) {
-    log(`❌ Error al cargar recursos: ${err.message}`, 'ERROR');
+    log(`❌ ${err.message}`, 'ERROR');
     process.exit(1);
   }
 
-  // Iniciar control de teclado
+  // Resumen de contactos por tipo
+  const resumen = {};
+  for (const tipo of Object.keys(TIPOS)) resumen[tipo] = 0;
+  resumen['invalido'] = 0;
+
+  for (const c of contactos) {
+    const tipo = c.tipo ? c.tipo.trim().toLowerCase() : '';
+    if (TIPOS[tipo]) resumen[tipo]++;
+    else resumen['invalido']++;
+  }
+
+  log(`📋 Contactos cargados: ${contactos.length} total`);
+  log(`   ├─ 🧑 clientes:       ${resumen.cliente}`);
+  log(`   ├─ 🆕 clientes nuevos: ${resumen.cliente_nuevo}`);
+  log(`   ├─ 🏛️  salones:         ${resumen.salon}`);
+  log(`   ├─ 🏢 empresas:        ${resumen.empresa}`);
+  if (resumen.invalido > 0)
+    log(`   └─ ⚠️  tipo inválido:   ${resumen.invalido}`, 'WARN');
+
+  // 2. Iniciar control de teclado
   iniciarControlTeclado();
 
-  // Iniciar navegador y sesión
+  // 3. Iniciar navegador y login
   try {
     await iniciarNavegador();
     await esperarLogin();
   } catch (err) {
-    log(`❌ Error al iniciar: ${err.message}`, 'ERROR');
+    log(`❌ ${err.message}`, 'ERROR');
     if (browser) await browser.close();
     process.exit(1);
   }
 
   log(`\n🚀 Iniciando envíos...`);
-  log(`⚙️  Delay: ${CONFIG.delayMin / 1000}s - ${CONFIG.delayMax / 1000}s entre mensajes\n`);
+  log(`⚙️  Delay: ${CONFIG.delayMin / 1000}s – ${CONFIG.delayMax / 1000}s entre mensajes\n`);
 
-  // ─── Loop de envíos ──────────────────────────────────────────────
+  // 4. Loop de envíos
   for (let i = 0; i < contactos.length; i++) {
     const contacto = contactos[i];
     const progreso = `[${i + 1}/${contactos.length}]`;
 
     // Esperar si está pausado
-    while (pausado) {
-      await new Promise(r => setTimeout(r, 1000));
-    }
+    while (pausado) await new Promise(r => setTimeout(r, 500));
 
-    // Validar contacto
+    // Validar
     const errorValidacion = validarContacto(contacto);
     if (errorValidacion) {
-      log(`${progreso} ⚠️  SKIP - ${contacto.nombre || 'Sin nombre'} - ${errorValidacion}`, 'WARN');
+      log(`${progreso} ⚠️  SKIP fila ${contacto._fila} — ${contacto.nombre || '?'} — ${errorValidacion}`, 'WARN');
       totalErrores++;
       continue;
     }
 
-    // Personalizar mensaje
+    const tipo = contacto.tipo.trim().toLowerCase();
+    const plantilla = plantillas[tipo];
     const mensajeFinal = personalizarMensaje(plantilla, contacto);
 
-    // Enviar
+    const etiquetaTipo = {
+      cliente:       '🧑 cliente',
+      cliente_nuevo: '🆕 cliente nuevo',
+      salon:         '🏛️  salón',
+      empresa:       '🏢 empresa',
+    }[tipo];
+
     try {
-      log(`${progreso} 📤 Enviando a ${contacto.nombre} (${contacto.numero})...`);
+      log(`${progreso} 📤 ${etiquetaTipo} — ${contacto.nombre} (${contacto.numero})`);
       await enviarMensaje(contacto.numero, mensajeFinal);
       totalEnviados++;
-      log(`${progreso} ✅ OK - ${contacto.nombre} (${contacto.numero})`, 'OK');
+      log(`${progreso} ✅ OK — ${contacto.nombre}`, 'OK');
     } catch (err) {
       totalErrores++;
-      log(`${progreso} ❌ ERROR - ${contacto.nombre} (${contacto.numero}) - ${err.message}`, 'ERROR');
+      log(`${progreso} ❌ ERROR — ${contacto.nombre} (${contacto.numero}) — ${err.message}`, 'ERROR');
     }
 
-    // Mostrar resumen parcial
-    log(`📊 Progreso: ${totalEnviados} enviados, ${totalErrores} errores`);
+    log(`📊 Enviados: ${totalEnviados} | Errores: ${totalErrores}`);
 
-    // Delay entre mensajes (excepto después del último)
+    // Delay solo si no es el último
     if (i < contactos.length - 1) {
       await esperarRandom(CONFIG.delayMin, CONFIG.delayMax);
     }
   }
 
-  // ─── Resumen final ───────────────────────────────────────────────
-  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  log(`✅ COMPLETADO - Total enviados: ${totalEnviados} | Errores: ${totalErrores}`, 'DONE');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  // 5. Resumen final
+  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  log(`🏁 COMPLETADO — Enviados: ${totalEnviados} | Errores: ${totalErrores}`, 'DONE');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   await browser.close();
 }
 
-// ─── Arranque ───────────────────────────────────────────────────────────────────
 main().catch(err => {
   log(`💥 Error fatal: ${err.message}`, 'FATAL');
   if (browser) browser.close();

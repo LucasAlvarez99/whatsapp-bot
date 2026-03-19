@@ -1,18 +1,15 @@
 {
-  "name": "whatsapp-bot",
-  "version": "1.0.0",
-  "description": "Bot de envío automatizado de mensajes por WhatsApp Web",
+  "name": "whatsapp-magic-bot",
+  "version": "2.0.0",
+  "description": "Bot de WhatsApp para shows de magia — mensajes por tipo de contacto",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "puppeteer": "^21.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "author": "",
-  "license": "MIT"
+  }
 }
