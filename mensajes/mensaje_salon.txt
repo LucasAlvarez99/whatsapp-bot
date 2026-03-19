@@ -1,7 +1,1 @@
-Hola, buen día! Me comunico desde nuestro grupo de magia profesional 🎩
-
-Nos especializamos en shows para salones de eventos. Trabajamos en equipo con muchos salones de la zona ofreciendo magia de mesa, shows centrales y entretenimiento para todas las edades.
-
-Nos gustaría conocerlos y ver si podemos colaborar juntos para los eventos de {empresa}.
-
-¿Tienen unos minutos para charlar? ¡Quedamos a disposición!
+mensaje automatico para salon

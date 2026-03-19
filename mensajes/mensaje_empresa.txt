@@ -1,9 +1,1 @@
-Buen día! 👋
-
-Me comunico porque ofrecemos shows de magia corporativa pensados especialmente para empresas como {empresa}.
-
-Ideal para: team building, lanzamiento de productos, cenas de fin de año, convenciones y eventos internos.
-
-La magia corporativa genera un impacto memorable en el equipo y los clientes. Podemos adaptar el show a la identidad y los valores de {empresa}.
-
-¿Les interesa recibir información o una propuesta? Con gusto la preparamos.
+mensaje automatico para empresa

@@ -1,7 +1,1 @@
-Hola {nombre}! 🎩
-
-Te cuento que somos un grupo de magos profesionales y hacemos shows para todo tipo de eventos: cumpleaños, casamientos, fiestas temáticas y más.
-
-Nuestros shows son personalizados, entretenidos y dejan a los invitados con la boca abierta 🤩
-
-¿Te puedo contar más sobre lo que ofrecemos? ¡No te comprometés a nada!
+mensaje automatico para cliente nuevo

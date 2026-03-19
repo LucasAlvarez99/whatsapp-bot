@@ -1,9 +1,1 @@
-Hola {nombre}! 🎩✨
-
-¿Cómo estás? Te escribo porque tenemos novedades en nuestros shows de magia.
-
-Incorporamos nuevos números y efectos que a vos, que ya nos conocés, te van a sorprender.
-
-¿Tenés algún evento próximo donde quieras sorprender a tus invitados?
-
-¡Hablamos cuando quieras! 😊
+mensaje automatico para cliente 
