@@ -1,10 +1,13 @@
 {
-  "name": "whatsapp-magic-bot",
-  "version": "2.0.0",
-  "description": "Bot de WhatsApp para shows de magia — mensajes por tipo de contacto",
-  "main": "index.js",
+  "name": "magic-show-bot",
+  "version": "3.0.0",
+  "description": "Bot de WhatsApp para Magic Show — mensajes personalizados por tipo de contacto",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start":        "node src/index.js",
+    "validate":     "node src/utils/validateContacts.js",
+    "preview":      "node src/utils/previewMessages.js",
+    "leads":        "open leads/magic-leads-app.html || xdg-open leads/magic-leads-app.html 2>/dev/null || echo 'Abrí manualmente: leads/magic-leads-app.html'"
   },
   "dependencies": {
     "puppeteer": "^21.0.0"

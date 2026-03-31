@@ -1,1 +1,7 @@
-mensaje automatico para cliente 
+Hola {nombre}! 👋
+
+Somos un grupo de magia profesional y queremos agradecerte por confiar en nosotros en eventos anteriores 🎩✨
+
+Nos encantaría volver a trabajar con vos. ¿Tenés algún evento próximo en mente?
+
+Quedamos a disposición.

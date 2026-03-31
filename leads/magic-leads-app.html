@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magic Leads — Buscador de Contactos</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Literata:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1f1f1f;
+    --border: #2a2a2a;
+    --gold: #c9a84c;
+    --gold-dim: #7a6030;
+    --text: #e8e4dc;
+    --muted: #6b6760;
+    --danger: #c0392b;
+    --success: #2ecc71;
+    --info: #3498db;
+    --radius: 2px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    min-height: 100vh;
+  }
+
+  /* NOISE TEXTURE */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: rgba(14,14,14,0.95);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .logo-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+  }
+
+  .stat-pill {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stat-pill span {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* MAIN LAYOUT */
+  .app {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    min-height: calc(100vh - 65px);
+    position: relative;
+    z-index: 1;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 1px solid var(--border);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: var(--surface);
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::before {
+    content: '◆';
+    color: var(--gold);
+    font-size: 7px;
+  }
+
+  /* SEARCH BOX */
+  .search-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-wrapper .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+  }
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--gold-dim);
+  }
+
+  .input-wrapper input {
+    padding-left: 36px;
+  }
+
+  select option {
+    background: var(--surface2);
+  }
+
+  /* RADIUS SLIDER */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .slider-row label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  .slider-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  input[type=range] {
+    padding: 0;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--border);
+    border: none;
+    border-radius: 2px;
+    flex: 1;
+  }
+
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+  }
+
+  /* BUTTONS */
+  .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: var(--radius);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+    font-weight: 500;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: #0e0e0e;
+  }
+
+  .btn-primary:hover {
+    background: #e0b85a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+  }
+
+  .btn-primary:active { transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  .btn-danger {
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid #3d1a18;
+  }
+
+  .btn-danger:hover {
+    background: rgba(192,57,43,0.1);
+  }
+
+  .btn-success {
+    background: var(--success);
+    color: #0e0e0e;
+  }
+
+  /* STATUS */
+  .status-bar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    flex-shrink: 0;
+  }
+
+  .status-dot.active { background: var(--success); animation: pulse 1.5s infinite; }
+  .status-dot.error { background: var(--danger); }
+  .status-dot.warn { background: var(--gold); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* FILTERS */
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .chip {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+
+  .chip.active {
+    background: rgba(201,168,76,0.15);
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  .chip:hover:not(.active) {
+    color: var(--text);
+    border-color: var(--muted);
+  }
+
+  /* DB STATS */
+  .db-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .db-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px;
+  }
+
+  .db-card-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .db-card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+
+  /* MAIN CONTENT */
+  .content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* TOOLBAR */
+  .toolbar {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--surface);
+  }
+
+  .toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+  }
+
+  .search-input-wrapper {
+    position: relative;
+    flex: 1;
+    max-width: 360px;
+  }
+
+  .search-input-wrapper .icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+  }
+
+  .search-input-wrapper input {
+    padding-left: 36px;
+  }
+
+  .toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .view-toggle {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .view-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s;
+  }
+
+  .view-btn.active {
+    background: var(--surface2);
+    color: var(--gold);
+  }
+
+  /* RESULTS AREA */
+  .results-area {
+    flex: 1;
+    padding: 24px 28px;
+    overflow-y: auto;
+    max-height: calc(100vh - 65px - 57px);
+  }
+
+  /* CARDS GRID */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 14px;
+  }
+
+  .contact-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: all 0.2s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .contact-card::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--border);
+    transition: background 0.2s;
+  }
+
+  .contact-card:hover {
+    border-color: var(--gold-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .contact-card:hover::before {
+    background: var(--gold);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 19px;
+    letter-spacing: 1px;
+    color: var(--text);
+    line-height: 1.1;
+  }
+
+  .type-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-salon { background: rgba(52,152,219,0.15); color: #5dade2; border: 1px solid rgba(52,152,219,0.3); }
+  .badge-empresa { background: rgba(201,168,76,0.15); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+  .badge-persona { background: rgba(46,204,113,0.15); color: #58d68d; border: 1px solid rgba(46,204,113,0.3); }
+  .badge-local { background: rgba(155,89,182,0.15); color: #a569bd; border: 1px solid rgba(155,89,182,0.3); }
+  .badge-otro { background: rgba(107,103,96,0.15); color: var(--muted); border: 1px solid var(--border); }
+
+  .card-address {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .meta-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .meta-tag .dot { color: var(--gold); }
+
+  .card-phone {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .card-actions .btn {
+    flex: 1;
+    padding: 7px 10px;
+    font-size: 10px;
+  }
+
+  /* TABLE VIEW */
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .results-table th {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky;
+    top: 0;
+  }
+
+  .results-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(42,42,42,0.5);
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  .results-table tr:hover td {
+    background: var(--surface);
+  }
+
+  .results-table .td-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 0.5px;
+  }
+
+  .results-table .td-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 80px 40px;
+    text-align: center;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    filter: grayscale(1);
+    opacity: 0.4;
+  }
+
+  .empty-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+
+  .empty-sub {
+    font-size: 13px;
+    color: var(--muted);
+    max-width: 300px;
+    font-style: italic;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: slideUp 0.2s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: color 0.15s;
+  }
+
+  .modal-close:hover { color: var(--text); }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-group label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 300;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.2s ease;
+    min-width: 260px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+
+  .toast.success { border-left: 3px solid var(--success); }
+  .toast.error { border-left: 3px solid var(--danger); }
+  .toast.info { border-left: 3px solid var(--info); }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  /* LOADING */
+  .loading-spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* DIVIDER */
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  .export-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .rating-stars {
+    color: var(--gold);
+    font-size: 11px;
+  }
+
+  .distance-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.2);
+    color: var(--gold);
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-title">🎩 Magic Leads</div>
+    <div class="logo-sub">Base de Contactos Profesional</div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-pill">Base: <span id="hdr-total">0</span> registros</div>
+    <div class="stat-pill">Última búsqueda: <span id="hdr-results">—</span></div>
+    <button class="btn btn-primary" onclick="openModal()">+ Agregar</button>
+  </div>
+</header>
+
+<!-- APP -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <!-- LOCATION SEARCH -->
+    <div class="section-label">Buscar por Ubicación</div>
+    <div class="search-block">
+      <div class="input-wrapper">
+        <span class="icon">📍</span>
+        <input type="text" id="location-input" placeholder="Barrio, ciudad o dirección..." />
+      </div>
+      <div class="slider-row">
+        <label>Radio:</label>
+        <input type="range" id="radius-slider" min="500" max="10000" step="500" value="2000" oninput="updateRadiusLabel(this.value)">
+        <span class="slider-val" id="radius-label">2 km</span>
+      </div>
+      <select id="search-type">
+        <option value="">Todos los tipos</option>
+        <option value="salon">Salones de eventos</option>
+        <option value="empresa">Empresas</option>
+        <option value="local">Locales comerciales</option>
+        <option value="persona">Personas</option>
+        <option value="otro">Otros</option>
+      </select>
+      <button class="btn btn-primary" onclick="searchGooglePlaces()">
+        🔍 Buscar en Google Maps
+      </button>
+      <button class="btn btn-ghost" onclick="useMyLocation()">
+        📌 Usar mi ubicación
+      </button>
+      <div class="status-bar">
+        <div class="status-dot" id="status-dot"></div>
+        <span id="status-text">Listo para buscar</span>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- FILTROS -->
+    <div class="section-label">Filtrar Base</div>
+    <div class="search-block">
+      <div class="input-wrapper">
+        <span class="icon">🔎</span>
+        <input type="text" id="filter-input" placeholder="Buscar en base..." oninput="filterContacts()">
+      </div>
+    </div>
+    <div class="filter-chips">
+      <button class="chip active" onclick="setTypeFilter('', this)">Todos</button>
+      <button class="chip" onclick="setTypeFilter('salon', this)">Salones</button>
+      <button class="chip" onclick="setTypeFilter('empresa', this)">Empresas</button>
+      <button class="chip" onclick="setTypeFilter('local', this)">Locales</button>
+      <button class="chip" onclick="setTypeFilter('persona', this)">Personas</button>
+      <button class="chip" onclick="setTypeFilter('otro', this)">Otros</button>
+    </div>
+
+    <hr>
+
+    <!-- DB STATS -->
+    <div class="section-label">Estadísticas</div>
+    <div class="db-grid" id="db-stats">
+      <div class="db-card"><div class="db-card-num" id="stat-salon">0</div><div class="db-card-label">Salones</div></div>
+      <div class="db-card"><div class="db-card-num" id="stat-empresa">0</div><div class="db-card-label">Empresas</div></div>
+      <div class="db-card"><div class="db-card-num" id="stat-local">0</div><div class="db-card-label">Locales</div></div>
+      <div class="db-card"><div class="db-card-num" id="stat-persona">0</div><div class="db-card-label">Personas</div></div>
+    </div>
+
+    <hr>
+
+    <!-- EXPORT -->
+    <div class="section-label">Exportar</div>
+    <div class="export-row">
+      <button class="btn btn-ghost" style="flex:1" onclick="exportCSV()">📄 CSV</button>
+      <button class="btn btn-ghost" style="flex:1" onclick="exportJSON()">📦 JSON</button>
+    </div>
+    <button class="btn btn-danger" onclick="clearDB()">🗑 Limpiar base</button>
+
+  </aside>
+
+  <!-- CONTENT -->
+  <main class="content">
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="search-input-wrapper">
+          <span class="icon">🔎</span>
+          <input type="text" id="main-search" placeholder="Buscar nombre, dirección, teléfono..." oninput="filterContacts()">
+        </div>
+        <select id="sort-select" onchange="filterContacts()" style="width:auto;min-width:160px">
+          <option value="date-desc">Más reciente primero</option>
+          <option value="date-asc">Más antiguo primero</option>
+          <option value="name-asc">Nombre A–Z</option>
+          <option value="name-desc">Nombre Z–A</option>
+          <option value="type">Por tipo</option>
+        </select>
+      </div>
+      <div class="toolbar-right">
+        <div class="view-toggle">
+          <button class="view-btn active" id="view-grid-btn" onclick="setView('grid')">▦</button>
+          <button class="view-btn" id="view-table-btn" onclick="setView('table')">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-area" id="results-area">
+      <div class="empty-state">
+        <div class="empty-icon">🎩</div>
+        <div class="empty-title">Sin registros aún</div>
+        <div class="empty-sub">Buscá lugares cercanos o agregá contactos manualmente.</div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL AGREGAR/EDITAR -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="modal-title-text">Nuevo Contacto</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nombre / Razón Social *</label>
+        <input type="text" id="f-name" placeholder="Salón Los Robles...">
+      </div>
+      <div class="form-group">
+        <label>Tipo *</label>
+        <select id="f-type">
+          <option value="salon">Salón de eventos</option>
+          <option value="empresa">Empresa</option>
+          <option value="local">Local comercial</option>
+          <option value="persona">Persona</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Teléfono / WhatsApp</label>
+        <input type="text" id="f-phone" placeholder="5491112345678">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="f-email" placeholder="contacto@ejemplo.com">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Dirección</label>
+      <input type="text" id="f-address" placeholder="Av. Corrientes 1234, CABA">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Barrio / Zona</label>
+        <input type="text" id="f-zone" placeholder="Palermo, Caballito...">
+      </div>
+      <div class="form-group">
+        <label>Capacidad (si aplica)</label>
+        <input type="number" id="f-capacity" placeholder="150 personas">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Notas / Observaciones</label>
+      <textarea id="f-notes" rows="3" placeholder="Interesado en eventos infantiles, contactar por WhatsApp..."></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Calificación (1–5)</label>
+        <select id="f-rating">
+          <option value="">Sin calificar</option>
+          <option value="5">⭐⭐⭐⭐⭐ Excelente</option>
+          <option value="4">⭐⭐⭐⭐ Muy bueno</option>
+          <option value="3">⭐⭐⭐ Regular</option>
+          <option value="2">⭐⭐ Poco interés</option>
+          <option value="1">⭐ Sin potencial</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="f-status">
+          <option value="nuevo">Nuevo</option>
+          <option value="contactado">Contactado</option>
+          <option value="interesado">Interesado</option>
+          <option value="cerrado">Cerrado ✓</option>
+        </select>
+      </div>
+    </div>
+
+    <input type="hidden" id="f-id">
+    <input type="hidden" id="f-lat">
+    <input type="hidden" id="f-lng">
+    <input type="hidden" id="f-place-id">
+
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" onclick="saveContact()">💾 Guardar Contacto</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ── DATABASE ──────────────────────────────────────────────
+let db = [];
+let currentView = 'grid';
+let activeTypeFilter = '';
+let editingId = null;
+
+function loadDB() {
+  try {
+    const stored = localStorage.getItem('magic_leads_db');
+    db = stored ? JSON.parse(stored) : [];
+  } catch { db = []; }
+}
+
+function saveDB() {
+  localStorage.setItem('magic_leads_db', JSON.stringify(db));
+  updateStats();
+  updateHeaderStats();
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function updateStats() {
+  const counts = { salon: 0, empresa: 0, local: 0, persona: 0 };
+  db.forEach(c => { if (counts[c.type] !== undefined) counts[c.type]++; });
+  document.getElementById('stat-salon').textContent = counts.salon;
+  document.getElementById('stat-empresa').textContent = counts.empresa;
+  document.getElementById('stat-local').textContent = counts.local;
+  document.getElementById('stat-persona').textContent = counts.persona;
+}
+
+function updateHeaderStats() {
+  document.getElementById('hdr-total').textContent = db.length;
+}
+
+// ── STATUS BAR ────────────────────────────────────────────
+function setStatus(text, type = 'idle') {
+  const dot = document.getElementById('status-dot');
+  const label = document.getElementById('status-text');
+  dot.className = 'status-dot' + (type === 'loading' ? ' active' : type === 'error' ? ' error' : type === 'warn' ? ' warn' : '');
+  label.textContent = text;
+}
+
+// ── TOAST ─────────────────────────────────────────────────
+function toast(msg, type = 'info', duration = 3000) {
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+  el.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${msg}</span>`;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), duration);
+}
+
+// ── LOCATION ──────────────────────────────────────────────
+let userCoords = null;
+
+function useMyLocation() {
+  if (!navigator.geolocation) { toast('Geolocalización no disponible', 'error'); return; }
+  setStatus('Obteniendo ubicación...', 'loading');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userCoords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      document.getElementById('location-input').value = `Mi ubicación (${userCoords.lat.toFixed(4)}, ${userCoords.lng.toFixed(4)})`;
+      setStatus('Ubicación obtenida ✓', 'warn');
+      toast('Ubicación detectada. Ahora podés buscar.', 'success');
+    },
+    err => {
+      setStatus('Error de ubicación', 'error');
+      toast('No se pudo obtener la ubicación: ' + err.message, 'error');
+    }
+  );
+}
+
+function updateRadiusLabel(val) {
+  const km = (val / 1000).toFixed(1).replace('.0', '');
+  document.getElementById('radius-label').textContent = km + ' km';
+}
+
+// ── GOOGLE PLACES SEARCH ──────────────────────────────────
+async function searchGooglePlaces() {
+  const locationText = document.getElementById('location-input').value.trim();
+  const type = document.getElementById('search-type').value;
+  const radius = document.getElementById('radius-slider').value;
+
+  if (!locationText) { toast('Ingresá una ubicación o usá "Mi ubicación"', 'error'); return; }
+
+  setStatus('Buscando lugares...', 'loading');
+
+  // Build a descriptive search query for Overpass API (OpenStreetMap, free)
+  const typeLabels = {
+    salon: 'salones de eventos fiestas',
+    empresa: 'empresas corporativas',
+    local: 'locales comerciales negocios',
+    persona: 'profesionales',
+    '': 'salones eventos empresas locales'
+  };
+
+  const query = `${typeLabels[type] || 'eventos'} cerca de ${locationText}`;
+
+  // We'll use Nominatim to geocode and Overpass API for POIs
+  try {
+    let lat, lng;
+
+    if (userCoords && locationText.startsWith('Mi ubicación')) {
+      lat = userCoords.lat;
+      lng = userCoords.lng;
+    } else {
+      // Geocode the address with Nominatim
+      const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(locationText)}&format=json&limit=1`, {
+        headers: { 'Accept-Language': 'es' }
+      });
+      const geoData = await geoRes.json();
+      if (!geoData.length) { setStatus('Dirección no encontrada', 'error'); toast('No se encontró esa dirección', 'error'); return; }
+      lat = parseFloat(geoData[0].lat);
+      lng = parseFloat(geoData[0].lon);
+      setStatus(`Geocodificado: ${geoData[0].display_name.substring(0, 40)}...`, 'warn');
+    }
+
+    // Query Overpass API for nearby amenities
+    const amenityMap = {
+      salon: ['event_venue', 'banquet_hall', 'nightclub', 'bar', 'restaurant'],
+      empresa: ['office', 'coworking'],
+      local: ['shop', 'retail', 'mall', 'marketplace'],
+      persona: ['studio'],
+      '': ['event_venue', 'banquet_hall', 'office', 'shop', 'restaurant', 'bar', 'nightclub']
+    };
+
+    const amenities = amenityMap[type] || amenityMap[''];
+    const amenityQuery = amenities.map(a => `node["amenity"="${a}"](around:${radius},${lat},${lng});way["amenity"="${a}"](around:${radius},${lat},${lng});`).join('');
+    const shopQuery = `node["shop"](around:${radius},${lat},${lng});way["shop"](around:${radius},${lat},${lng});`;
+    const officeQuery = type === 'empresa' || !type ? `node["office"](around:${radius},${lat},${lng});way["office"](around:${radius},${lat},${lng});` : '';
+    const venueQuery = `node["leisure"="dance"](around:${radius},${lat},${lng});node["leisure"="social_club"](around:${radius},${lat},${lng});`;
+
+    const overpassQuery = `[out:json][timeout:25];(${amenityQuery}${type !== 'persona' ? shopQuery : ''}${officeQuery}${venueQuery});out body;`;
+
+    const overpassRes = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`);
+    const overpassData = await overpassRes.json();
+    const elements = overpassData.elements || [];
+
+    let added = 0;
+    let skipped = 0;
+
+    elements.forEach(el => {
+      const tags = el.tags || {};
+      const name = tags.name || tags['name:es'] || null;
+      if (!name) return;
+
+      const address = [tags['addr:street'], tags['addr:housenumber']].filter(Boolean).join(' ') || tags['addr:full'] || '';
+      const phone = tags.phone || tags['contact:phone'] || tags['contact:mobile'] || '';
+      const website = tags.website || tags['contact:website'] || '';
+      const elLat = el.lat || el.center?.lat;
+      const elLng = el.lon || el.center?.lon;
+
+      // Determine type
+      let detectedType = type || 'local';
+      if (tags.amenity === 'event_venue' || tags.amenity === 'banquet_hall') detectedType = 'salon';
+      else if (tags.office) detectedType = 'empresa';
+      else if (tags.amenity === 'nightclub' || tags.amenity === 'bar') detectedType = 'local';
+
+      // Check for duplicates by name
+      const exists = db.some(c => c.name.toLowerCase() === name.toLowerCase());
+      if (exists) { skipped++; return; }
+
+      // Calculate distance
+      const dist = haversine(lat, lng, elLat || lat, elLng || lng);
+
+      const contact = {
+        id: Date.now() + Math.random(),
+        name,
+        type: detectedType,
+        phone: formatPhone(phone),
+        email: '',
+        address,
+        zone: locationText,
+        capacity: '',
+        notes: `Encontrado via OSM. Amenity: ${tags.amenity || tags.shop || tags.office || '?'}${website ? '. Web: ' + website : ''}`,
+        rating: '',
+        status: 'nuevo',
+        lat: elLat,
+        lng: elLng,
+        distance: dist,
+        placeId: `osm_${el.type}_${el.id}`,
+        addedAt: new Date().toISOString(),
+        source: 'openstreetmap'
+      };
+
+      db.push(contact);
+      added++;
+    });
+
+    saveDB();
+    filterContacts();
+
+    const resultMsg = `${added} encontrados, ${skipped} ya existían`;
+    document.getElementById('hdr-results').textContent = resultMsg;
+    setStatus(`Búsqueda completada: ${resultMsg}`, 'warn');
+    toast(`${added} lugares agregados a la base`, added > 0 ? 'success' : 'info');
+
+    if (added === 0 && elements.length === 0) {
+      toast('No se encontraron resultados. Probá ampliar el radio o cambiar el tipo.', 'info');
+    }
+
+  } catch (err) {
+    setStatus('Error en la búsqueda', 'error');
+    toast('Error al buscar: ' + err.message, 'error');
+    console.error(err);
+  }
+}
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) ** 2 + Math.cos(lat1 * Math.PI/180) * Math.cos(lat2 * Math.PI/180) * Math.sin(dLon/2) ** 2;
+  return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))).toFixed(1);
+}
+
+function formatPhone(raw) {
+  if (!raw) return '';
+  return raw.replace(/[^\d+]/g, '');
+}
+
+// ── VIEW ──────────────────────────────────────────────────
+function setView(v) {
+  currentView = v;
+  document.getElementById('view-grid-btn').className = 'view-btn' + (v === 'grid' ? ' active' : '');
+  document.getElementById('view-table-btn').className = 'view-btn' + (v === 'table' ? ' active' : '');
+  filterContacts();
+}
+
+// ── FILTER ────────────────────────────────────────────────
+function setTypeFilter(type, el) {
+  activeTypeFilter = type;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  filterContacts();
+}
+
+function filterContacts() {
+  const mainQ = document.getElementById('main-search').value.toLowerCase();
+  const filterQ = document.getElementById('filter-input').value.toLowerCase();
+  const q = mainQ || filterQ;
+  const sort = document.getElementById('sort-select').value;
+
+  let results = db.filter(c => {
+    const matchType = !activeTypeFilter || c.type === activeTypeFilter;
+    const matchQ = !q || c.name.toLowerCase().includes(q) || (c.address || '').toLowerCase().includes(q) || (c.phone || '').includes(q) || (c.zone || '').toLowerCase().includes(q);
+    return matchType && matchQ;
+  });
+
+  // Sort
+  results.sort((a, b) => {
+    if (sort === 'name-asc') return a.name.localeCompare(b.name);
+    if (sort === 'name-desc') return b.name.localeCompare(a.name);
+    if (sort === 'date-asc') return new Date(a.addedAt) - new Date(b.addedAt);
+    if (sort === 'type') return a.type.localeCompare(b.type);
+    return new Date(b.addedAt) - new Date(a.addedAt); // date-desc
+  });
+
+  renderResults(results);
+}
+
+// ── RENDER ────────────────────────────────────────────────
+const typeBadges = {
+  salon: 'badge-salon',
+  empresa: 'badge-empresa',
+  persona: 'badge-persona',
+  local: 'badge-local',
+  otro: 'badge-otro'
+};
+
+const typeLabels = { salon: 'Salón', empresa: 'Empresa', persona: 'Persona', local: 'Local', otro: 'Otro' };
+
+const statusColors = {
+  nuevo: '#6b6760',
+  contactado: '#3498db',
+  interesado: '#f39c12',
+  cerrado: '#2ecc71'
+};
+
+function renderResults(results) {
+  const area = document.getElementById('results-area');
+
+  if (results.length === 0) {
+    area.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">Sin resultados</div>
+      <div class="empty-sub">Probá buscar en otro lugar o cambiar los filtros.</div>
+    </div>`;
+    return;
+  }
+
+  if (currentView === 'grid') {
+    area.innerHTML = `<div class="cards-grid">${results.map(c => cardHTML(c)).join('')}</div>`;
+  } else {
+    area.innerHTML = `<table class="results-table">
+      <thead><tr>
+        <th>Nombre</th><th>Tipo</th><th>Dirección</th><th>Teléfono</th><th>Estado</th><th>Dist.</th><th>Acciones</th>
+      </tr></thead>
+      <tbody>${results.map(c => rowHTML(c)).join('')}</tbody>
+    </table>`;
+  }
+}
+
+function cardHTML(c) {
+  const rating = c.rating ? '⭐'.repeat(parseInt(c.rating)) : '';
+  const dist = c.distance ? `<span class="distance-badge">${c.distance} km</span>` : '';
+  const phone = c.phone ? `<div class="card-phone">📞 ${c.phone}</div>` : '';
+  const status = c.status || 'nuevo';
+  return `<div class="contact-card">
+    <div class="card-header">
+      <div class="card-name">${escHTML(c.name)}</div>
+      <span class="type-badge ${typeBadges[c.type] || 'badge-otro'}">${typeLabels[c.type] || c.type}</span>
+    </div>
+    ${c.address ? `<div class="card-address">📍 ${escHTML(c.address)}</div>` : ''}
+    ${phone}
+    <div class="card-meta">
+      ${rating ? `<span class="rating-stars">${rating}</span>` : ''}
+      ${dist}
+      <span class="meta-tag" style="color:${statusColors[status]}"><span class="dot">●</span>${status}</span>
+      ${c.zone ? `<span class="meta-tag">🏘 ${escHTML(c.zone)}</span>` : ''}
+    </div>
+    <div class="card-actions">
+      ${c.phone ? `<button class="btn btn-ghost" onclick="openWhatsApp('${c.phone}')">💬 WA</button>` : ''}
+      <button class="btn btn-ghost" onclick="editContact('${c.id}')">✏️ Editar</button>
+      <button class="btn btn-danger" onclick="deleteContact('${c.id}')">🗑</button>
+    </div>
+  </div>`;
+}
+
+function rowHTML(c) {
+  const status = c.status || 'nuevo';
+  return `<tr>
+    <td class="td-name">${escHTML(c.name)}</td>
+    <td><span class="type-badge ${typeBadges[c.type] || 'badge-otro'}">${typeLabels[c.type] || c.type}</span></td>
+    <td style="font-size:12px;color:var(--muted)">${escHTML(c.address || '—')}</td>
+    <td style="font-family:'DM Mono',monospace;font-size:12px">${c.phone || '—'}</td>
+    <td><span style="color:${statusColors[status]};font-family:'DM Mono',monospace;font-size:11px">● ${status}</span></td>
+    <td>${c.distance ? `<span class="distance-badge">${c.distance}km</span>` : '—'}</td>
+    <td><div class="td-actions">
+      ${c.phone ? `<button class="btn btn-ghost" style="padding:5px 8px;font-size:10px" onclick="openWhatsApp('${c.phone}')">💬</button>` : ''}
+      <button class="btn btn-ghost" style="padding:5px 8px;font-size:10px" onclick="editContact('${c.id}')">✏️</button>
+      <button class="btn btn-danger" style="padding:5px 8px;font-size:10px" onclick="deleteContact('${c.id}')">🗑</button>
+    </div></td>
+  </tr>`;
+}
+
+function escHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── WHATSAPP ──────────────────────────────────────────────
+function openWhatsApp(phone) {
+  const clean = phone.replace(/\D/g, '');
+  window.open(`https://wa.me/${clean}`, '_blank');
+}
+
+// ── MODAL ─────────────────────────────────────────────────
+function openModal(prefill = null) {
+  editingId = null;
+  document.getElementById('modal-title-text').textContent = 'Nuevo Contacto';
+  ['name','type','phone','email','address','zone','capacity','notes','rating','status','id','lat','lng','place-id'].forEach(f => {
+    const el = document.getElementById('f-' + f);
+    if (el) el.value = f === 'type' ? 'salon' : f === 'status' ? 'nuevo' : '';
+  });
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  editingId = null;
+}
+
+function editContact(id) {
+  const c = db.find(x => String(x.id) === String(id));
+  if (!c) return;
+  editingId = id;
+  document.getElementById('modal-title-text').textContent = 'Editar Contacto';
+  document.getElementById('f-name').value = c.name || '';
+  document.getElementById('f-type').value = c.type || 'otro';
+  document.getElementById('f-phone').value = c.phone || '';
+  document.getElementById('f-email').value = c.email || '';
+  document.getElementById('f-address').value = c.address || '';
+  document.getElementById('f-zone').value = c.zone || '';
+  document.getElementById('f-capacity').value = c.capacity || '';
+  document.getElementById('f-notes').value = c.notes || '';
+  document.getElementById('f-rating').value = c.rating || '';
+  document.getElementById('f-status').value = c.status || 'nuevo';
+  document.getElementById('f-id').value = c.id;
+  document.getElementById('modal').classList.add('open');
+}
+
+function saveContact() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('El nombre es obligatorio', 'error'); return; }
+
+  const contact = {
+    id: editingId || (Date.now() + Math.random()),
+    name,
+    type: document.getElementById('f-type').value,
+    phone: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    address: document.getElementById('f-address').value.trim(),
+    zone: document.getElementById('f-zone').value.trim(),
+    capacity: document.getElementById('f-capacity').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    rating: document.getElementById('f-rating').value,
+    status: document.getElementById('f-status').value,
+    addedAt: editingId ? (db.find(c => String(c.id) === String(editingId))?.addedAt || new Date().toISOString()) : new Date().toISOString(),
+    source: 'manual'
+  };
+
+  if (editingId) {
+    const idx = db.findIndex(c => String(c.id) === String(editingId));
+    if (idx !== -1) db[idx] = { ...db[idx], ...contact };
+    toast('Contacto actualizado', 'success');
+  } else {
+    db.push(contact);
+    toast('Contacto agregado', 'success');
+  }
+
+  saveDB();
+  filterContacts();
+  closeModal();
+}
+
+function deleteContact(id) {
+  if (!confirm('¿Eliminar este contacto?')) return;
+  db = db.filter(c => String(c.id) !== String(id));
+  saveDB();
+  filterContacts();
+  toast('Contacto eliminado', 'info');
+}
+
+// ── EXPORT ────────────────────────────────────────────────
+function exportCSV() {
+  if (!db.length) { toast('La base está vacía', 'error'); return; }
+  const headers = ['nombre','tipo','telefono','email','direccion','zona','capacidad','calificacion','estado','notas','fuente','fecha'];
+  const rows = db.map(c => [
+    c.name, c.type, c.phone, c.email, c.address, c.zone, c.capacity, c.rating, c.status, c.notes, c.source, c.addedAt
+  ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  downloadFile(csv, 'magic_leads.csv', 'text/csv');
+  toast('CSV exportado', 'success');
+}
+
+function exportJSON() {
+  if (!db.length) { toast('La base está vacía', 'error'); return; }
+  downloadFile(JSON.stringify(db, null, 2), 'magic_leads.json', 'application/json');
+  toast('JSON exportado', 'success');
+}
+
+function downloadFile(content, name, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: mime }));
+  a.download = name;
+  a.click();
+}
+
+function clearDB() {
+  if (!confirm(`¿Borrar toda la base (${db.length} registros)? Esta acción no se puede deshacer.`)) return;
+  db = [];
+  saveDB();
+  filterContacts();
+  toast('Base limpiada', 'info');
+}
+
+// ── INIT ──────────────────────────────────────────────────
+loadDB();
+updateStats();
+updateHeaderStats();
+filterContacts();
+</script>
+</body>
+</html>

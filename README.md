@@ -1,42 +1,98 @@
-# 🎩 Magic Show Bot v2 — Mensajes por tipo de contacto
+# 🎩 Magic Show Bot v3
 
-Bot de WhatsApp para enviar mensajes personalizados según el tipo de contacto: **cliente**, **cliente_nuevo**, **salon** y **empresa**.
+Bot de WhatsApp para enviar mensajes personalizados según el tipo de contacto.
 
 ---
 
 ## 📁 Estructura del proyecto
 
 ```
-whatsapp-magic-bot/
-├── index.js                         → Código principal
-├── contactos.csv                    → Tu lista de contactos
-├── mensajes/
-│   ├── mensaje_cliente.txt          → Mensaje para clientes existentes
-│   ├── mensaje_cliente_nuevo.txt    → Mensaje para clientes nuevos
-│   ├── mensaje_salon.txt            → Mensaje para salones de eventos
-│   └── mensaje_empresa.txt          → Mensaje para empresas
-├── package.json
-├── session/                         → Sesión guardada (se crea solo)
-└── logs/
-    └── envios.log                   → Historial de todos los envíos
+magic-show-bot/
+│
+├── src/                          → Código fuente (todo acá)
+│   ├── index.js                  → Punto de entrada — orquestador delgado
+│   ├── sender.js                 → Loop de envíos
+│   │
+│   ├── config/
+│   │   └── config.js             → ⭐ Configuración central (delays, rutas, selectores)
+│   │
+│   ├── contacts/
+│   │   └── contactReader.js      → Lectura y validación del CSV
+│   │
+│   ├── messages/
+│   │   └── messageLoader.js      → Carga de plantillas y personalización
+│   │
+│   ├── browser/
+│   │   └── browserManager.js     → Ciclo de vida de Puppeteer (lanzar, login, enviar)
+│   │
+│   └── utils/
+│       ├── logger.js             → Logging centralizado con colores y archivo
+│       ├── delay.js              → Delays aleatorios humanizados
+│       ├── keyboardController.js → Control P/Ctrl+C
+│       └── validateContacts.js   → Script de validación standalone
+│
+├── mensajes/                     → Plantillas de texto por tipo
+│   ├── mensaje_cliente.txt
+│   ├── mensaje_cliente_nuevo.txt
+│   ├── mensaje_salon.txt
+│   └── mensaje_empresa.txt
+│
+├── leads/
+│   └── magic-leads-app.html      → App de búsqueda y gestión de contactos
+│
+├── contactos.csv                 → Lista de contactos
+├── session/                      → Sesión de WhatsApp (auto-generado)
+├── logs/
+│   └── envios.log                → Historial de envíos
+└── package.json
 ```
 
 ---
 
-## ✅ Instalación
+## ⚙️ Instalación
 
 ```bash
-# 1. Instalá las dependencias (una sola vez)
 npm install
 ```
 
 ---
 
-## 👥 El archivo contactos.csv
+## 🚀 Uso
 
-Este es el corazón del sistema. Cada fila es un contacto con su tipo asignado.
+### 1. Validar antes de enviar (recomendado)
+```bash
+npm run validate
+```
+Muestra qué contactos están bien, cuáles tienen errores y un preview de cada mensaje — **sin abrir el navegador**.
 
-### Formato
+### 2. Enviar
+```bash
+npm start
+```
+
+### 3. Gestión de contactos (app visual)
+```bash
+npm run leads
+```
+Abre la app de búsqueda de salones/empresas cercanos y gestión de la base de datos.
+
+---
+
+## 🔧 Configuración
+
+**Todo en un solo archivo: `src/config/config.js`**
+
+| Sección      | Qué controla                              |
+|--------------|-------------------------------------------|
+| `timing`     | Delays entre mensajes, timeouts           |
+| `paths`      | Rutas a CSV, mensajes, sesión, log        |
+| `types`      | Tipos de contacto y su archivo .txt       |
+| `browser`    | Opciones de Puppeteer                     |
+| `whatsapp`   | URL y selectores CSS de WhatsApp Web      |
+
+---
+
+## 👥 Formato del CSV
 
 ```
 nombre,numero,tipo,empresa
@@ -46,105 +102,61 @@ Salón Los Robles,5491155443322,salon,Los Robles
 TechCorp Argentina,5491166778899,empresa,TechCorp Argentina
 ```
 
-### Columnas
-
-| Columna  | Obligatorio | Descripción                                              |
-|----------|-------------|----------------------------------------------------------|
-| nombre   | ✅ Sí        | Nombre del contacto o negocio                            |
-| numero   | ✅ Sí        | Número con código de país, sin espacios (ej: 5491112...) |
-| tipo     | ✅ Sí        | `cliente`, `cliente_nuevo`, `salon` o `empresa`          |
-| empresa  | Solo para salones/empresas | Nombre del salón o empresa (usado en el mensaje) |
-
 ### Tipos válidos
 
-| Tipo           | Mensaje que recibe              | Cuándo usarlo                         |
-|----------------|---------------------------------|---------------------------------------|
-| `cliente`      | mensaje_cliente.txt             | Ya contrató tus servicios antes       |
-| `cliente_nuevo`| mensaje_cliente_nuevo.txt       | Nunca te contrató, primera vez        |
-| `salon`        | mensaje_salon.txt               | Salones de eventos, no personas       |
-| `empresa`      | mensaje_empresa.txt             | Empresas para eventos corporativos    |
+| Tipo            | Mensaje usado                  |
+|-----------------|-------------------------------|
+| `cliente`       | mensajes/mensaje_cliente.txt   |
+| `cliente_nuevo` | mensajes/mensaje_cliente_nuevo.txt |
+| `salon`         | mensajes/mensaje_salon.txt     |
+| `empresa`       | mensajes/mensaje_empresa.txt   |
 
-### Formato del número de teléfono
+### Variables en mensajes
 
-Siempre con código de país, sin espacios ni símbolos:
+```
+Hola {nombre}, te escribimos desde Magic Show 🎩
+Nos gustaría trabajar con {empresa} en sus próximos eventos.
+```
 
-| País      | Ejemplo correcto   |
-|-----------|--------------------|
-| Argentina | `5491112345678`    |
-| México    | `5215512345678`    |
-| España    | `34612345678`      |
-| Colombia  | `5731512345678`    |
-
-> ⚠️ Argentina: el 9 entre el 54 y el código de área es obligatorio.
+Cualquier columna del CSV puede usarse como `{nombre_columna}`.
 
 ---
 
-## 💬 Cómo editar los mensajes
-
-Cada tipo tiene su propio archivo en la carpeta `mensajes/`. Editá directamente el texto:
-
-**mensajes/mensaje_salon.txt**
-```
-Hola, buen día! Me comunico desde nuestro grupo de magia profesional 🎩
-
-Nos gustaría colaborar con {empresa} para sus próximos eventos...
-```
-
-### Variables disponibles en los mensajes
-
-Usá `{nombre_de_columna}` para insertar cualquier dato del CSV:
-
-| Variable    | Reemplaza con...             |
-|-------------|------------------------------|
-| `{nombre}`  | El nombre del contacto       |
-| `{empresa}` | El nombre del salón/empresa  |
-| `{numero}`  | El número de teléfono        |
-
-Si la variable no existe en el CSV para ese contacto, queda tal cual (`{empresa}`).
-
----
-
-## ▶️ Cómo ejecutar
-
-```bash
-npm start
-```
-
-Al ejecutar:
-1. Se abre Chrome con WhatsApp Web
-2. Escaneá el QR con tu celular (solo la primera vez)
-3. El bot muestra un resumen de contactos por tipo
-4. Comienza a enviar con delays aleatorios de 28-35 segundos
-
----
-
-## 🎮 Controles
+## 🎮 Controles en tiempo real
 
 | Tecla    | Acción                    |
 |----------|---------------------------|
 | `P`      | Pausar / reanudar envíos  |
-| `Ctrl+C` | Detener el bot            |
+| `Ctrl+C` | Detener y cerrar limpio   |
+
+---
+
+## 🐛 Guía de debugging rápido
+
+| Síntoma                        | Dónde mirar                         |
+|-------------------------------|--------------------------------------|
+| Error en CSV                  | `contactReader.js` → `validateRow()` |
+| Mensaje no se personaliza     | `messageLoader.js` → `personalize()` |
+| WhatsApp no carga / QR roto   | `browserManager.js` → `launch()`    |
+| Mensaje no se envía           | `browserManager.js` → `sendMessage()`|
+| Delay incorrecto              | `config.js` → `timing`              |
+| Ruta a archivo incorrecta     | `config.js` → `paths`               |
+| Loop se comporta raro         | `sender.js` → `runSendLoop()`        |
+| Falla al arrancar             | `index.js` → ver qué módulo falla   |
 
 ---
 
 ## 📊 Logs
 
-Cada envío queda registrado en `logs/envios.log`:
+```
+logs/envios.log
+```
 
 ```
-[2025-03-19T14:32:01.000Z] [OK]    [1/10] ✅ OK — María García
+[2025-03-19T14:32:01.000Z] [OK   ] [1/10] ✅ Enviado — María García
 [2025-03-19T14:32:31.000Z] [ERROR] [2/10] ❌ ERROR — Número inválido
-[2025-03-19T14:33:05.000Z] [OK]    [3/10] ✅ OK — Salón Los Robles
+[2025-03-19T14:33:05.000Z] [OK   ] [3/10] ✅ Enviado — Salón Los Robles
 ```
-
----
-
-## 🛡️ Buenas prácticas
-
-- Empezá con listas cortas (10-20 contactos) para probar
-- No enviés más de 80-100 mensajes por día con un número normal
-- Usá el celular de forma natural además del bot
-- Hacé pausas entre tandas de envíos
 
 ---
 

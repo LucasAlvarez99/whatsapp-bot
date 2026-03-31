@@ -72,7 +72,7 @@ function leerContactos() {
     const valores = linea.split(',').map(v => v.trim());
     const obj = {};
     headers.forEach((h, idx) => { obj[h] = valores[idx] || ''; });
-    obj._fila = i + 2; // número de fila real en el CSV (con encabezado)
+    obj._fila = i + 2;
     return obj;
   });
 }
@@ -121,7 +121,7 @@ function validarContacto(contacto) {
     return `Tipo desconocido: "${contacto.tipo}". Válidos: ${Object.keys(TIPOS).join(', ')}`;
   }
 
-  return null; // sin error
+  return null;
 }
 
 // ─── Control de teclado ─────────────────────────────────────────────────────────
@@ -183,27 +183,64 @@ async function iniciarNavegador() {
 }
 
 // ─── Puppeteer: esperar login ────────────────────────────────────────────────────
+// FIX: WhatsApp Web cambia sus selectores con frecuencia.
+// Probamos múltiples a la vez para mayor robustez.
 async function esperarLogin() {
   log('🔄 Esperando inicio de sesión (escaneá el QR si es necesario)...');
   try {
-    await page.waitForSelector('[data-testid="chat-list"]', {
-      timeout: CONFIG.loginTimeout,
-    });
+    await page.waitForFunction(
+      () => {
+        return (
+          document.querySelector('[data-testid="chat-list"]') !== null ||
+          document.querySelector('div[aria-label="Lista de chats"]') !== null ||
+          document.querySelector('div[aria-label="Chat list"]') !== null ||
+          document.querySelector('div[role="grid"]') !== null ||
+          document.querySelector('#pane-side') !== null ||
+          document.querySelector('div[data-testid="default-user"]') !== null
+        );
+      },
+      { timeout: CONFIG.loginTimeout }
+    );
     log('✅ Sesión iniciada.');
+    // Pausa extra para que WhatsApp cargue completamente
+    await new Promise(r => setTimeout(r, 3000));
   } catch {
     throw new Error('No se detectó el inicio de sesión. Asegurate de escanear el QR dentro de los 2 minutos.');
   }
 }
 
 // ─── Puppeteer: enviar mensaje ───────────────────────────────────────────────────
+// FIX: Selector del cuadro de texto actualizado con múltiples fallbacks.
 async function enviarMensaje(numero, mensaje) {
   const numLimpio = numero.replace(/\D/g, '');
   const url = `https://web.whatsapp.com/send?phone=${numLimpio}&text=${encodeURIComponent(mensaje)}`;
 
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-  const selectorInput = '[data-testid="conversation-compose-box-input"]';
-  await page.waitForSelector(selectorInput, { timeout: 20000 });
+  // Intentamos múltiples selectores posibles para el cuadro de texto
+  const selectores = [
+    'div[contenteditable="true"][data-tab="10"]',
+    'div[contenteditable="true"][data-tab="1"]',
+    'footer div[contenteditable="true"]',
+    'div[contenteditable="true"][role="textbox"]',
+    '[data-testid="conversation-compose-box-input"]',
+  ];
+
+  let inputEncontrado = false;
+  for (const selector of selectores) {
+    try {
+      await page.waitForSelector(selector, { timeout: 8000 });
+      await page.click(selector);
+      inputEncontrado = true;
+      break;
+    } catch {
+      // Probar el siguiente
+    }
+  }
+
+  if (!inputEncontrado) {
+    throw new Error('No se encontró el cuadro de texto. WhatsApp puede haber cambiado su interfaz.');
+  }
 
   // Pausa humana antes de enviar
   await new Promise(r => setTimeout(r, 1200 + Math.random() * 1000));
@@ -249,7 +286,7 @@ async function main() {
   }
 
   log(`📋 Contactos cargados: ${contactos.length} total`);
-  log(`   ├─ 🧑 clientes:       ${resumen.cliente}`);
+  log(`   ├─ 🧑 clientes:        ${resumen.cliente}`);
   log(`   ├─ 🆕 clientes nuevos: ${resumen.cliente_nuevo}`);
   log(`   ├─ 🏛️  salones:         ${resumen.salon}`);
   log(`   ├─ 🏢 empresas:        ${resumen.empresa}`);
