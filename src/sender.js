@@ -7,15 +7,17 @@
  *   - Delega el envío a browserManager
  *   - Maneja pausa, errores y estadísticas
  *
- * NO sabe nada del navegador ni del CSV directamente.
+ * CAMBIOS v3.1:
+ *   - Corregido import de browserManager (ruta era '../browser/...' pero
+ *     sender.js vive en src/, la ruta correcta es './browser/...')
  */
 
 'use strict';
 
-const browserManager  = require('../browser/browserManager');
-const { personalize } = require('../messages/messageLoader');
-const { randomDelay, sleep } = require('../utils/delay');
-const logger          = require('../utils/logger');
+const browserManager  = require('./browser/browserManager');   // ← ruta corregida
+const { personalize } = require('./messages/messageLoader');
+const { randomDelay, sleep } = require('./utils/delay');
+const logger          = require('./utils/logger');
 
 const TYPE_ICONS = {
   cliente:       '🧑  cliente',
@@ -25,7 +27,7 @@ const TYPE_ICONS = {
 };
 
 /**
- * @param {Object[]} contacts    - Array de contactos válidos
+ * @param {Object[]} contacts   - Array de contactos válidos
  * @param {Object}   templates  - { tipo: 'texto de plantilla' }
  * @param {Object}   pauseState - { paused: boolean } del keyboardController
  * @returns {{ sent: number, errors: number }}

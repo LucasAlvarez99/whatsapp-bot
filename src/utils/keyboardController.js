@@ -11,7 +11,7 @@
 'use strict';
 
 const readline = require('readline');
-const logger   = require('../utils/logger');
+const logger   = require('./logger');
 
 // Estado compartido — el loop lee `state.paused`
 const state = { paused: false };
@@ -34,7 +34,7 @@ function init(onExit) {
     if (key.ctrl && key.name === 'c') {
       logger.ctrl('🛑 Ctrl+C detectado — saliendo...');
       if (typeof onExit === 'function') onExit();
-      process.exit(0);
+      // onExit llama a shutdown() que hace process.exit()
     }
   });
 
