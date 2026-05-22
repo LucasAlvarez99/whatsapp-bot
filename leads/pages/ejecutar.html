@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<!-- magic-bot/pages/ejecutar.html -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejecutar — Magic Show Bot</title>
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+/* ── Layout ──────────────────────────────────────────────── */
+.exec-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── Checklist ───────────────────────────────────────────── */
+.check-list { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+.check-item {
+  display:flex; align-items:center; gap:12px;
+  padding:13px 15px;
+  border-radius:var(--radius); border:1px solid var(--border);
+  background:var(--surface2); transition:all .2s;
+}
+.check-item.ok   { border-color:rgba(82,183,136,.3); background:rgba(82,183,136,.04); }
+.check-item.fail { border-color:rgba(224,82,82,.3);  background:rgba(224,82,82,.04); }
+.check-item.warn { border-color:rgba(201,147,58,.3); background:rgba(201,147,58,.04); }
+
+.check-icon {
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; flex-shrink:0;
+}
+.check-icon.ok   { background:rgba(82,183,136,.15); }
+.check-icon.fail { background:rgba(224,82,82,.15); }
+.check-icon.warn { background:rgba(201,147,58,.15); }
+.check-icon.idle { background:var(--surface3); }
+
+.check-body { flex:1; }
+.check-label    { font-size:13px; color:var(--text); font-weight:500; margin-bottom:2px; }
+.check-sublabel { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.check-action   { font-size:11px; }
+
+/* ── Big execute button ──────────────────────────────────── */
+.exec-btn-area { margin-top:4px; }
+.exec-main-btn {
+  width:100%; padding:15px;
+  font-size:15px; border-radius:var(--radius);
+  gap:10px; font-weight:500;
+  display:flex; align-items:center; justify-content:center;
+}
+.exec-main-btn:disabled { opacity:.35; cursor:not-allowed; transform:none !important; }
+
+.ctrl-row { display:flex; gap:10px; margin-top:10px; }
+.ctrl-row .btn { flex:1; }
+
+/* ── Result stats ────────────────────────────────────────── */
+.result-stats {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:10px; margin-top:16px;
+}
+.res-stat {
+  text-align:center; padding:12px 10px;
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+}
+.res-num {
+  font-family:'Playfair Display',serif; font-size:26px; line-height:1; margin-bottom:3px;
+}
+.res-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; text-transform:uppercase; }
+
+/* ── Config card ─────────────────────────────────────────── */
+.timing-list { display:flex; flex-direction:column; gap:14px; }
+.timing-item { display:flex; flex-direction:column; gap:5px; }
+.timing-row { display:flex; justify-content:space-between; align-items:center; }
+.timing-row span { font-size:12px; color:var(--text); }
+.timing-val { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); }
+
+/* ── Summary card ────────────────────────────────────────── */
+.summary-list { font-size:12px; color:var(--muted); line-height:2.1; }
+.summary-list strong { color:var(--text); }
+
+/* ── Script card ─────────────────────────────────────────── */
+.script-block {
+  background:var(--dark); border:1px solid var(--border);
+  border-radius:var(--radius); padding:12px 14px;
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:#a8d5a2; line-height:1.7; white-space:pre-wrap;
+  max-height:180px; overflow-y:auto; margin-top:8px;
+}
+
+/* ── How-to steps (sidebar) ──────────────────────────────── */
+.howto-list { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); line-height:2.3; }
+.howto-list span { color:var(--text); }
+
+@media(max-width:860px) {
+  .exec-layout { grid-template-columns:1fr; }
+  .result-stats { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a href="index.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3</span></a>
+  <nav class="header-nav">
+    <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
+    <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
+    <a href="ejecutar.html"  class="nav-btn" data-page="ejecutar.html"> <span class="nav-icon">▶️</span><span>Ejecutar</span></a>
+    <a href="tutorial.html"  class="nav-btn" data-page="tutorial.html"> <span class="nav-icon">📖</span><span>Tutorial</span></a>
+  </nav>
+  <div class="status-pill">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Sin contactos</span>
+  </div>
+</header>
+
+<div class="page-body">
+  <div class="section-header">
+    <div class="section-title">Ejecutar Envíos</div>
+    <div class="section-desc">Verificá el checklist y generá el script para correr el bot</div>
+  </div>
+
+  <div class="exec-layout">
+
+    <!-- LEFT -->
+    <div>
+
+      <!-- CHECKLIST -->
+      <div class="check-list" id="check-list">
+        <div class="check-item" id="chk-contacts">
+          <div class="check-icon idle" id="chk-contacts-icon">⏳</div>
+          <div class="check-body">
+            <div class="check-label">Lista de contactos</div>
+            <div class="check-sublabel" id="chk-contacts-sub">Cargando...</div>
+          </div>
+          <a href="contactos.html" class="btn btn-ghost btn-sm check-action">Ir →</a>
+        </div>
+        <div class="check-item" id="chk-msg">
+          <div class="check-icon idle" id="chk-msg-icon">⏳</div>
+          <div class="check-body">
+            <div class="check-label">Mensaje guardado</div>
+            <div class="check-sublabel" id="chk-msg-sub">Cargando...</div>
+          </div>
+          <a href="mensaje.html" class="btn btn-ghost btn-sm check-action">Ir →</a>
+        </div>
+        <div class="check-item" id="chk-vars">
+          <div class="check-icon idle" id="chk-vars-icon">⏳</div>
+          <div class="check-body">
+            <div class="check-label">Variables del mensaje</div>
+            <div class="check-sublabel" id="chk-vars-sub">Esperando mensaje...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESS (oculto hasta ejecutar) -->
+      <div id="progress-section" style="display:none">
+        <div class="progress-wrap">
+          <div class="progress-label">
+            <span id="prog-text">Enviando...</span>
+            <span id="prog-pct">0%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="prog-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="result-stats">
+          <div class="res-stat"><div class="res-num" id="res-sent"    style="color:var(--success)">0</div><div class="res-label">Enviados</div></div>
+          <div class="res-stat"><div class="res-num" id="res-errors"  style="color:var(--danger)">0</div><div class="res-label">Errores</div></div>
+          <div class="res-stat"><div class="res-num" id="res-pending" style="color:var(--muted)">0</div><div class="res-label">Pendientes</div></div>
+        </div>
+      </div>
+
+      <!-- EXEC BUTTON -->
+      <div class="exec-btn-area">
+        <button class="btn btn-success exec-main-btn" id="exec-btn" onclick="startExec()" disabled>
+          ▶ Iniciar envíos en WhatsApp Web
+        </button>
+        <div class="ctrl-row" id="ctrl-row" style="display:none">
+          <button class="btn btn-ghost" id="pause-btn" onclick="togglePause()">⏸ Pausar</button>
+          <button class="btn btn-danger" onclick="stopExec()">⏹ Detener</button>
+        </div>
+      </div>
+
+      <!-- LOG -->
+      <div class="log-panel">
+        <div class="log-header">
+          <span>Terminal de envíos</span>
+          <button class="btn btn-ghost btn-sm" onclick="clearLog()">Limpiar</button>
+        </div>
+        <div class="log-body" id="log-body">
+          <span class="log-line">🎩 Magic Show Bot listo. Verificá el checklist y ejecutá.</span>
+        </div>
+      </div>
+
+      <!-- SCRIPT GENERATOR -->
+      <div class="card" style="margin-top:16px;" id="script-card">
+        <div class="card-title"><div class="card-icon">📄</div>Script generado para Node.js</div>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">
+          Copiá este script y guardalo como <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">bot-runner.js</code> en tu proyecto. Luego ejecutá <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">node bot-runner.js</code> en la terminal.
+        </p>
+        <div class="script-block" id="script-output">— Completá el checklist para generar el script —</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn btn-ghost btn-sm" onclick="copyScript()">📋 Copiar script</button>
+          <button class="btn btn-ghost btn-sm" onclick="downloadScript()">⬇ Descargar .js</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT sidebar -->
+    <div>
+
+      <!-- Timing config -->
+      <div class="card">
+        <div class="card-title"><div class="card-icon">⚙️</div>Configuración de delays</div>
+        <div class="timing-list">
+          <div class="timing-item">
+            <div class="timing-row">
+              <span>Delay mínimo</span>
+              <span class="timing-val" id="val-min">28s</span>
+            </div>
+            <input type="range" min="10" max="60" value="28" id="sl-min" oninput="onSlider()">
+          </div>
+          <div class="timing-item">
+            <div class="timing-row">
+              <span>Delay máximo</span>
+              <span class="timing-val" id="val-max">35s</span>
+            </div>
+            <input type="range" min="15" max="90" value="35" id="sl-max" oninput="onSlider()">
+          </div>
+          <div class="timing-item">
+            <div class="timing-row">
+              <span>Timeout QR login</span>
+              <span class="timing-val" id="val-login">120s</span>
+            </div>
+            <input type="range" min="60" max="300" value="120" step="10" id="sl-login" oninput="onSlider()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary -->
+      <div class="card">
+        <div class="card-title"><div class="card-icon">📋</div>Resumen del envío</div>
+        <div class="summary-list" id="summary-list">
+          <div>Contactos válidos: <strong id="sum-n">0</strong></div>
+          <div>Tiempo estimado: <strong id="sum-t" style="color:var(--gold)">—</strong></div>
+          <div>Mensaje: <strong id="sum-m">No guardado</strong></div>
+          <div>Delay promedio: <strong id="sum-d" style="color:var(--gold)">31.5s</strong></div>
+        </div>
+      </div>
+
+      <!-- How to run -->
+      <div class="card">
+        <div class="card-title"><div class="card-icon">💡</div>Cómo correr el bot real</div>
+        <div class="howto-list">
+          <div>1. <span>Descargá el script generado</span></div>
+          <div>2. <span>Movelo a tu carpeta del proyecto</span></div>
+          <div>3. <span>Abrí la terminal en esa carpeta</span></div>
+          <div>4. <span>Ejecutá:</span></div>
+        </div>
+        <div style="background:var(--dark);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8d5a2;margin-top:8px;">
+          node bot-runner.js
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7;">
+          5. Escaneá el QR en WhatsApp Web<br>
+          6. El bot envía automáticamente<br>
+          7. Presioná <strong style="color:var(--text)">P</strong> para pausar / <strong style="color:var(--text)">Ctrl+C</strong> para salir
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let contacts   = [];
+let message    = '';
+let running    = false;
+let paused     = false;
+let stopReq    = false;
+let curIdx     = 0;
+let sent       = 0;
+let errors     = 0;
+let delayMin   = 28;
+let delayMax   = 35;
+let loginTO    = 120;
+
+// ── Init ─────────────────────────────────────────────────
+function init() {
+  contacts = Store.get('magic_contacts', []);
+  message  = Store.get('magic_message', '');
+  updateChecks();
+  updateSummary();
+  generateScript();
+}
+
+// ══════════════════════════════════════════════════════════
+// CHECKLIST
+// ══════════════════════════════════════════════════════════
+function updateChecks() {
+  const hasC = contacts.length > 0;
+  const hasM = message.trim().length > 0;
+
+  setCheck('chk-contacts',
+    hasC ? 'ok' : 'fail',
+    hasC ? '✓' : '✕',
+    hasC ? `${contacts.length} contacto(s) válido(s)` : 'Sin contactos — ir a Contactos'
+  );
+
+  setCheck('chk-msg',
+    hasM ? 'ok' : 'fail',
+    hasM ? '✓' : '✕',
+    hasM ? `${message.length} caracteres guardados` : 'Sin mensaje — ir a Mensaje'
+  );
+
+  // Variables check
+  const vars       = hasM ? (message.match(/\{(\w+)\}/g) || []) : [];
+  const knownKeys  = ['nombre','numero','tipo','empresa'];
+  const unknowns   = vars.filter(v => !knownKeys.includes(v.slice(1,-1)));
+
+  if (!hasM) {
+    setCheck('chk-vars', 'warn', '⚠', 'Guardá el mensaje primero');
+  } else if (unknowns.length) {
+    setCheck('chk-vars', 'warn', '⚠', `Variables no estándar: ${unknowns.join(' ')}`);
+  } else if (!vars.length) {
+    setCheck('chk-vars', 'warn', '⚠', 'El mensaje no usa variables — se enviará igual a todos');
+  } else {
+    setCheck('chk-vars', 'ok', '✓', `${vars.length} variable(s): ${vars.join(' ')}`);
+  }
+
+  document.getElementById('exec-btn').disabled = !(hasC && hasM);
+}
+
+function setCheck(id, type, icon, sub) {
+  const el   = document.getElementById(id);
+  const ic   = document.getElementById(id + '-icon');
+  const subEl= document.getElementById(id + '-sub');
+  el.className  = `check-item ${type}`;
+  ic.className  = `check-icon ${type}`;
+  ic.textContent = icon;
+  if (subEl) subEl.textContent = sub;
+}
+
+// ══════════════════════════════════════════════════════════
+// SLIDERS
+// ══════════════════════════════════════════════════════════
+function onSlider() {
+  delayMin = parseInt(document.getElementById('sl-min').value);
+  delayMax = parseInt(document.getElementById('sl-max').value);
+  loginTO  = parseInt(document.getElementById('sl-login').value);
+  document.getElementById('val-min').textContent   = delayMin + 's';
+  document.getElementById('val-max').textContent   = delayMax + 's';
+  document.getElementById('val-login').textContent = loginTO + 's';
+  updateSummary();
+  generateScript();
+}
+
+function updateSummary() {
+  const n    = contacts.length;
+  const avg  = (delayMin + delayMax) / 2;
+  const mins = n ? Math.round(n * avg / 60) : 0;
+  document.getElementById('sum-n').textContent = n;
+  document.getElementById('sum-t').textContent = n ? `~${mins} min` : '—';
+  document.getElementById('sum-m').textContent = message ? `${message.length} chars ✓` : 'No guardado';
+  document.getElementById('sum-d').textContent = avg.toFixed(1) + 's';
+}
+
+// ══════════════════════════════════════════════════════════
+// SCRIPT GENERATOR
+// ══════════════════════════════════════════════════════════
+function generateScript() {
+  if (!contacts.length || !message.trim()) {
+    document.getElementById('script-output').textContent =
+      '— Completá el checklist (contactos + mensaje) para generar el script —';
+    return;
+  }
+
+  const escapedMsg = message.replace(/`/g, '\\`').replace(/\$/g, '\\$');
+  const contactsJSON = JSON.stringify(contacts, null, 2);
+
+  const script = `/**
+ * bot-runner.js — Generado por Magic Show Bot
+ * Ejecutar: node bot-runner.js
+ * Requiere: npm install puppeteer
+ */
+'use strict';
+
+const puppeteer = require('puppeteer');
+const readline  = require('readline');
+
+// ── Configuración ──────────────────────────────
+const CONFIG = {
+  delayMin:     ${delayMin * 1000},
+  delayMax:     ${delayMax * 1000},
+  loginTimeout: ${loginTO * 1000},
+  headless:     false,
+  sessionDir:   './session',
+};
+
+// ── Mensaje template ───────────────────────────
+const MENSAJE_TEMPLATE = \`${escapedMsg}\`;
+
+// ── Contactos ──────────────────────────────────
+const CONTACTOS = ${contactsJSON};
+
+// ── Estado ─────────────────────────────────────
+let pausado = false;
+let browser = null;
+let page    = null;
+
+// ── Personalizar mensaje ───────────────────────
+function personalize(template, contact) {
+  return template.replace(/\\{(\\w+)\\}/g, (m, k) =>
+    contact[k] !== undefined && contact[k] !== '' ? contact[k] : m
+  );
+}
+
+// ── Delay aleatorio ────────────────────────────
+function delay(min, max) {
+  const ms = Math.floor(Math.random() * (max - min + 1)) + min;
+  console.log(\`⏳ Esperando \${(ms/1000).toFixed(1)}s...\`);
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ── Control teclado ────────────────────────────
+function initKeyboard() {
+  readline.emitKeypressEvents(process.stdin);
+  if (process.stdin.isTTY) process.stdin.setRawMode(true);
+  process.stdin.on('keypress', (str, key) => {
+    if (!key) return;
+    if (key.name === 'p') {
+      pausado = !pausado;
+      console.log(pausado ? '⏸ PAUSADO' : '▶ REANUDADO');
+    }
+    if (key.ctrl && key.name === 'c') {
+      console.log('🛑 Saliendo...');
+      if (browser) browser.close();
+      process.exit(0);
+    }
+  });
+  console.log('💡 [P] pausar/reanudar | [Ctrl+C] salir\\n');
+}
+
+// ── Navegador ──────────────────────────────────
+async function launch() {
+  const fs = require('fs');
+  if (!fs.existsSync(CONFIG.sessionDir))
+    fs.mkdirSync(CONFIG.sessionDir, { recursive: true });
+
+  browser = await puppeteer.launch({
+    headless: CONFIG.headless,
+    userDataDir: CONFIG.sessionDir,
+    args: ['--no-sandbox','--disable-setuid-sandbox','--disable-dev-shm-usage'],
+  });
+  page = await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
+  await page.goto('https://web.whatsapp.com', { waitUntil: 'networkidle2', timeout: 60000 });
+}
+
+// ── Login ──────────────────────────────────────
+async function waitLogin() {
+  console.log('🔄 Esperando inicio de sesión — escaneá el QR si es necesario...');
+  await page.waitForFunction(() =>
+    document.querySelector('[data-testid="chat-list"]') ||
+    document.querySelector('#pane-side') ||
+    document.querySelector('div[aria-label="Chat list"]'),
+    { timeout: CONFIG.loginTimeout }
+  );
+  console.log('✅ Sesión activa.\\n');
+  await new Promise(r => setTimeout(r, 3000));
+}
+
+// ── Enviar ─────────────────────────────────────
+async function send(number, text) {
+  const clean = number.replace(/\\D/g, '');
+  const url   = \`https://web.whatsapp.com/send?phone=\${clean}&text=\${encodeURIComponent(text)}\`;
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+
+  const selectors = [
+    '[data-testid="conversation-compose-box-input"]',
+    'div[contenteditable="true"][data-tab="10"]',
+    'footer div[contenteditable="true"]',
+    'div[contenteditable="true"][role="textbox"]',
+  ];
+  let found = false;
+  for (const sel of selectors) {
+    try {
+      await page.waitForSelector(sel, { timeout: 8000 });
+      await page.click(sel);
+      found = true; break;
+    } catch {}
+  }
+  if (!found) throw new Error('No se encontró el cuadro de texto de WhatsApp');
+
+  await new Promise(r => setTimeout(r, 1200 + Math.random() * 800));
+  await page.keyboard.press('Enter');
+  await new Promise(r => setTimeout(r, 3000));
+
+  const err = await page.$('[data-testid="popup-contents"]');
+  if (err) {
+    const txt = await page.evaluate(el => el.innerText, err);
+    throw new Error('WhatsApp: ' + txt.slice(0, 100));
+  }
+}
+
+// ── Main ───────────────────────────────────────
+async function main() {
+  console.log('\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('   🎩 Magic Show Bot — Script generado      ');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
+  console.log(\`📋 Contactos: \${CONTACTOS.length} | Delay: \${CONFIG.delayMin/1000}s–\${CONFIG.delayMax/1000}s\\n\`);
+
+  initKeyboard();
+  await launch();
+  await waitLogin();
+
+  let sent = 0, errors = 0;
+
+  for (let i = 0; i < CONTACTOS.length; i++) {
+    const c    = CONTACTOS[i];
+    const prog = \`[\${i+1}/\${CONTACTOS.length}]\`;
+
+    while (pausado) await new Promise(r => setTimeout(r, 500));
+
+    const msg = personalize(MENSAJE_TEMPLATE, c);
+    console.log(\`\${prog} 📤 \${c.nombre} (\${c.numero})\`);
+
+    try {
+      await send(c.numero, msg);
+      sent++;
+      console.log(\`\${prog} ✅ OK — \${c.nombre}\`);
+    } catch (e) {
+      errors++;
+      console.log(\`\${prog} ❌ ERROR — \${c.nombre} — \${e.message}\`);
+    }
+
+    console.log(\`📊 Enviados: \${sent} | Errores: \${errors} | Pendientes: \${CONTACTOS.length - i - 1}\\n\`);
+
+    if (i < CONTACTOS.length - 1) {
+      await delay(CONFIG.delayMin, CONFIG.delayMax);
+    }
+  }
+
+  console.log('\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(\`🏁 COMPLETADO — Enviados: \${sent} | Errores: \${errors}\`);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
+  await browser.close();
+}
+
+main().catch(async e => {
+  console.error('💥 Error fatal:', e.message);
+  if (browser) await browser.close();
+  process.exit(1);
+});
+`;
+
+  document.getElementById('script-output').textContent = script;
+}
+
+let generatedScript = '';
+function getScript() {
+  return document.getElementById('script-output').textContent;
+}
+
+function copyScript() {
+  const s = getScript();
+  if (s.startsWith('—')) { toast('Completá el checklist primero', 'err'); return; }
+  navigator.clipboard.writeText(s).then(() => toast('Script copiado al portapapeles', 'ok'));
+}
+
+function downloadScript() {
+  const s = getScript();
+  if (s.startsWith('—')) { toast('Completá el checklist primero', 'err'); return; }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([s], { type: 'text/javascript' }));
+  a.download = 'bot-runner.js';
+  a.click();
+  toast('Script descargado', 'ok');
+}
+
+// ══════════════════════════════════════════════════════════
+// SIMULACIÓN (demo visual — el bot real usa Node.js)
+// ══════════════════════════════════════════════════════════
+function startExec() {
+  if (!contacts.length || !message.trim()) return;
+
+  running = true; paused = false; stopReq = false;
+  sent = 0; errors = 0; curIdx = 0;
+
+  document.getElementById('exec-btn').style.display   = 'none';
+  document.getElementById('ctrl-row').style.display   = 'flex';
+  document.getElementById('progress-section').style.display = 'block';
+  document.getElementById('status-dot').className = 'status-dot running';
+  document.getElementById('status-text').textContent  = 'Enviando...';
+
+  logLine('🎩 Bot iniciado (modo simulación — para envío real usá el script generado)', 'log-gold');
+  logLine(`📋 Contactos: ${contacts.length} | Delay: ${delayMin}s–${delayMax}s`, '');
+  logLine(`💬 Mensaje: "${message.substring(0,60)}..."`, '');
+  logLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
+
+  simulateNext();
+}
+
+function simulateNext() {
+  if (stopReq || curIdx >= contacts.length) { finishExec(); return; }
+  if (paused)  { setTimeout(simulateNext, 500); return; }
+
+  const c    = contacts[curIdx];
+  const pct  = (curIdx / contacts.length * 100).toFixed(1);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent  = Math.round(pct) + '%';
+  document.getElementById('prog-text').textContent = `Enviando ${curIdx+1}/${contacts.length}...`;
+
+  const msg = message.replace(/\{(\w+)\}/g, (m,k) => c[k]||m);
+  logLine(`📤 [${curIdx+1}/${contacts.length}] ${c.nombre} (${c.numero})`, '');
+
+  // Simulate send (95% success in demo)
+  const ok = Math.random() > 0.05;
+  const waitMs = Math.min((delayMin + Math.random()*(delayMax-delayMin))*120, 1800);
+
+  setTimeout(() => {
+    if (ok) { sent++;  logLine(`✅ OK — ${c.nombre}`, 'log-ok'); }
+    else    { errors++;logLine(`❌ ERROR — ${c.nombre} — Número no encontrado`, 'log-error'); }
+
+    document.getElementById('res-sent').textContent    = sent;
+    document.getElementById('res-errors').textContent  = errors;
+    document.getElementById('res-pending').textContent = Math.max(0, contacts.length - curIdx - 1);
+
+    curIdx++;
+    const nextWait = Math.min((delayMin + Math.random()*(delayMax-delayMin))*120, 1600);
+    if (curIdx < contacts.length && !stopReq) {
+      logLine(`⏳ Esperando ${(nextWait/100).toFixed(1)}s...`, '');
+      setTimeout(simulateNext, nextWait);
+    } else {
+      finishExec();
+    }
+  }, waitMs);
+}
+
+function finishExec() {
+  running = false;
+  document.getElementById('exec-btn').style.display   = 'block';
+  document.getElementById('ctrl-row').style.display   = 'none';
+  document.getElementById('prog-fill').style.width    = '100%';
+  document.getElementById('prog-text').textContent    = 'Completado';
+  document.getElementById('prog-pct').textContent     = '100%';
+  document.getElementById('status-dot').className = 'status-dot ready';
+  document.getElementById('status-text').textContent  = `${sent} enviados`;
+  logLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
+  logLine(`🏁 COMPLETADO — Enviados: ${sent} | Errores: ${errors}`, 'log-gold');
+  toast(`${sent} enviados, ${errors} errores`, errors ? 'info' : 'ok');
+}
+
+function togglePause() {
+  paused = !paused;
+  document.getElementById('pause-btn').textContent = paused ? '▶ Reanudar' : '⏸ Pausar';
+  logLine(paused ? '⏸ PAUSADO' : '▶ REANUDADO', 'log-gold');
+}
+
+function stopExec() {
+  if (!confirm('¿Detener el envío?')) return;
+  stopReq = true;
+  logLine('🛑 Detenido por el usuario', 'log-error');
+}
+
+// ── Log ──────────────────────────────────────────────────
+function logLine(text, cls = '') {
+  const body = document.getElementById('log-body');
+  const span = document.createElement('span');
+  span.className = 'log-line ' + cls;
+  const t = new Date().toTimeString().slice(0,8);
+  span.textContent = `[${t}] ${text}`;
+  body.appendChild(span);
+  body.scrollTop = body.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('log-body').innerHTML = '<span class="log-line">Log limpiado.</span>';
+}
+
+// ── Boot ─────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

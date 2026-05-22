@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<!-- magic-bot/pages/tutorial.html -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutorial — Magic Show Bot</title>
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+/* ── Layout ──────────────────────────────────────────────── */
+.tut-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Sidebar nav ─────────────────────────────────────────── */
+.tut-nav {
+  position: sticky; top: 74px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 0;
+}
+.tut-nav-title {
+  font-size: 9px; color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase; letter-spacing: 2px;
+  padding: 0 16px 10px;
+}
+.tut-nav-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 16px; font-size: 12px; color: var(--muted);
+  text-decoration: none; cursor: pointer; transition: all .15s;
+  border-left: 2px solid transparent;
+}
+.tut-nav-link:hover { color: var(--text); background: var(--surface2); }
+.tut-nav-link.active { color: var(--gold); border-left-color: var(--gold); background: rgba(201,147,58,.06); }
+.tut-nav-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--muted); min-width: 14px;
+}
+
+/* ── Sections ────────────────────────────────────────────── */
+.tut-section {
+  scroll-margin-top: 80px;
+  margin-bottom: 36px;
+}
+.tut-section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.tut-section-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px; color: var(--gold); opacity: .4;
+  line-height: 1; min-width: 36px;
+}
+.tut-section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px; color: var(--text);
+}
+.tut-section-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ── Callout boxes ───────────────────────────────────────── */
+.callout {
+  border-radius: var(--radius); padding: 13px 15px;
+  margin: 14px 0; font-size: 13px; line-height: 1.7;
+}
+.callout-tip  { background:rgba(201,147,58,.07); border:1px solid rgba(201,147,58,.25); border-left:3px solid var(--gold); color:var(--text); }
+.callout-warn { background:rgba(224,82,82,.07);  border:1px solid rgba(224,82,82,.25);  border-left:3px solid var(--danger); color:#e8a8a8; }
+.callout-info { background:rgba(52,132,219,.07); border:1px solid rgba(52,132,219,.25); border-left:3px solid #5dade2; color:var(--text); }
+.callout strong { color: var(--gold); }
+.callout-warn strong { color: #e05252; }
+.callout-info strong { color: #5dade2; }
+
+/* ── Code block ──────────────────────────────────────────── */
+.code-block {
+  background: var(--dark); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 14px;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  color: #a8d5a2; line-height: 1.8; overflow-x: auto;
+  white-space: pre; margin: 12px 0;
+}
+.code-block .hl  { color: var(--gold); }
+.code-block .cm  { color: #666; }
+
+/* ── Var table ───────────────────────────────────────────── */
+.var-table { width:100%; border-collapse:collapse; margin:14px 0; }
+.var-table th {
+  background:var(--surface2); padding:9px 12px;
+  text-align:left; font-family:'JetBrains Mono',monospace;
+  font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:1.5px;
+  border-bottom:1px solid var(--border);
+}
+.var-table td { padding:9px 12px; border-bottom:1px solid rgba(255,255,255,.04); font-size:13px; }
+.var-table tr:last-child td { border-bottom:none; }
+.var-table .code { font-family:'JetBrains Mono',monospace; color:var(--gold); font-size:12px; }
+
+/* ── Steps list ──────────────────────────────────────────── */
+.steps-list { list-style:none; margin:12px 0; display:flex; flex-direction:column; gap:8px; }
+.steps-list li {
+  display:flex; align-items:flex-start; gap:10px;
+  font-size:13px; color:var(--muted); line-height:1.6;
+  padding:9px 12px;
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
+}
+.steps-list li .li-icon {
+  font-size:14px; flex-shrink:0; margin-top:1px;
+}
+.steps-list li strong { color: var(--text); }
+
+/* ── Example messages ────────────────────────────────────── */
+.msg-example {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px;
+  font-size: 13px; line-height: 1.8; color: var(--text);
+  white-space: pre-wrap; margin: 10px 0;
+}
+.msg-hl { color: var(--gold); font-weight: 500; }
+.msg-result { background: #1c2e1c; border-color: rgba(82,183,136,.2); }
+
+/* ── Types table ─────────────────────────────────────────── */
+.types-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:14px 0; }
+.type-item {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:13px;
+}
+.type-name { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--gold); margin-bottom:4px; }
+.type-desc { font-size:12px; color:var(--muted); line-height:1.5; }
+
+@media(max-width:860px) {
+  .tut-layout { grid-template-columns:1fr; }
+  .tut-nav { position:static; display:flex; flex-wrap:wrap; gap:4px; padding:10px; }
+  .tut-nav-title { display:none; }
+  .tut-nav-link { border-left:none; border-radius:var(--radius); padding:5px 10px; border-bottom:none; }
+  .tut-nav-link.active { border-left:none; }
+  .types-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a href="index.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3</span></a>
+  <nav class="header-nav">
+    <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
+    <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
+    <a href="ejecutar.html"  class="nav-btn" data-page="ejecutar.html"> <span class="nav-icon">▶️</span><span>Ejecutar</span></a>
+    <a href="tutorial.html"  class="nav-btn" data-page="tutorial.html"> <span class="nav-icon">📖</span><span>Tutorial</span></a>
+  </nav>
+  <div class="status-pill">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Sin contactos</span>
+  </div>
+</header>
+
+<div class="page-body">
+  <div class="section-header">
+    <div class="section-title">Tutorial Completo</div>
+    <div class="section-desc">Todo lo que necesitás saber para usar Magic Show Bot</div>
+  </div>
+
+  <div class="tut-layout">
+
+    <!-- Sidebar nav -->
+    <nav class="tut-nav">
+      <div class="tut-nav-title">Contenido</div>
+      <a class="tut-nav-link active" href="#s1" onclick="setActive(this)"><span class="tut-nav-num">1</span> ¿Qué es el bot?</a>
+      <a class="tut-nav-link" href="#s2" onclick="setActive(this)"><span class="tut-nav-num">2</span> Contactos</a>
+      <a class="tut-nav-link" href="#s3" onclick="setActive(this)"><span class="tut-nav-num">3</span> Tipos válidos</a>
+      <a class="tut-nav-link" href="#s4" onclick="setActive(this)"><span class="tut-nav-num">4</span> Redactar mensaje</a>
+      <a class="tut-nav-link" href="#s5" onclick="setActive(this)"><span class="tut-nav-num">5</span> Variables</a>
+      <a class="tut-nav-link" href="#s6" onclick="setActive(this)"><span class="tut-nav-num">6</span> Ejecutar el bot</a>
+      <a class="tut-nav-link" href="#s7" onclick="setActive(this)"><span class="tut-nav-num">7</span> Delays y tiempos</a>
+      <a class="tut-nav-link" href="#s8" onclick="setActive(this)"><span class="tut-nav-num">8</span> Errores comunes</a>
+    </nav>
+
+    <!-- Content -->
+    <div>
+
+      <!-- S1 -->
+      <section class="tut-section" id="s1">
+        <div class="tut-section-header">
+          <div class="tut-section-num">1</div>
+          <div>
+            <div class="tut-section-title">¿Qué hace este bot?</div>
+            <div class="tut-section-desc">Funcionamiento general y flujo de trabajo</div>
+          </div>
+        </div>
+
+        <p style="font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:14px;">
+          Magic Show Bot te permite <strong style="color:var(--text)">enviar mensajes personalizados por WhatsApp</strong>
+          a múltiples contactos de forma automática. Cada mensaje usa los datos de cada contacto para ser único.
+        </p>
+
+        <ul class="steps-list">
+          <li><span class="li-icon">👥</span><div><strong>Cargás tu lista:</strong> creás o importás un CSV con nombre, número, tipo y empresa de cada contacto.</div></li>
+          <li><span class="li-icon">✉️</span><div><strong>Redactás el mensaje:</strong> escribís un texto con variables como {nombre} que se reemplazan automáticamente.</div></li>
+          <li><span class="li-icon">⚙️</span><div><strong>Generás el script:</strong> la app genera un archivo <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">bot-runner.js</code> listo para ejecutar.</div></li>
+          <li><span class="li-icon">▶️</span><div><strong>Ejecutás en terminal:</strong> <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">node bot-runner.js</code> abre WhatsApp Web y envía cada mensaje con delay humanizado.</div></li>
+        </ul>
+
+        <div class="callout callout-warn">
+          <strong>⚠ Advertencia legal:</strong> El uso de bots no oficiales puede violar los Términos de Servicio de WhatsApp y resultar en el bloqueo temporal o permanente del número. Usá el bot con responsabilidad y solo con contactos que consintieron recibir mensajes.
+        </div>
+      </section>
+
+      <!-- S2 -->
+      <section class="tut-section" id="s2">
+        <div class="tut-section-header">
+          <div class="tut-section-num">2</div>
+          <div>
+            <div class="tut-section-title">Cómo cargar contactos</div>
+            <div class="tut-section-desc">Manualmente o importando un CSV</div>
+          </div>
+        </div>
+
+        <p style="font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:12px;">
+          Tenés dos formas de cargar contactos en la pestaña <strong style="color:var(--text)">Contactos</strong>:
+        </p>
+
+        <ul class="steps-list">
+          <li><span class="li-icon">➕</span><div><strong>Manual:</strong> completás el formulario con nombre, número, tipo y empresa, y hacés click en Agregar. Podés agregar tantos como quieras.</div></li>
+          <li><span class="li-icon">📁</span><div><strong>Importar CSV:</strong> arrastrás o seleccionás un archivo .csv. La primera fila debe ser el encabezado con las columnas requeridas.</div></li>
+        </ul>
+
+        <p style="font-size:13px;color:var(--muted);margin:14px 0 8px;">Formato correcto del CSV:</p>
+        <div class="code-block"><span class="hl">nombre,numero,tipo,empresa</span>
+María García,5491167867229,cliente,
+Juan Pérez,5491198765432,cliente_nuevo,
+Salón Los Robles,5491155443322,salon,Los Robles
+TechCorp Argentina,5491166778899,empresa,TechCorp Argentina</div>
+
+        <div class="callout callout-tip">
+          <strong>Reglas del número:</strong> debe incluir el <strong>código de país</strong> sin el signo +, sin espacios ni guiones.
+          Para Argentina: <code style="font-family:'JetBrains Mono',monospace">549</code> + código de área + número.
+          Ejemplo: <code style="font-family:'JetBrains Mono',monospace">5491167867229</code>
+        </div>
+
+        <p style="font-size:13px;color:var(--muted);margin-top:14px;">
+          Una vez cargados podés <strong style="color:var(--text)">exportar la base</strong> como CSV limpio o como Excel (.xls) desde la barra de exportación.
+        </p>
+      </section>
+
+      <!-- S3 -->
+      <section class="tut-section" id="s3">
+        <div class="tut-section-header">
+          <div class="tut-section-num">3</div>
+          <div>
+            <div class="tut-section-title">Tipos de contacto válidos</div>
+            <div class="tut-section-desc">Qué significa cada tipo y cuándo usarlo</div>
+          </div>
+        </div>
+
+        <div class="types-grid">
+          <div class="type-item">
+            <div class="type-name">cliente</div>
+            <div class="type-desc">Personas que ya contrataron el show anteriormente. El mensaje hace referencia a la relación previa.</div>
+          </div>
+          <div class="type-item">
+            <div class="type-name">cliente_nuevo</div>
+            <div class="type-desc">Contactos nuevos sin historial previo. El mensaje es de presentación del servicio.</div>
+          </div>
+          <div class="type-item">
+            <div class="type-name">salon</div>
+            <div class="type-desc">Salones de eventos. El mensaje apunta a una colaboración para futuros eventos del salón.</div>
+          </div>
+          <div class="type-item">
+            <div class="type-name">empresa</div>
+            <div class="type-desc">Empresas o corporativos. El mensaje es formal y orientado a eventos corporativos.</div>
+          </div>
+        </div>
+
+        <div class="callout callout-info">
+          <strong>Tip:</strong> Si un contacto tiene un tipo que no está en la lista de válidos, la app lo marcará como error y no se enviará. Revisá la columna Estado en la tabla de contactos.
+        </div>
+      </section>
+
+      <!-- S4 -->
+      <section class="tut-section" id="s4">
+        <div class="tut-section-header">
+          <div class="tut-section-num">4</div>
+          <div>
+            <div class="tut-section-title">Cómo redactar el mensaje</div>
+            <div class="tut-section-desc">Editor, preview en tiempo real y cómo guardar</div>
+          </div>
+        </div>
+
+        <ul class="steps-list">
+          <li><span class="li-icon">✍️</span><div>Ir a la pestaña <strong>Mensaje</strong> y escribir el texto en el editor.</div></li>
+          <li><span class="li-icon">🗂</span><div>Usar el <strong>machete de variables</strong> para insertar variables con un click exactamente donde está el cursor.</div></li>
+          <li><span class="li-icon">👁</span><div>El <strong>preview</strong> a la derecha muestra cómo quedará el mensaje para cada contacto — podés seleccionar distintos contactos del selector.</div></li>
+          <li><span class="li-icon">💾</span><div>Hacer click en <strong>Guardar mensaje</strong> antes de ir a Ejecutar. Sin este paso el bot no tiene mensaje para enviar.</div></li>
+        </ul>
+
+        <div class="callout callout-warn">
+          <strong>⚠ Importante:</strong> El botón "Guardar mensaje" es obligatorio. Si cambiás el texto pero no guardás, el bot usará la versión anterior guardada.
+        </div>
+      </section>
+
+      <!-- S5 -->
+      <section class="tut-section" id="s5">
+        <div class="tut-section-header">
+          <div class="tut-section-num">5</div>
+          <div>
+            <div class="tut-section-title">Variables disponibles</div>
+            <div class="tut-section-desc">Cómo personalizar el mensaje para cada contacto</div>
+          </div>
+        </div>
+
+        <p style="font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:12px;">
+          Las variables son palabras entre llaves <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">{variable}</code> que se reemplazan automáticamente con los datos de cada contacto al momento de enviar.
+        </p>
+
+        <table class="var-table">
+          <thead>
+            <tr><th>Variable</th><th>Columna CSV</th><th>Ejemplo de valor</th><th>Descripción</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="code">{nombre}</td><td class="code">nombre</td><td style="color:var(--muted)">María García</td><td style="font-size:12px;color:var(--muted)">Nombre completo del contacto</td></tr>
+            <tr><td class="code">{empresa}</td><td class="code">empresa</td><td style="color:var(--muted)">Los Robles</td><td style="font-size:12px;color:var(--muted)">Nombre del salón o empresa</td></tr>
+            <tr><td class="code">{numero}</td><td class="code">numero</td><td style="color:var(--muted)">5491167867229</td><td style="font-size:12px;color:var(--muted)">Número de WhatsApp</td></tr>
+            <tr><td class="code">{tipo}</td><td class="code">tipo</td><td style="color:var(--muted)">salon</td><td style="font-size:12px;color:var(--muted)">Tipo de contacto</td></tr>
+          </tbody>
+        </table>
+
+        <p style="font-size:13px;color:var(--muted);margin:14px 0 8px;"><strong style="color:var(--text)">Ejemplo antes de enviar:</strong></p>
+        <div class="msg-example">Hola <span class="msg-hl">{nombre}</span>! 👋
+
+Nos encantaría trabajar con <span class="msg-hl">{empresa}</span> en sus próximos eventos 🎩
+
+¿Estarían interesados en hablar?</div>
+
+        <p style="font-size:13px;color:var(--muted);margin:14px 0 8px;"><strong style="color:var(--success)">→ Resultado para "Salón Los Robles":</strong></p>
+        <div class="msg-example msg-result">Hola <span class="msg-hl">Salón Los Robles</span>! 👋
+
+Nos encantaría trabajar con <span class="msg-hl">Los Robles</span> en sus próximos eventos 🎩
+
+¿Estarían interesados en hablar?</div>
+
+        <div class="callout callout-tip">
+          <strong>Si la variable no existe:</strong> por ejemplo {empresa} para un cliente individual sin empresa, el bot deja el texto {empresa} tal cual en el mensaje. Revisá el preview para detectar estos casos antes de enviar.
+        </div>
+      </section>
+
+      <!-- S6 -->
+      <section class="tut-section" id="s6">
+        <div class="tut-section-header">
+          <div class="tut-section-num">6</div>
+          <div>
+            <div class="tut-section-title">Ejecutar el bot</div>
+            <div class="tut-section-desc">Cómo correr el bot real en tu computadora</div>
+          </div>
+        </div>
+
+        <ul class="steps-list">
+          <li><span class="li-icon">✅</span><div>Verificar que el <strong>checklist en Ejecutar</strong> muestra todo verde (contactos ✓, mensaje ✓, variables ✓).</div></li>
+          <li><span class="li-icon">⬇️</span><div>Hacer click en <strong>Descargar .js</strong> para bajar el script <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">bot-runner.js</code>.</div></li>
+          <li><span class="li-icon">📁</span><div>Mover el archivo a la carpeta de tu proyecto donde tenés Node.js y puppeteer instalados.</div></li>
+          <li><span class="li-icon">💻</span><div>Abrir la terminal en esa carpeta y ejecutar:</div></li>
+        </ul>
+
+        <div class="code-block">node bot-runner.js</div>
+
+        <ul class="steps-list">
+          <li><span class="li-icon">📱</span><div>WhatsApp Web se abrirá en el navegador. <strong>Escaneá el QR</strong> con tu teléfono si no tenés sesión activa.</div></li>
+          <li><span class="li-icon">🤖</span><div>El bot empieza a enviar automáticamente, un mensaje por contacto, con delays aleatorios entre cada envío.</div></li>
+        </ul>
+
+        <div class="callout callout-info">
+          <strong>Controles en tiempo real (teclado):</strong><br>
+          <code style="font-family:'JetBrains Mono',monospace">P</code> → Pausar / Reanudar envíos<br>
+          <code style="font-family:'JetBrains Mono',monospace">Ctrl + C</code> → Detener y cerrar el navegador limpiamente
+        </div>
+      </section>
+
+      <!-- S7 -->
+      <section class="tut-section" id="s7">
+        <div class="tut-section-header">
+          <div class="tut-section-num">7</div>
+          <div>
+            <div class="tut-section-title">Delays y tiempos</div>
+            <div class="tut-section-desc">Por qué son importantes y cómo configurarlos</div>
+          </div>
+        </div>
+
+        <p style="font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:12px;">
+          El bot espera un tiempo aleatorio entre cada mensaje para <strong style="color:var(--text)">simular comportamiento humano</strong> y reducir el riesgo de bloqueo por parte de WhatsApp.
+        </p>
+
+        <table class="var-table">
+          <thead><tr><th>Parámetro</th><th>Valor recomendado</th><th>Descripción</th></tr></thead>
+          <tbody>
+            <tr><td class="code">delayMin</td><td style="color:var(--success);font-family:'JetBrains Mono',monospace">28s</td><td style="font-size:12px;color:var(--muted)">Tiempo mínimo de espera entre mensajes</td></tr>
+            <tr><td class="code">delayMax</td><td style="color:var(--success);font-family:'JetBrains Mono',monospace">35s</td><td style="font-size:12px;color:var(--muted)">Tiempo máximo de espera entre mensajes</td></tr>
+            <tr><td class="code">loginTimeout</td><td style="color:var(--gold);font-family:'JetBrains Mono',monospace">120s</td><td style="font-size:12px;color:var(--muted)">Tiempo para escanear el QR antes de que se cancele</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout callout-warn">
+          <strong>No uses delays menores a 20 segundos.</strong> WhatsApp detecta el envío rápido masivo y puede bloquear temporalmente tu número. Con 28–35s tenés un buen balance entre velocidad y seguridad.
+        </div>
+
+        <p style="font-size:13px;color:var(--muted);margin-top:14px;">
+          Para <strong style="color:var(--text)">100 contactos</strong> con delay promedio de 31.5s → aproximadamente <strong style="color:var(--gold)">52 minutos</strong> de ejecución total.
+        </p>
+      </section>
+
+      <!-- S8 -->
+      <section class="tut-section" id="s8">
+        <div class="tut-section-header">
+          <div class="tut-section-num">8</div>
+          <div>
+            <div class="tut-section-title">Errores comunes</div>
+            <div class="tut-section-desc">Diagnóstico y soluciones rápidas</div>
+          </div>
+        </div>
+
+        <ul class="steps-list">
+          <li><span class="li-icon">❌</span><div><strong>Número inválido:</strong> verificar que tenga el código de país, sin +, sin espacios. Mínimo 10 dígitos. Ejemplo correcto: <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">5491167867229</code></div></li>
+          <li><span class="li-icon">❌</span><div><strong>Tipo desconocido:</strong> el campo tipo debe ser exactamente uno de: <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">cliente</code>, <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">cliente_nuevo</code>, <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">salon</code>, <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">empresa</code>. Sin mayúsculas, sin tildes.</div></li>
+          <li><span class="li-icon">❌</span><div><strong>WhatsApp no carga / QR roto:</strong> cerrá el navegador, borrá la carpeta <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">session/</code> y volvé a ejecutar el bot.</div></li>
+          <li><span class="li-icon">❌</span><div><strong>No se encontró el cuadro de texto:</strong> WhatsApp Web puede haber actualizado sus selectores CSS. Actualizá puppeteer (<code style="color:var(--gold);font-family:'JetBrains Mono',monospace">npm update puppeteer</code>) y generá el script nuevamente.</div></li>
+          <li><span class="li-icon">❌</span><div><strong>Número no encontrado en WhatsApp:</strong> el contacto no tiene WhatsApp o el número está mal. El bot lo marca como error y continúa con el siguiente.</div></li>
+          <li><span class="li-icon">❌</span><div><strong>El mensaje no se personaliza:</strong> revisá que la variable esté entre llaves exactas <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">{nombre}</code> y que el nombre de la columna en el CSV coincida exactamente.</div></li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <strong>Consejo:</strong> Siempre revisá el <strong>checklist en Ejecutar</strong> antes de correr el bot. Si algún ítem está en rojo, resuolvelo primero. El preview de Mensaje también es útil para detectar variables rotas.
+        </div>
+
+        <!-- CTA -->
+        <div style="margin-top:24px;padding:20px;background:var(--surface);border:1px solid var(--border-gold, rgba(201,147,58,0.3));border-radius:var(--radius-lg);text-align:center;">
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:var(--text);margin-bottom:6px;">¿Listo para empezar?</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Seguí el flujo paso a paso: contactos → mensaje → ejecutar</div>
+          <a href="contactos.html" class="btn btn-primary">→ Ir a Contactos</a>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/shared.js"></script>
+<script>
+function setActive(el) {
+  document.querySelectorAll('.tut-nav-link').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Auto-highlight nav on scroll
+const sections = document.querySelectorAll('.tut-section');
+const navLinks  = document.querySelectorAll('.tut-nav-link');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      navLinks.forEach(a => {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

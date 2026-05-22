@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<!-- magic-bot/pages/mensaje.html -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mensaje — Magic Show Bot</title>
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+/* ── Layout ──────────────────────────────────────────────── */
+.msg-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── Machete ─────────────────────────────────────────────── */
+.machete-card {
+  background: var(--surface);
+  border: 1px solid var(--gold-dim);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.machete-label {
+  font-size: 10px; color: var(--gold);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+}
+.machete-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.var-chip {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 8px 10px;
+  cursor: pointer; transition: all .15s;
+}
+.var-chip:hover { border-color: var(--gold-dim); background: rgba(201,147,58,.05); }
+.var-code  { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--gold); }
+.var-desc  { font-size:10px; color:var(--muted); }
+.var-hint  { font-size:9px; color:var(--muted); background:var(--surface3); padding:2px 5px; border-radius:3px; }
+
+/* ── Editor ──────────────────────────────────────────────── */
+.editor-toolbar {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+  padding: 9px 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-bottom: none; border-radius: var(--radius) var(--radius) 0 0;
+}
+.editor-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:1px; margin-right:4px; }
+.var-quick-btn {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  padding:3px 9px; border-radius:4px;
+  border:1px solid var(--gold-dim); background:rgba(201,147,58,.08);
+  color:var(--gold); cursor:pointer; transition:.15s;
+}
+.var-quick-btn:hover { background:rgba(201,147,58,.18); }
+
+#msg-textarea {
+  width:100%; min-height:240px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:0 0 var(--radius) var(--radius);
+  color:var(--text); font-family:'JetBrains Mono',monospace; font-size:13px;
+  padding:14px; resize:vertical; outline:none;
+  transition:border-color .2s; line-height:1.8;
+}
+#msg-textarea:focus { border-color:var(--gold-dim); }
+.char-count { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--muted); text-align:right; margin-top:5px; }
+
+.msg-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+
+/* ── Preview ─────────────────────────────────────────────── */
+.preview-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+  position: sticky; top: 74px;
+}
+.preview-bar {
+  padding:10px 14px; background:var(--surface2); border-bottom:1px solid var(--border);
+  font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace;
+  display:flex; align-items:center; gap:6px;
+}
+.preview-dots { display:flex; gap:4px; margin-right:5px; }
+.preview-dot  { width:7px; height:7px; border-radius:50%; }
+
+.preview-select-wrap { padding:10px 14px; border-bottom:1px solid var(--border); }
+.preview-select-wrap label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; display:block; margin-bottom:5px; text-transform:uppercase; }
+
+.preview-bubble-wrap { padding:14px; display:flex; flex-direction:column; gap:8px; }
+.preview-contact-row { display:flex; align-items:center; gap:9px; margin-bottom:6px; }
+.preview-avatar {
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(201,147,58,.18); display:flex; align-items:center; justify-content:center;
+  font-size:13px; color:var(--gold); font-weight:500; font-family:'JetBrains Mono',monospace; flex-shrink:0;
+}
+.preview-name { font-size:13px; font-weight:500; color:var(--text); }
+.preview-num  { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+
+.preview-bubble {
+  background:#1c5f36; border-radius:12px 12px 4px 12px;
+  padding:10px 13px; font-size:13px; line-height:1.7;
+  color:#e8f5e9; white-space:pre-wrap; word-break:break-word;
+  align-self:flex-end; max-width:92%; position:relative;
+}
+.preview-time { font-size:9px; opacity:.55; text-align:right; margin-top:4px; }
+
+/* ── Saved badge ─────────────────────────────────────────── */
+.saved-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--success); font-family:'JetBrains Mono',monospace;
+  padding:4px 10px; border:1px solid rgba(82,183,136,.3); border-radius:20px;
+  background:rgba(82,183,136,.06); opacity:0; transition:.3s;
+}
+.saved-badge.show { opacity:1; }
+
+@media(max-width:860px) {
+  .msg-layout { grid-template-columns:1fr; }
+  .machete-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <a href="index.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3</span></a>
+  <nav class="header-nav">
+    <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
+    <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
+    <a href="ejecutar.html"  class="nav-btn" data-page="ejecutar.html"> <span class="nav-icon">▶️</span><span>Ejecutar</span></a>
+    <a href="tutorial.html"  class="nav-btn" data-page="tutorial.html"> <span class="nav-icon">📖</span><span>Tutorial</span></a>
+  </nav>
+  <div class="status-pill">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Sin contactos</span>
+  </div>
+</header>
+
+<div class="page-body">
+  <div class="section-header">
+    <div class="section-title">Redacción del Mensaje</div>
+    <div class="section-desc">Escribí el texto que se enviará. Usá {variable} para personalizar por contacto.</div>
+  </div>
+
+  <div class="msg-layout">
+    <!-- LEFT: Machete + Editor -->
+    <div>
+
+      <!-- Machete -->
+      <div class="machete-card">
+        <div class="machete-label">🗂 Machete de variables — hacé click para insertar en el cursor</div>
+        <div class="machete-grid" id="machete-grid">
+          <div class="var-chip" onclick="insertVar('{nombre}')">
+            <div><div class="var-code">{nombre}</div><div class="var-desc">Nombre del contacto</div></div>
+            <div class="var-hint">insertar</div>
+          </div>
+          <div class="var-chip" onclick="insertVar('{empresa}')">
+            <div><div class="var-code">{empresa}</div><div class="var-desc">Nombre de empresa</div></div>
+            <div class="var-hint">insertar</div>
+          </div>
+          <div class="var-chip" onclick="insertVar('{numero}')">
+            <div><div class="var-code">{numero}</div><div class="var-desc">Número de WhatsApp</div></div>
+            <div class="var-hint">insertar</div>
+          </div>
+          <div class="var-chip" onclick="insertVar('{tipo}')">
+            <div><div class="var-code">{tipo}</div><div class="var-desc">Tipo de contacto</div></div>
+            <div class="var-hint">insertar</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Editor -->
+      <div class="editor-toolbar">
+        <span class="editor-label">Insertar:</span>
+        <button class="var-quick-btn" onclick="insertVar('{nombre}')">+ {nombre}</button>
+        <button class="var-quick-btn" onclick="insertVar('{empresa}')">+ {empresa}</button>
+        <button class="var-quick-btn" onclick="insertVar('{tipo}')">+ {tipo}</button>
+      </div>
+      <textarea id="msg-textarea"
+        placeholder="Hola {nombre}! 👋&#10;&#10;Te escribimos desde Magic Show 🎩&#10;..."
+        oninput="onTextareaChange()"></textarea>
+      <div class="char-count" id="char-count">0 caracteres</div>
+
+      <div class="msg-actions">
+        <button class="btn btn-ghost" onclick="clearMsg()">🗑 Limpiar</button>
+        <button class="btn btn-ghost" onclick="loadExample()">✨ Ejemplo</button>
+        <button class="btn btn-primary" onclick="saveMsg()" style="margin-left:auto">💾 Guardar mensaje</button>
+        <span class="saved-badge" id="saved-badge">✓ Guardado</span>
+      </div>
+    </div>
+
+    <!-- RIGHT: Preview -->
+    <div>
+      <div class="preview-card">
+        <div class="preview-bar">
+          <div class="preview-dots">
+            <div class="preview-dot" style="background:#ff5f57"></div>
+            <div class="preview-dot" style="background:#febc2e"></div>
+            <div class="preview-dot" style="background:#28c840"></div>
+          </div>
+          Preview — WhatsApp
+        </div>
+
+        <div class="preview-select-wrap">
+          <label>Vista previa para:</label>
+          <select id="preview-select" onchange="updatePreview()">
+            <option value="">— Cargá contactos primero —</option>
+          </select>
+        </div>
+
+        <div class="preview-bubble-wrap">
+          <div class="preview-contact-row">
+            <div class="preview-avatar" id="prev-avatar">?</div>
+            <div>
+              <div class="preview-name" id="prev-name">Contacto</div>
+              <div class="preview-num"  id="prev-num">—</div>
+            </div>
+          </div>
+          <div class="preview-bubble" id="prev-bubble">
+            Escribí un mensaje para ver la vista previa...
+            <div class="preview-time">Ahora ✓✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="../js/shared.js"></script>
+<script>
+// ── State ────────────────────────────────────────────────
+let contacts = [];
+let selStart = 0, selEnd = 0;
+
+// ── Init ─────────────────────────────────────────────────
+function init() {
+  contacts = Store.get('magic_contacts', []);
+  const saved = Store.get('magic_message', '');
+  if (saved) document.getElementById('msg-textarea').value = saved;
+  onTextareaChange();
+  buildPreviewSelector();
+}
+
+// ── Textarea helpers ─────────────────────────────────────
+const ta = () => document.getElementById('msg-textarea');
+
+ta().addEventListener('mouseup', function() { selStart=this.selectionStart; selEnd=this.selectionEnd; });
+ta().addEventListener('keyup',   function() { selStart=this.selectionStart; selEnd=this.selectionEnd; });
+
+function onTextareaChange() {
+  const v = ta().value;
+  document.getElementById('char-count').textContent = `${v.length} caracteres`;
+  updatePreview();
+}
+
+function insertVar(variable) {
+  const el = ta();
+  const s  = selStart || el.selectionStart;
+  const e  = selEnd   || el.selectionEnd;
+  el.value = el.value.substring(0,s) + variable + el.value.substring(e);
+  const pos = s + variable.length;
+  el.setSelectionRange(pos, pos);
+  el.focus();
+  selStart = selEnd = pos;
+  onTextareaChange();
+}
+
+function clearMsg() {
+  if (!confirm('¿Limpiar el mensaje?')) return;
+  ta().value = '';
+  Store.del('magic_message');
+  onTextareaChange();
+  toast('Mensaje limpiado', 'info');
+}
+
+function saveMsg() {
+  const msg = ta().value.trim();
+  if (!msg) { toast('El mensaje está vacío', 'err'); return; }
+  Store.set('magic_message', msg);
+  const badge = document.getElementById('saved-badge');
+  badge.classList.add('show');
+  setTimeout(() => badge.classList.remove('show'), 2500);
+  toast('Mensaje guardado ✓', 'ok');
+}
+
+function loadExample() {
+  ta().value = `Hola {nombre}! 👋
+
+Somos un grupo de magia profesional y nos encantaría ser parte de los próximos eventos de {empresa} 🎩✨
+
+Ofrecemos shows únicos adaptados a cada ocasión: cumpleaños, casamientos, corporativos y más.
+
+¿Tenés algo planeado próximamente?`;
+  onTextareaChange();
+  toast('Ejemplo cargado', 'info');
+}
+
+// ── Preview ──────────────────────────────────────────────
+function buildPreviewSelector() {
+  const sel = document.getElementById('preview-select');
+  sel.innerHTML = '';
+  if (!contacts.length) {
+    sel.innerHTML = '<option value="">— Cargá contactos primero —</option>';
+    return;
+  }
+  const def = document.createElement('option');
+  def.value = ''; def.textContent = '— Seleccioná un contacto —';
+  sel.appendChild(def);
+  contacts.forEach((c, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `${c.nombre} (${c.tipo})`;
+    sel.appendChild(opt);
+  });
+  sel.value = '0';
+  updatePreview();
+}
+
+function updatePreview() {
+  const msg = ta().value || 'Escribí un mensaje para ver la vista previa...';
+  const idx = document.getElementById('preview-select').value;
+  const c   = idx !== '' && contacts[parseInt(idx)] ? contacts[parseInt(idx)] : null;
+
+  let rendered = msg;
+  if (c) {
+    rendered = rendered.replace(/\{(\w+)\}/g, (m, k) =>
+      c[k] !== undefined && c[k] !== '' ? c[k] : m
+    );
+    const initials = (c.nombre||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    document.getElementById('prev-avatar').textContent = initials;
+    document.getElementById('prev-name').textContent   = c.nombre;
+    document.getElementById('prev-num').textContent    = c.numero;
+  } else {
+    document.getElementById('prev-avatar').textContent = '?';
+    document.getElementById('prev-name').textContent   = 'Contacto';
+    document.getElementById('prev-num').textContent    = '—';
+  }
+
+  const now     = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+  document.getElementById('prev-bubble').innerHTML =
+    esc(rendered).replace(/\n/g,'<br>') +
+    `<div class="preview-time">${timeStr} ✓✓</div>`;
+}
+
+init();
+</script>
+</body>
+</html>

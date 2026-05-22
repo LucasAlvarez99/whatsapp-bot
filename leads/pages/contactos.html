@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<!-- magic-bot/pages/contactos.html -->
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contactos — Magic Show Bot</title>
+<link rel="stylesheet" href="../css/styles.css">
+<style>
+/* ── Layout ──────────────────────────────────────────────── */
+.contacts-top {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── Upload zone ─────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed var(--gold-dim);
+  border-radius: var(--radius-lg);
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: rgba(201,147,58,.02);
+}
+.upload-zone:hover, .upload-zone.drag { border-color:var(--gold); background:rgba(201,147,58,.06); }
+.upload-icon { font-size:32px; margin-bottom:10px; opacity:.45; }
+.upload-title { font-size:14px; font-weight:500; color:var(--text); margin-bottom:4px; }
+.upload-sub   { font-size:11px; color:var(--muted); margin-bottom:14px; }
+.upload-formats { display:flex; gap:6px; justify-content:center; }
+.fmt-tag {
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  padding:2px 7px; border-radius:4px;
+  background:var(--surface2); border:1px solid var(--border); color:var(--muted);
+}
+#file-input { display:none; }
+.upload-error { color:var(--danger); font-size:11px; margin-top:8px; font-family:'JetBrains Mono',monospace; display:none; }
+
+/* ── Stats mini ──────────────────────────────────────────── */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px; }
+.stat-box { background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius); padding:12px; text-align:center; }
+.stat-num { font-family:'Playfair Display',serif; font-size:26px; color:var(--gold); line-height:1; margin-bottom:3px; }
+.stat-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:1px; }
+
+/* ── Creator form ────────────────────────────────────────── */
+.creator-section { margin-bottom:16px; }
+.creator-grid { display:grid; grid-template-columns:2fr 1.4fr 1fr 1.4fr auto; gap:8px; align-items:end; margin-bottom:8px; }
+.field-label { font-size:10px; color:var(--muted); font-family:'JetBrains Mono',monospace; display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.8px; }
+.form-row { display:flex; gap:8px; align-items:end; flex-wrap:wrap; }
+.inline-actions { display:flex; gap:8px; margin-top:8px; flex-wrap:wrap; }
+
+/* ── Table actions ───────────────────────────────────────── */
+.row-actions { display:flex; gap:4px; }
+.row-del { background:transparent; border:none; cursor:pointer; color:var(--muted); font-size:13px; padding:3px 6px; border-radius:4px; transition:.15s; }
+.row-del:hover { color:var(--danger); background:rgba(224,82,82,.08); }
+.row-edit { background:transparent; border:none; cursor:pointer; color:var(--muted); font-size:13px; padding:3px 6px; border-radius:4px; transition:.15s; }
+.row-edit:hover { color:var(--gold); }
+
+/* ── Export bar ──────────────────────────────────────────── */
+.export-bar {
+  display:flex; gap:10px; align-items:center;
+  padding:14px 18px;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg);
+  margin-top:16px; flex-wrap:wrap;
+}
+.export-bar-title { font-size:13px; color:var(--muted); margin-right:4px; }
+
+/* ── Editable row (inline) ───────────────────────────────── */
+td input, td select {
+  background:var(--surface3); border:1px solid var(--gold-dim); border-radius:4px;
+  color:var(--text); font-size:12px; padding:4px 7px; width:100%;
+}
+
+/* ── Empty state ─────────────────────────────────────────── */
+.empty-msg {
+  text-align:center; padding:40px 20px;
+  font-size:13px; color:var(--muted); font-style:italic;
+}
+
+@media(max-width:860px){
+  .contacts-top { grid-template-columns:1fr; }
+  .creator-grid { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <a href="index.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3</span></a>
+  <nav class="header-nav">
+    <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
+    <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
+    <a href="ejecutar.html"  class="nav-btn" data-page="ejecutar.html"> <span class="nav-icon">▶️</span><span>Ejecutar</span></a>
+    <a href="tutorial.html"  class="nav-btn" data-page="tutorial.html"> <span class="nav-icon">📖</span><span>Tutorial</span></a>
+  </nav>
+  <div class="status-pill">
+    <div class="status-dot" id="status-dot"></div>
+    <span id="status-text">Sin contactos</span>
+  </div>
+</header>
+
+<div class="page-body">
+
+  <!-- SECTION HEADER -->
+  <div class="section-header">
+    <div class="section-title">Gestión de Contactos</div>
+    <div class="section-desc">Creá contactos manualmente, importá un CSV o exportá tu base como Excel</div>
+  </div>
+
+  <!-- TOP: Upload + Stats -->
+  <div class="contacts-top">
+
+    <!-- Upload -->
+    <div>
+      <div class="upload-zone" id="upload-zone"
+           onclick="document.getElementById('file-input').click()"
+           ondragover="onDragOver(event)"
+           ondragleave="onDragLeave(event)"
+           ondrop="onDrop(event)">
+        <div class="upload-icon">📁</div>
+        <div class="upload-title">Importar CSV existente</div>
+        <div class="upload-sub">Arrastrá o hacé click para seleccionar</div>
+        <div class="upload-formats">
+          <span class="fmt-tag">.csv</span>
+          <span class="fmt-tag">.txt</span>
+        </div>
+        <input type="file" id="file-input" accept=".csv,.txt" onchange="onFileSelect(event)">
+      </div>
+      <div class="upload-error" id="upload-error"></div>
+    </div>
+
+    <!-- Stats -->
+    <div class="card">
+      <div class="card-title"><div class="card-icon">📊</div>Resumen</div>
+      <div class="stats-grid">
+        <div class="stat-box"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Total</div></div>
+        <div class="stat-box"><div class="stat-num" id="stat-valid" style="color:var(--success)">0</div><div class="stat-label">Válidos</div></div>
+        <div class="stat-box"><div class="stat-num" id="stat-invalid" style="color:var(--danger)">0</div><div class="stat-label">Errores</div></div>
+        <div class="stat-box"><div class="stat-num" id="stat-types">—</div><div class="stat-label">Tipos</div></div>
+      </div>
+      <div id="type-pills" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+    </div>
+  </div>
+
+  <!-- CREATOR -->
+  <div class="card creator-section">
+    <div class="card-title"><div class="card-icon">➕</div>Agregar contacto</div>
+
+    <div class="creator-grid">
+      <div>
+        <label class="field-label">Nombre *</label>
+        <input type="text" id="f-nombre" placeholder="María García" onkeydown="creatorEnter(event)">
+      </div>
+      <div>
+        <label class="field-label">Número WhatsApp *</label>
+        <input type="text" id="f-numero" placeholder="5491167867229" onkeydown="creatorEnter(event)">
+      </div>
+      <div>
+        <label class="field-label">Tipo *</label>
+        <select id="f-tipo">
+          <option value="cliente">cliente</option>
+          <option value="cliente_nuevo">cliente_nuevo</option>
+          <option value="salon">salon</option>
+          <option value="empresa">empresa</option>
+        </select>
+      </div>
+      <div>
+        <label class="field-label">Empresa</label>
+        <input type="text" id="f-empresa" placeholder="Los Robles" onkeydown="creatorEnter(event)">
+      </div>
+      <div>
+        <button class="btn btn-primary" onclick="addContact()" style="height:36px; margin-top:20px;">+ Agregar</button>
+      </div>
+    </div>
+
+    <div class="inline-actions">
+      <button class="btn btn-ghost btn-sm" onclick="loadSampleData()">📋 Cargar datos de ejemplo</button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div id="table-section" style="display:none;">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Número</th>
+            <th>Tipo</th>
+            <th>Empresa</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="contacts-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- Export bar -->
+    <div class="export-bar">
+      <span class="export-bar-title">Exportar:</span>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📄 CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportExcel()">📊 Excel (.xls)</button>
+      <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="clearAll()">🗑 Limpiar todo</button>
+    </div>
+  </div>
+
+  <div id="empty-state" class="empty-msg">
+    Todavía no hay contactos. Importá un CSV o agregá uno manualmente arriba.
+  </div>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script src="../js/shared.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+const VALID_TYPES = ['cliente','cliente_nuevo','salon','empresa'];
+let contacts = [];
+
+// ── Load from storage on start ───────────────────────────
+function init() {
+  contacts = Store.get('magic_contacts', []);
+  render();
+}
+
+// ══════════════════════════════════════════════════════════
+// ADD / EDIT / DELETE
+// ══════════════════════════════════════════════════════════
+function addContact() {
+  const nombre  = document.getElementById('f-nombre').value.trim();
+  const numero  = document.getElementById('f-numero').value.trim();
+  const tipo    = document.getElementById('f-tipo').value;
+  const empresa = document.getElementById('f-empresa').value.trim();
+
+  const err = validateFields(nombre, numero, tipo);
+  if (err) { toast(err, 'err'); return; }
+
+  contacts.push({ id: Date.now(), nombre, numero, tipo, empresa, _valid: true });
+  save();
+  clearForm();
+  toast(`${nombre} agregado`, 'ok');
+}
+
+function creatorEnter(e) {
+  if (e.key === 'Enter') addContact();
+}
+
+function validateFields(nombre, numero, tipo) {
+  if (!nombre) return 'El nombre es obligatorio';
+  const digits = numero.replace(/\D/g,'');
+  if (!digits || digits.length < 10) return `Número inválido: "${numero}" — mínimo 10 dígitos con código de país`;
+  if (!VALID_TYPES.includes(tipo)) return `Tipo inválido: "${tipo}"`;
+  return null;
+}
+
+function deleteContact(id) {
+  contacts = contacts.filter(c => c.id !== id);
+  save();
+  toast('Contacto eliminado', 'info');
+}
+
+function clearForm() {
+  ['f-nombre','f-numero','f-empresa'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-tipo').value = 'cliente';
+  document.getElementById('f-nombre').focus();
+}
+
+function clearAll() {
+  if (!confirm(`¿Eliminar los ${contacts.length} contactos?`)) return;
+  contacts = [];
+  save();
+  toast('Base limpiada', 'info');
+}
+
+// ══════════════════════════════════════════════════════════
+// CSV IMPORT
+// ══════════════════════════════════════════════════════════
+function onFileSelect(e) {
+  const f = e.target.files[0];
+  if (f) readFile(f);
+  e.target.value = '';
+}
+function onDragOver(e)  { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag'); }
+function onDragLeave()  { document.getElementById('upload-zone').classList.remove('drag'); }
+function onDrop(e)      { e.preventDefault(); onDragLeave(); const f=e.dataTransfer.files[0]; if(f) readFile(f); }
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try { importCSV(e.target.result); }
+    catch(err) { showErr(err.message); }
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function importCSV(raw) {
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  if (lines.length < 2) throw new Error('El archivo está vacío o solo tiene encabezado.');
+
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const required = ['nombre','numero','tipo'];
+  for (const col of required) {
+    if (!headers.includes(col))
+      throw new Error(`Columna requerida ausente: "${col}". Columnas encontradas: ${headers.join(', ')}`);
+  }
+
+  let added = 0, skipped = 0;
+  for (let i = 1; i < lines.length; i++) {
+    const vals = lines[i].split(',').map(v => v.trim());
+    const row  = {};
+    headers.forEach((h, idx) => { row[h] = vals[idx] || ''; });
+
+    const tipo   = (row.tipo||'').trim().toLowerCase();
+    const digits = (row.numero||'').replace(/\D/g,'');
+    const valid  = row.nombre && digits.length >= 10 && VALID_TYPES.includes(tipo);
+
+    contacts.push({
+      id: Date.now() + i,
+      nombre:  row.nombre  || '',
+      numero:  row.numero  || '',
+      tipo:    tipo,
+      empresa: row.empresa || '',
+      _valid:  valid,
+      _error:  valid ? null : buildRowError(row, tipo, digits)
+    });
+    valid ? added++ : skipped++;
+  }
+
+  save();
+  document.getElementById('upload-error').style.display = 'none';
+  toast(`${added} importados${skipped ? `, ${skipped} con errores` : ''}`, added ? 'ok' : 'err');
+}
+
+function buildRowError(row, tipo, digits) {
+  if (!row.nombre) return 'Falta nombre';
+  if (digits.length < 10) return `Número inválido`;
+  if (!VALID_TYPES.includes(tipo)) return `Tipo "${tipo}" desconocido`;
+  return 'Error';
+}
+
+function showErr(msg) {
+  const el = document.getElementById('upload-error');
+  el.textContent = '⚠ ' + msg;
+  el.style.display = 'block';
+  toast(msg, 'err');
+}
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+function render() {
+  const tbody  = document.getElementById('contacts-tbody');
+  const valid  = contacts.filter(c => c._valid !== false);
+  const invalid = contacts.filter(c => c._valid === false);
+
+  // Stats
+  document.getElementById('stat-total').textContent   = contacts.length;
+  document.getElementById('stat-valid').textContent   = valid.length;
+  document.getElementById('stat-invalid').textContent = invalid.length;
+
+  const types = {};
+  valid.forEach(c => { types[c.tipo] = (types[c.tipo]||0)+1; });
+  document.getElementById('stat-types').textContent = Object.keys(types).length || '—';
+
+  const pills = document.getElementById('type-pills');
+  pills.innerHTML = Object.entries(types).map(([t,n]) =>
+    `<span class="badge badge-${t}">${t}: ${n}</span>`
+  ).join('');
+
+  // Table
+  if (!contacts.length) {
+    document.getElementById('table-section').style.display = 'none';
+    document.getElementById('empty-state').style.display   = 'block';
+    updateStatusPill(); return;
+  }
+  document.getElementById('table-section').style.display = 'block';
+  document.getElementById('empty-state').style.display   = 'none';
+
+  tbody.innerHTML = contacts.map((c, i) => {
+    const isErr = c._valid === false;
+    const badgeClass = isErr ? 'badge-error' : `badge-${c.tipo}`;
+    return `<tr ${isErr ? 'style="opacity:.65"' : ''}>
+      <td style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;">${i+1}</td>
+      <td style="font-weight:500">${esc(c.nombre)}</td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${esc(c.numero)}</td>
+      <td><span class="badge ${badgeClass}">${esc(c.tipo||'—')}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${esc(c.empresa||'—')}</td>
+      <td style="font-size:11px;color:${isErr?'var(--danger)':'var(--success)'}">${isErr ? '⚠ '+c._error : '✓ OK'}</td>
+      <td>
+        <div class="row-actions">
+          <button class="row-del" title="Eliminar" onclick="deleteContact(${c.id})">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  updateStatusPill();
+}
+
+// ══════════════════════════════════════════════════════════
+// SAVE
+// ══════════════════════════════════════════════════════════
+function save() {
+  // Only save valid contacts to shared storage for bot use
+  const valid = contacts.filter(c => c._valid !== false);
+  Store.set('magic_contacts', valid);
+  Store.set('magic_contacts_all', contacts); // keep all for display
+  render();
+}
+
+// Override init to load all contacts including invalid for display
+function init() {
+  contacts = Store.get('magic_contacts_all', Store.get('magic_contacts', []));
+  // Ensure all have _valid field
+  contacts = contacts.map(c => ({
+    ...c,
+    _valid: c._valid !== undefined ? c._valid : true,
+    id: c.id || Date.now() + Math.random()
+  }));
+  render();
+}
+
+// ══════════════════════════════════════════════════════════
+// EXPORT
+// ══════════════════════════════════════════════════════════
+function exportCSV() {
+  const valid = contacts.filter(c => c._valid !== false);
+  if (!valid.length) { toast('Sin contactos válidos', 'err'); return; }
+  const header = 'nombre,numero,tipo,empresa';
+  const rows = valid.map(c =>
+    `"${(c.nombre||'').replace(/"/g,'""')}","${(c.numero||'').replace(/"/g,'""')}","${c.tipo||''}","${(c.empresa||'').replace(/"/g,'""')}"`
+  );
+  download([header,...rows].join('\n'), 'magic_contactos.csv', 'text/csv');
+  toast('CSV descargado', 'ok');
+}
+
+function exportExcel() {
+  const valid = contacts.filter(c => c._valid !== false);
+  if (!valid.length) { toast('Sin contactos válidos', 'err'); return; }
+
+  let table = '<table>';
+  table += '<thead><tr><th>nombre</th><th>numero</th><th>tipo</th><th>empresa</th></tr></thead><tbody>';
+  valid.forEach(c => {
+    table += `<tr><td>${c.nombre||''}</td><td>${c.numero||''}</td><td>${c.tipo||''}</td><td>${c.empresa||''}</td></tr>`;
+  });
+  table += '</tbody></table>';
+
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+    xmlns:x="urn:schemas-microsoft-com:office:excel">
+    <head><meta charset="UTF-8">
+    <style>th{background:#c9933a;color:#000;font-weight:bold;padding:6px}td{padding:5px;border:1px solid #ccc}</style>
+    </head><body>${table}</body></html>`;
+
+  const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = 'magic_contactos.xls';
+  a.click(); URL.revokeObjectURL(url);
+  toast('Excel descargado', 'ok');
+}
+
+function download(content, name, mime) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type: mime}));
+  a.download = name; a.click();
+}
+
+// ══════════════════════════════════════════════════════════
+// SAMPLE DATA
+// ══════════════════════════════════════════════════════════
+function loadSampleData() {
+  const sample = [
+    { id: Date.now()+1, nombre:'María García',        numero:'5491167867229', tipo:'cliente',       empresa:'',              _valid:true },
+    { id: Date.now()+2, nombre:'Juan Pérez',           numero:'5491167867230', tipo:'cliente_nuevo',  empresa:'',              _valid:true },
+    { id: Date.now()+3, nombre:'Salón El Gran Evento', numero:'5491167867231', tipo:'salon',          empresa:'El Gran Evento', _valid:true },
+    { id: Date.now()+4, nombre:'TechCorp Argentina',   numero:'5491167867232', tipo:'empresa',        empresa:'TechCorp Argentina', _valid:true },
+    { id: Date.now()+5, nombre:'Laura Rodríguez',      numero:'5491167867233', tipo:'cliente',        empresa:'',              _valid:true },
+  ];
+  contacts = [...contacts, ...sample];
+  save();
+  toast('5 contactos de ejemplo cargados', 'ok');
+}
+
+// ── Boot ────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
