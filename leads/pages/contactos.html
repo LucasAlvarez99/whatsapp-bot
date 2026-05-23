@@ -6,123 +6,25 @@
 <title>Contactos — Magic Show Bot</title>
 <link rel="stylesheet" href="../css/styles.css">
 <style>
-/* ── Layout ───────────────────────────────────────────── */
-.top-grid {
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-/* ── Form card ────────────────────────────────────────── */
-.add-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.add-form .span2 { grid-column: span 2; }
-.field-label {
-  font-size: 10px; color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  display: block; margin-bottom: 5px;
-  text-transform: uppercase; letter-spacing: .8px;
-}
-.required-star { color: var(--gold); margin-left: 2px; }
-
-/* ── Upload zone ──────────────────────────────────────── */
-.upload-zone {
-  border: 2px dashed var(--gold-dim);
-  border-radius: var(--radius);
-  padding: 20px 16px;
-  text-align: center;
-  cursor: pointer;
-  transition: all .2s;
-  background: rgba(201,147,58,.02);
-  margin-top: 10px;
-}
-.upload-zone:hover, .upload-zone.drag {
-  border-color: var(--gold);
-  background: rgba(201,147,58,.06);
-}
-.upload-zone p { font-size: 12px; color: var(--muted); margin-top: 6px; }
-#file-input { display: none; }
-
-/* ── Stats sidebar ────────────────────────────────────── */
+.top-grid { display: grid; grid-template-columns: 1fr 260px; gap: 16px; margin-bottom: 16px; }
+.add-form  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.add-form .span2 { grid-column: span 2; display: flex; gap: 8px; margin-top: 4px; }
 .stats-col { display: flex; flex-direction: column; gap: 10px; }
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  text-align: center;
-}
-.stat-card .num {
-  font-family: 'Playfair Display', serif;
-  font-size: 36px; line-height: 1;
-  color: var(--gold); margin-bottom: 4px;
-}
-.stat-card .lbl {
-  font-size: 9px; color: var(--muted);
-  font-family: 'JetBrains Mono', monospace;
-  text-transform: uppercase; letter-spacing: 1.5px;
-}
-.type-breakdown {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-}
-.type-row {
-  display: flex; justify-content: space-between;
-  align-items: center; padding: 4px 0;
-  font-size: 12px;
-}
+.stat-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; text-align: center; }
+.stat-card .num { font-family: 'Playfair Display', serif; font-size: 36px; line-height: 1; color: var(--gold); margin-bottom: 4px; }
+.stat-card .lbl { font-size: 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1.5px; }
+.type-breakdown { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+.type-breakdown-title { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+.type-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 12px; }
 .type-row + .type-row { border-top: 1px solid rgba(255,255,255,.04); }
-.type-count {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; color: var(--gold);
-}
-
-/* ── Table ────────────────────────────────────────────── */
-.table-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
-}
-.table-header h3 {
-  font-size: 13px; color: var(--text); font-weight: 500;
-}
+.type-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); }
+.table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+.table-header h3 { font-size: 13px; color: var(--text); font-weight: 500; }
 .table-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-
-.row-del {
-  background: transparent; border: none;
-  cursor: pointer; color: var(--muted);
-  font-size: 14px; padding: 3px 6px;
-  border-radius: 4px; transition: .15s;
-  line-height: 1;
-}
-.row-del:hover { color: var(--danger); background: rgba(224,82,82,.1); }
-
-.empty-state {
-  text-align: center; padding: 48px 20px;
-  color: var(--muted); font-size: 13px;
-}
-.empty-state .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: .4; }
-
-/* ── Error banner ─────────────────────────────────────── */
-.upload-error {
-  display: none; margin-top: 8px;
-  padding: 8px 12px;
-  background: rgba(224,82,82,.08);
-  border: 1px solid rgba(224,82,82,.3);
-  border-radius: var(--radius);
-  font-size: 11px; color: var(--danger);
-  font-family: 'JetBrains Mono', monospace;
-}
-
 @media(max-width:900px) {
   .top-grid { grid-template-columns: 1fr; }
-  .add-form { grid-template-columns: 1fr; }
-  .add-form .span2 { grid-column: 1; }
+  .add-form  { grid-template-columns: 1fr; }
+  .add-form .span2 { flex-direction: column; }
 }
 </style>
 </head>
@@ -143,27 +45,27 @@
 </header>
 
 <div class="page-body">
-
   <div class="section-header">
     <div class="section-title">Gestión de Contactos</div>
-    <div class="section-desc">Agregá contactos uno a uno, importá un CSV, o exportá tu base para usarla con el bot</div>
+    <div class="section-desc">Agregá contactos uno a uno, importá un CSV o exportá tu base</div>
   </div>
 
   <div class="top-grid">
 
-    <!-- LEFT: agregar + importar -->
     <div>
-      <!-- AGREGAR MANUALMENTE -->
+      <!-- Agregar manualmente -->
       <div class="card" style="margin-bottom:14px;">
         <div class="card-title"><div class="card-icon">➕</div>Agregar contacto</div>
         <div class="add-form">
           <div>
             <label class="field-label">Nombre<span class="required-star">*</span></label>
-            <input type="text" id="f-nombre" placeholder="ej: María García" onkeydown="enterAdd(event)">
+            <input type="text" id="f-nombre" placeholder="ej: María García"
+                   onkeydown="if(event.key==='Enter') contactAdd()">
           </div>
           <div>
             <label class="field-label">Número WhatsApp<span class="required-star">*</span></label>
-            <input type="text" id="f-numero" placeholder="ej: 5491167867229" onkeydown="enterAdd(event)">
+            <input type="text" id="f-numero" placeholder="ej: 5491167867229"
+                   onkeydown="if(event.key==='Enter') contactAdd()">
           </div>
           <div>
             <label class="field-label">Tipo<span class="required-star">*</span></label>
@@ -176,33 +78,38 @@
           </div>
           <div>
             <label class="field-label">Empresa</label>
-            <input type="text" id="f-empresa" placeholder="ej: Los Robles" onkeydown="enterAdd(event)">
+            <input type="text" id="f-empresa" placeholder="ej: Los Robles"
+                   onkeydown="if(event.key==='Enter') contactAdd()">
           </div>
-          <div class="span2" style="display:flex; gap:8px; align-items:center; margin-top:4px;">
-            <button class="btn btn-primary" onclick="addContact()" style="flex:1">+ Agregar contacto</button>
-            <button class="btn btn-ghost btn-sm" onclick="loadSample()">📋 Cargar ejemplo</button>
+          <div class="span2">
+            <button class="btn btn-primary" style="flex:1" onclick="contactAdd()">+ Agregar contacto</button>
+            <button class="btn btn-ghost btn-sm" onclick="contactLoadSample()">📋 Ejemplo</button>
           </div>
         </div>
       </div>
 
-      <!-- IMPORTAR CSV -->
+      <!-- Importar CSV -->
       <div class="card">
         <div class="card-title"><div class="card-icon">📁</div>Importar desde CSV</div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:2px;">
-          El archivo debe tener encabezado: <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">nombre,numero,tipo,empresa</code>
+          Encabezado requerido:
+          <code style="color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:11px;">nombre,numero,tipo,empresa</code>
         </p>
         <div class="upload-zone" id="upload-zone"
              onclick="document.getElementById('file-input').click()"
-             ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
+             ondragover="contactDragOver(event)"
+             ondragleave="contactDragLeave()"
+             ondrop="contactDrop(event)">
           <div style="font-size:28px;opacity:.5;">📂</div>
-          <p>Arrastrá un archivo .csv o .txt, o hacé click para seleccionar</p>
+          <p>Arrastrá un .csv o .txt, o hacé click para seleccionar</p>
         </div>
-        <input type="file" id="file-input" accept=".csv,.txt" onchange="onFileSelect(event)">
+        <input type="file" id="file-input" style="display:none" accept=".csv,.txt"
+               onchange="contactOnFileSelect(event)">
         <div class="upload-error" id="upload-error"></div>
       </div>
     </div>
 
-    <!-- RIGHT: stats -->
+    <!-- Stats sidebar -->
     <div class="stats-col">
       <div class="stat-card">
         <div class="num" id="st-total">0</div>
@@ -217,23 +124,23 @@
         <div class="lbl">Con errores</div>
       </div>
       <div class="type-breakdown">
-        <div style="font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">Por tipo</div>
-        <div class="type-row"><span>🧑 cliente</span><span class="type-count" id="tc-cliente">0</span></div>
+        <div class="type-breakdown-title">Por tipo</div>
+        <div class="type-row"><span>🧑 cliente</span>      <span class="type-count" id="tc-cliente">0</span></div>
         <div class="type-row"><span>🆕 cliente_nuevo</span><span class="type-count" id="tc-cliente_nuevo">0</span></div>
-        <div class="type-row"><span>🏛️ salon</span><span class="type-count" id="tc-salon">0</span></div>
-        <div class="type-row"><span>🏢 empresa</span><span class="type-count" id="tc-empresa">0</span></div>
+        <div class="type-row"><span>🏛️ salon</span>         <span class="type-count" id="tc-salon">0</span></div>
+        <div class="type-row"><span>🏢 empresa</span>       <span class="type-count" id="tc-empresa">0</span></div>
       </div>
     </div>
 
   </div>
 
-  <!-- TABLE -->
+  <!-- Tabla -->
   <div class="table-header">
     <h3 id="table-title">Lista de contactos</h3>
     <div class="table-actions">
-      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📄 Exportar CSV</button>
-      <button class="btn btn-ghost btn-sm" onclick="exportExcel()">📊 Exportar Excel</button>
-      <button class="btn btn-danger btn-sm" onclick="clearAll()">🗑 Limpiar todo</button>
+      <button class="btn btn-ghost btn-sm" onclick="contactExportCSV()">📄 Exportar CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="contactExportExcel()">📊 Exportar Excel</button>
+      <button class="btn btn-danger btn-sm" onclick="contactClearAll()">🗑 Limpiar todo</button>
     </div>
   </div>
 
@@ -247,13 +154,7 @@
     <table>
       <thead>
         <tr>
-          <th>#</th>
-          <th>Nombre</th>
-          <th>Número</th>
-          <th>Tipo</th>
-          <th>Empresa</th>
-          <th>Estado</th>
-          <th></th>
+          <th>#</th><th>Nombre</th><th>Número</th><th>Tipo</th><th>Empresa</th><th>Estado</th><th></th>
         </tr>
       </thead>
       <tbody id="contacts-tbody"></tbody>
@@ -263,356 +164,11 @@
 </div>
 
 <div id="toast-container"></div>
-<script src="../js/shared.js"></script>
-<script>
-'use strict';
 
-// ─────────────────────────────────────────────────────────
-// CONSTANTS
-// ─────────────────────────────────────────────────────────
-const VALID_TYPES = ['cliente', 'cliente_nuevo', 'salon', 'empresa'];
-const STORAGE_KEY_ALL   = 'magic_contacts_all';   // todos (incluye inválidos) — para la UI
-const STORAGE_KEY_VALID = 'magic_contacts';        // solo válidos — para el bot
+<script src="../js/store.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/contacts.js"></script>
+<script>document.addEventListener('DOMContentLoaded', contactsInit);</script>
 
-// ─────────────────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────────────────
-let contacts = [];   // fuente de verdad en memoria
-
-// ─────────────────────────────────────────────────────────
-// INIT — única definición, al final del script
-// ─────────────────────────────────────────────────────────
-function init() {
-  // Intentar cargar desde magic_contacts_all (incluye inválidos para mostrar en tabla)
-  // Si no existe aún, intentar magic_contacts (solo válidos — migración de versiones anteriores)
-  const stored = Store.get(STORAGE_KEY_ALL, Store.get(STORAGE_KEY_VALID, []));
-  contacts = stored.map(c => ({
-    ...c,
-    id:     c.id     !== undefined ? c.id     : Date.now() + Math.random(),
-    _valid: c._valid !== undefined ? c._valid : true,
-    _error: c._error !== undefined ? c._error : null,
-  }));
-  renderAll();
-}
-
-// ─────────────────────────────────────────────────────────
-// PERSIST — siempre llamar después de modificar contacts[]
-// ─────────────────────────────────────────────────────────
-function persist() {
-  const validOnly = contacts.filter(c => c._valid !== false);
-  Store.set(STORAGE_KEY_ALL,   contacts);    // para la UI (tabla)
-  Store.set(STORAGE_KEY_VALID, validOnly);   // para el bot (ejecutar.html lo lee de acá)
-}
-
-// ─────────────────────────────────────────────────────────
-// VALIDATE A SINGLE CONTACT
-// ─────────────────────────────────────────────────────────
-function validate(nombre, numero, tipo) {
-  if (!nombre || !nombre.trim()) return 'El nombre es obligatorio';
-  const digits = (numero || '').replace(/\D/g, '');
-  if (!digits || digits.length < 10)
-    return `Número inválido "${numero}" — debe tener mínimo 10 dígitos con código de país`;
-  if (!VALID_TYPES.includes(tipo))
-    return `Tipo inválido "${tipo}" — válidos: ${VALID_TYPES.join(', ')}`;
-  return null;  // OK
-}
-
-// ─────────────────────────────────────────────────────────
-// ADD CONTACT (formulario manual)
-// ─────────────────────────────────────────────────────────
-function addContact() {
-  const nombre  = document.getElementById('f-nombre').value.trim();
-  const numero  = document.getElementById('f-numero').value.trim();
-  const tipo    = document.getElementById('f-tipo').value;
-  const empresa = document.getElementById('f-empresa').value.trim();
-
-  const err = validate(nombre, numero, tipo);
-  if (err) { toast(err, 'err'); return; }
-
-  contacts.push({
-    id:      Date.now(),
-    nombre, numero, tipo, empresa,
-    _valid:  true,
-    _error:  null,
-  });
-
-  persist();
-  renderAll();
-  clearForm();
-  toast(`✓ ${nombre} agregado`, 'ok');
-}
-
-function enterAdd(e) {
-  if (e.key === 'Enter') addContact();
-}
-
-function clearForm() {
-  document.getElementById('f-nombre').value  = '';
-  document.getElementById('f-numero').value  = '';
-  document.getElementById('f-empresa').value = '';
-  document.getElementById('f-tipo').value    = 'cliente';
-  document.getElementById('f-nombre').focus();
-}
-
-// ─────────────────────────────────────────────────────────
-// DELETE CONTACT
-// ─────────────────────────────────────────────────────────
-function deleteContact(id) {
-  const c = contacts.find(x => x.id === id);
-  if (!c) return;
-  contacts = contacts.filter(x => x.id !== id);
-  persist();
-  renderAll();
-  toast(`${c.nombre} eliminado`, 'info');
-}
-
-// ─────────────────────────────────────────────────────────
-// CLEAR ALL
-// ─────────────────────────────────────────────────────────
-function clearAll() {
-  if (!contacts.length) return;
-  if (!confirm(`¿Eliminar los ${contacts.length} contactos? Esta acción no se puede deshacer.`)) return;
-  contacts = [];
-  persist();
-  renderAll();
-  toast('Lista limpiada', 'info');
-}
-
-// ─────────────────────────────────────────────────────────
-// CSV IMPORT
-// ─────────────────────────────────────────────────────────
-function onFileSelect(e) {
-  const f = e.target.files[0];
-  if (f) readCSVFile(f);
-  e.target.value = '';
-}
-function onDragOver(e) {
-  e.preventDefault();
-  document.getElementById('upload-zone').classList.add('drag');
-}
-function onDragLeave() {
-  document.getElementById('upload-zone').classList.remove('drag');
-}
-function onDrop(e) {
-  e.preventDefault();
-  onDragLeave();
-  const f = e.dataTransfer.files[0];
-  if (f) readCSVFile(f);
-}
-
-function readCSVFile(file) {
-  const reader = new FileReader();
-  reader.onload  = e => importCSV(e.target.result);
-  reader.onerror = () => showUploadError('No se pudo leer el archivo.');
-  reader.readAsText(file, 'UTF-8');
-}
-
-function importCSV(raw) {
-  hideUploadError();
-  const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-
-  if (lines.length < 2) {
-    showUploadError('El archivo está vacío o solo tiene encabezado.');
-    return;
-  }
-
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-  for (const col of ['nombre', 'numero', 'tipo']) {
-    if (!headers.includes(col)) {
-      showUploadError(`Columna requerida ausente: "${col}". Columnas encontradas: ${headers.join(', ')}`);
-      return;
-    }
-  }
-
-  let added = 0, withErrors = 0;
-  const now = Date.now();
-
-  for (let i = 1; i < lines.length; i++) {
-    const vals = lines[i].split(',').map(v => v.trim());
-    const row  = {};
-    headers.forEach((h, idx) => { row[h] = vals[idx] || ''; });
-
-    const tipo   = (row.tipo || '').trim().toLowerCase();
-    const err    = validate(row.nombre, row.numero, tipo);
-    const isValid = err === null;
-
-    contacts.push({
-      id:      now + i,
-      nombre:  row.nombre  || '',
-      numero:  row.numero  || '',
-      tipo:    tipo,
-      empresa: row.empresa || '',
-      _valid:  isValid,
-      _error:  isValid ? null : err,
-    });
-
-    isValid ? added++ : withErrors++;
-  }
-
-  persist();
-  renderAll();
-  toast(
-    `${added} importados${withErrors ? ` · ${withErrors} con errores` : ''}`,
-    added > 0 ? 'ok' : 'err'
-  );
-}
-
-function showUploadError(msg) {
-  const el = document.getElementById('upload-error');
-  el.textContent = '⚠ ' + msg;
-  el.style.display = 'block';
-  toast(msg, 'err');
-}
-function hideUploadError() {
-  document.getElementById('upload-error').style.display = 'none';
-}
-
-// ─────────────────────────────────────────────────────────
-// RENDER — tabla + stats
-// ─────────────────────────────────────────────────────────
-function renderAll() {
-  renderStats();
-  renderTable();
-  updateStatusPill();
-}
-
-function renderStats() {
-  const valid   = contacts.filter(c => c._valid !== false);
-  const invalid = contacts.filter(c => c._valid === false);
-
-  document.getElementById('st-total').textContent   = contacts.length;
-  document.getElementById('st-valid').textContent   = valid.length;
-  document.getElementById('st-invalid').textContent = invalid.length;
-
-  const counts = { cliente: 0, cliente_nuevo: 0, salon: 0, empresa: 0 };
-  valid.forEach(c => { if (counts[c.tipo] !== undefined) counts[c.tipo]++; });
-  for (const [tipo, n] of Object.entries(counts)) {
-    document.getElementById('tc-' + tipo).textContent = n;
-  }
-}
-
-function renderTable() {
-  const tbody = document.getElementById('contacts-tbody');
-  const wrap  = document.getElementById('table-wrap');
-  const empty = document.getElementById('empty-state');
-  const title = document.getElementById('table-title');
-
-  if (!contacts.length) {
-    wrap.style.display  = 'none';
-    empty.style.display = 'block';
-    title.textContent   = 'Lista de contactos';
-    return;
-  }
-
-  wrap.style.display  = 'block';
-  empty.style.display = 'none';
-  title.textContent   = `Lista de contactos (${contacts.length})`;
-
-  tbody.innerHTML = contacts.map((c, i) => {
-    const isErr = c._valid === false;
-    const badgeClass = isErr ? 'badge-error' : `badge-${c.tipo}`;
-    const statusColor = isErr ? 'var(--danger)' : 'var(--success)';
-    const statusText  = isErr ? `⚠ ${c._error}` : '✓ OK';
-    return `
-      <tr${isErr ? ' style="opacity:.6"' : ''}>
-        <td style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:10px;">${i + 1}</td>
-        <td style="font-weight:500">${esc(c.nombre)}</td>
-        <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted)">${esc(c.numero)}</td>
-        <td><span class="badge ${badgeClass}">${esc(c.tipo || '—')}</span></td>
-        <td style="font-size:12px;color:var(--muted)">${esc(c.empresa || '—')}</td>
-        <td style="font-size:11px;color:${statusColor}">${statusText}</td>
-        <td>
-          <button class="row-del" title="Eliminar" onclick="deleteContact(${c.id})">✕</button>
-        </td>
-      </tr>`;
-  }).join('');
-}
-
-// ─────────────────────────────────────────────────────────
-// EXPORT
-// ─────────────────────────────────────────────────────────
-function exportCSV() {
-  const valid = contacts.filter(c => c._valid !== false);
-  if (!valid.length) { toast('No hay contactos válidos para exportar', 'err'); return; }
-
-  const q = s => `"${String(s || '').replace(/"/g, '""')}"`;
-  const lines = [
-    'nombre,numero,tipo,empresa',
-    ...valid.map(c => [q(c.nombre), q(c.numero), q(c.tipo), q(c.empresa)].join(','))
-  ];
-
-  triggerDownload(lines.join('\n'), 'magic_contactos.csv', 'text/csv;charset=utf-8;');
-  toast(`CSV con ${valid.length} contactos descargado`, 'ok');
-}
-
-function exportExcel() {
-  const valid = contacts.filter(c => c._valid !== false);
-  if (!valid.length) { toast('No hay contactos válidos para exportar', 'err'); return; }
-
-  // Usamos formato HTML que Excel abre directamente (.xls)
-  const rows = valid.map(c => `
-    <tr>
-      <td>${esc(c.nombre)}</td>
-      <td style="mso-number-format:'@'">${esc(c.numero)}</td>
-      <td>${esc(c.tipo)}</td>
-      <td>${esc(c.empresa || '')}</td>
-    </tr>`).join('');
-
-  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
-    xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="UTF-8"><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets>
-    <x:ExcelWorksheet><x:Name>Contactos</x:Name><x:WorksheetOptions><x:DisplayGridlines/>
-    </x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-    <style>
-      th { background:#c9933a; color:#000; font-weight:bold; padding:6px 10px; }
-      td { padding:5px 10px; border:1px solid #ddd; }
-      tr:nth-child(even) td { background:#fdf6ec; }
-    </style></head>
-    <body><table>
-      <thead><tr>
-        <th>nombre</th><th>numero</th><th>tipo</th><th>empresa</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table></body></html>`;
-
-  triggerDownload(html, 'magic_contactos.xls', 'application/vnd.ms-excel;charset=utf-8;');
-  toast(`Excel con ${valid.length} contactos descargado`, 'ok');
-}
-
-function triggerDownload(content, filename, mimeType) {
-  const blob = new Blob(['\uFEFF' + content], { type: mimeType });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-// ─────────────────────────────────────────────────────────
-// SAMPLE DATA
-// ─────────────────────────────────────────────────────────
-function loadSample() {
-  const t = Date.now();
-  const sample = [
-    { id:t+1, nombre:'María García',        numero:'5491167867229', tipo:'cliente',       empresa:'',                   _valid:true, _error:null },
-    { id:t+2, nombre:'Juan Pérez',           numero:'5491167867230', tipo:'cliente_nuevo',  empresa:'',                   _valid:true, _error:null },
-    { id:t+3, nombre:'Salón El Gran Evento', numero:'5491167867231', tipo:'salon',          empresa:'El Gran Evento',     _valid:true, _error:null },
-    { id:t+4, nombre:'TechCorp Argentina',   numero:'5491167867232', tipo:'empresa',        empresa:'TechCorp Argentina', _valid:true, _error:null },
-    { id:t+5, nombre:'Laura Rodríguez',      numero:'5491167867233', tipo:'cliente',        empresa:'',                   _valid:true, _error:null },
-  ];
-  contacts = [...contacts, ...sample];
-  persist();
-  renderAll();
-  toast('5 contactos de ejemplo cargados', 'ok');
-}
-
-// ─────────────────────────────────────────────────────────
-// BOOT
-// ─────────────────────────────────────────────────────────
-init();
-</script>
 </body>
 </html>

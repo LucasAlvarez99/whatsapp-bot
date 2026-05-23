@@ -6,131 +6,11 @@
 <title>Ejecutar — Magic Show Bot</title>
 <link rel="stylesheet" href="../css/styles.css">
 <style>
-/* ── Layout ──────────────────────────────────────────── */
-.exec-layout {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 16px;
-  align-items: start;
-}
-
-/* ── Checklist ───────────────────────────────────────── */
-.chk-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-.chk-item {
-  display: flex; align-items: center; gap: 12px;
-  padding: 12px 15px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--surface2);
-  transition: all .2s;
-}
-.chk-item.ok   { border-color: rgba(82,183,136,.35); background: rgba(82,183,136,.04); }
-.chk-item.fail { border-color: rgba(224,82,82,.35);  background: rgba(224,82,82,.04); }
-.chk-item.warn { border-color: rgba(201,147,58,.35); background: rgba(201,147,58,.04); }
-.chk-icon {
-  width: 28px; height: 28px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 12px; font-weight: 700; flex-shrink: 0;
-  background: var(--surface3);
-}
-.chk-item.ok   .chk-icon { background: rgba(82,183,136,.2); color: var(--success); }
-.chk-item.fail .chk-icon { background: rgba(224,82,82,.2);  color: var(--danger); }
-.chk-item.warn .chk-icon { background: rgba(201,147,58,.2); color: var(--gold); }
-.chk-body  { flex: 1; min-width: 0; }
-.chk-label { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 1px; }
-.chk-sub   { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
-             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-/* ── CTA area ────────────────────────────────────────── */
-.cta-area {
-  display: flex; flex-direction: column; gap: 10px;
-  margin-bottom: 20px;
-}
-.btn-generate {
-  width: 100%; padding: 14px;
-  font-size: 14px; font-weight: 600;
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-}
-
-/* ── Script block ────────────────────────────────────── */
-.script-wrap {
-  background: var(--dark);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-.script-toolbar {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 9px 14px;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
-}
-.script-toolbar-title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; color: var(--muted);
-}
-.script-toolbar-actions { display: flex; gap: 6px; }
-.script-body {
-  padding: 14px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px; color: #a8d5a2;
-  line-height: 1.75; white-space: pre-wrap;
-  max-height: 320px; overflow-y: auto;
-  word-break: break-word;
-}
-
-/* ── Steps ───────────────────────────────────────────── */
-.steps-list { display: flex; flex-direction: column; gap: 8px; }
-.step-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 10px 12px;
-  background: var(--surface2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 12px; color: var(--muted); line-height: 1.6;
-}
-.step-num {
-  width: 20px; height: 20px; border-radius: 50%;
-  background: rgba(201,147,58,.15); color: var(--gold);
-  font-family: 'JetBrains Mono', monospace; font-size: 10px;
-  font-weight: 700; display: flex; align-items: center;
-  justify-content: center; flex-shrink: 0; margin-top: 1px;
-}
-.step-item strong { color: var(--text); }
-
-/* ── Config sliders ──────────────────────────────────── */
-.timing-list { display: flex; flex-direction: column; gap: 14px; }
-.timing-item { display: flex; flex-direction: column; gap: 5px; }
-.timing-row  { display: flex; justify-content: space-between; align-items: center; }
-.timing-row span { font-size: 12px; color: var(--text); }
-.timing-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); }
-
-/* ── Summary ─────────────────────────────────────────── */
-.summary-rows { display: flex; flex-direction: column; gap: 8px; }
-.summary-row {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 12px; padding: 6px 0;
-  border-bottom: 1px solid rgba(255,255,255,.04);
-}
-.summary-row:last-child { border-bottom: none; }
-.summary-key { color: var(--muted); }
-.summary-val { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
-.summary-val.ok  { color: var(--success); }
-.summary-val.bad { color: var(--danger); }
-
-/* ── Warning ─────────────────────────────────────────── */
-.warn-box {
-  background: rgba(224,82,82,.06);
-  border: 1px solid rgba(224,82,82,.2);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  font-size: 12px; color: #e8a8a8; line-height: 1.7;
-  margin-top: 14px;
-}
-
-@media(max-width:900px) {
-  .exec-layout { grid-template-columns: 1fr; }
-}
+.exec-layout { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
+.cta-area    { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.btn-generate { width: 100%; padding: 14px; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+#download-row { display: none; gap: 8px; }
+@media(max-width:900px) { .exec-layout { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -152,21 +32,21 @@
 <div class="page-body">
   <div class="section-header">
     <div class="section-title">Generar y Ejecutar el Bot</div>
-    <div class="section-desc">Completá el checklist, generá el script y correlo en tu terminal para enviar los mensajes</div>
+    <div class="section-desc">Completá el checklist, generá el script y correlo en tu terminal</div>
   </div>
 
   <div class="exec-layout">
 
-    <!-- ── LEFT ──────────────────────────────────────── -->
+    <!-- LEFT -->
     <div>
 
-      <!-- CHECKLIST -->
-      <div class="chk-list" id="chk-list">
+      <!-- Checklist -->
+      <div class="chk-list">
         <div class="chk-item" id="chk-c">
           <div class="chk-icon" id="chk-c-icon">—</div>
           <div class="chk-body">
             <div class="chk-label">Contactos cargados</div>
-            <div class="chk-sub"  id="chk-c-sub">Cargando...</div>
+            <div class="chk-sub" id="chk-c-sub">Cargando...</div>
           </div>
           <a href="contactos.html" class="btn btn-ghost btn-sm">Ir →</a>
         </div>
@@ -174,7 +54,7 @@
           <div class="chk-icon" id="chk-m-icon">—</div>
           <div class="chk-body">
             <div class="chk-label">Mensaje guardado</div>
-            <div class="chk-sub"  id="chk-m-sub">Cargando...</div>
+            <div class="chk-sub" id="chk-m-sub">Cargando...</div>
           </div>
           <a href="mensaje.html" class="btn btn-ghost btn-sm">Ir →</a>
         </div>
@@ -182,61 +62,60 @@
           <div class="chk-icon" id="chk-v-icon">—</div>
           <div class="chk-body">
             <div class="chk-label">Variables del mensaje</div>
-            <div class="chk-sub"  id="chk-v-sub">Esperando mensaje...</div>
+            <div class="chk-sub" id="chk-v-sub">Esperando mensaje...</div>
           </div>
         </div>
       </div>
 
-      <!-- CTA BUTTONS -->
+      <!-- Botones CTA -->
       <div class="cta-area">
-        <button class="btn btn-primary btn-generate" id="btn-gen" onclick="generateAndShow()" disabled>
+        <button class="btn btn-primary btn-generate" id="btn-gen"
+                onclick="sgGenerate()" disabled>
           ⚙️ Generar script bot-runner.js
         </button>
-        <div style="display:flex;gap:8px;" id="download-row" style="display:none!important">
-          <button class="btn btn-success" style="flex:1;font-weight:600;" id="btn-dl" onclick="downloadScript()" disabled>
+        <div id="download-row">
+          <button class="btn btn-success" style="flex:1;font-weight:600;"
+                  onclick="sgDownload()">
             ⬇ Descargar bot-runner.js
           </button>
-          <button class="btn btn-ghost btn-sm" onclick="copyScript()">📋 Copiar</button>
+          <button class="btn btn-ghost btn-sm" onclick="sgCopy()">📋 Copiar</button>
         </div>
       </div>
 
-      <!-- SCRIPT OUTPUT -->
+      <!-- Script output -->
       <div class="script-wrap">
         <div class="script-toolbar">
           <span class="script-toolbar-title">bot-runner.js — script generado</span>
           <div class="script-toolbar-actions">
-            <button class="btn btn-ghost btn-sm" onclick="copyScript()">📋 Copiar</button>
-            <button class="btn btn-primary btn-sm" onclick="downloadScript()">⬇ Descargar</button>
+            <button class="btn btn-ghost btn-sm" onclick="sgCopy()">📋 Copiar</button>
+            <button class="btn btn-primary btn-sm" onclick="sgDownload()">⬇ Descargar</button>
           </div>
         </div>
-        <div class="script-body" id="script-out">
-— Completá el checklist de arriba y hacé click en "Generar script" para ver el código aquí —
-        </div>
+        <div class="script-body" id="script-out">— Completá el checklist y hacé click en "Generar script" —</div>
       </div>
 
-      <!-- HOW TO RUN -->
+      <!-- Instrucciones -->
       <div class="card" style="margin-top:16px;">
         <div class="card-title"><div class="card-icon">💡</div>Cómo ejecutar el bot</div>
         <div class="steps-list">
-          <div class="step-item"><div class="step-num">1</div><div>Descargá el script haciendo click en <strong>Descargar bot-runner.js</strong></div></div>
-          <div class="step-item"><div class="step-num">2</div><div>Movelo a tu carpeta de proyecto donde tenés Node.js instalado</div></div>
-          <div class="step-item"><div class="step-num">3</div><div>Si es la primera vez, instalá puppeteer: <strong style="color:var(--gold);font-family:'JetBrains Mono',monospace">npm install puppeteer</strong></div></div>
-          <div class="step-item"><div class="step-num">4</div><div>Abrí la terminal en esa carpeta y ejecutá: <strong style="color:var(--gold);font-family:'JetBrains Mono',monospace">node bot-runner.js</strong></div></div>
-          <div class="step-item"><div class="step-num">5</div><div>Se abrirá Chrome con WhatsApp Web. <strong>Escaneá el QR</strong> con tu celular si no tenés sesión guardada</div></div>
-          <div class="step-item"><div class="step-num">6</div><div>El bot enviará cada mensaje automáticamente con delays aleatorios entre envíos</div></div>
-          <div class="step-item"><div class="step-num">7</div><div>Controles: <strong>P</strong> = pausar/reanudar · <strong>Ctrl+C</strong> = detener y cerrar limpiamente</div></div>
+          <div class="step-item"><div class="step-num">1</div><div>Descargá el script con el botón <strong>Descargar bot-runner.js</strong></div></div>
+          <div class="step-item"><div class="step-num">2</div><div>Movelo a la carpeta de tu proyecto con Node.js</div></div>
+          <div class="step-item"><div class="step-num">3</div><div>Primera vez: <strong style="color:var(--gold);font-family:'JetBrains Mono',monospace">npm install puppeteer</strong></div></div>
+          <div class="step-item"><div class="step-num">4</div><div>Ejecutá en la terminal: <strong style="color:var(--gold);font-family:'JetBrains Mono',monospace">node bot-runner.js</strong></div></div>
+          <div class="step-item"><div class="step-num">5</div><div>Escaneá el QR en WhatsApp Web con tu celular</div></div>
+          <div class="step-item"><div class="step-num">6</div><div>El bot envía cada mensaje con delays aleatorios anti-ban</div></div>
+          <div class="step-item"><div class="step-num">7</div><div><strong>P</strong> = pausar/reanudar · <strong>Ctrl+C</strong> = detener limpiamente</div></div>
         </div>
         <div class="warn-box">
-          ⚠️ El uso de bots no oficiales puede violar los Términos de Servicio de WhatsApp y resultar en el bloqueo del número. Usá el bot con responsabilidad y solo con contactos que consintieron recibir mensajes.
+          ⚠️ El uso de bots no oficiales puede violar los TOS de WhatsApp. Usá con responsabilidad.
         </div>
       </div>
 
     </div>
 
-    <!-- ── RIGHT sidebar ─────────────────────────────── -->
+    <!-- RIGHT sidebar -->
     <div>
 
-      <!-- Timing config -->
       <div class="card" style="margin-bottom:12px;">
         <div class="card-title"><div class="card-icon">⏱️</div>Delays entre mensajes</div>
         <div class="timing-list">
@@ -245,26 +124,25 @@
               <span>Mínimo</span>
               <span class="timing-val" id="lbl-min">28 s</span>
             </div>
-            <input type="range" min="10" max="90" value="28" id="sl-min" oninput="onSlider()">
+            <input type="range" min="10" max="90" value="28" id="sl-min" oninput="sgOnSlider()">
           </div>
           <div class="timing-item">
             <div class="timing-row">
               <span>Máximo</span>
               <span class="timing-val" id="lbl-max">35 s</span>
             </div>
-            <input type="range" min="15" max="120" value="35" id="sl-max" oninput="onSlider()">
+            <input type="range" min="15" max="120" value="35" id="sl-max" oninput="sgOnSlider()">
           </div>
           <div class="timing-item">
             <div class="timing-row">
-              <span>Timeout login QR</span>
+              <span>Timeout QR login</span>
               <span class="timing-val" id="lbl-login">120 s</span>
             </div>
-            <input type="range" min="60" max="300" value="120" step="10" id="sl-login" oninput="onSlider()">
+            <input type="range" min="60" max="300" value="120" step="10" id="sl-login" oninput="sgOnSlider()">
           </div>
         </div>
       </div>
 
-      <!-- Summary -->
       <div class="card">
         <div class="card-title"><div class="card-icon">📋</div>Resumen del envío</div>
         <div class="summary-rows">
@@ -282,7 +160,7 @@
           </div>
           <div class="summary-row">
             <span class="summary-key">Tiempo estimado</span>
-            <span class="summary-val ok" id="sum-time">—</span>
+            <span class="summary-val" id="sum-time">—</span>
           </div>
         </div>
       </div>
@@ -292,436 +170,11 @@
 </div>
 
 <div id="toast-container"></div>
-<script src="../js/shared.js"></script>
-<script>
-'use strict';
 
-// ─────────────────────────────────────────────────────────
-// STATE
-// ─────────────────────────────────────────────────────────
-let contacts = [];
-let message  = '';
-let delayMin = 28;
-let delayMax = 35;
-let loginTO  = 120;
-let scriptReady = false;
+<script src="../js/store.js"></script>
+<script src="../js/ui.js"></script>
+<script src="../js/scriptgen.js"></script>
+<script>document.addEventListener('DOMContentLoaded', sgInit);</script>
 
-// ─────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────
-function init() {
-  contacts = Store.get('magic_contacts', []);   // solo válidos (guardados por contactos.html)
-  message  = Store.get('magic_message',  '');
-  updateChecklist();
-  updateSummary();
-}
-
-// ─────────────────────────────────────────────────────────
-// CHECKLIST
-// ─────────────────────────────────────────────────────────
-function updateChecklist() {
-  const hasC = contacts.length > 0;
-  const hasM = message.trim().length > 0;
-
-  // — Contactos —
-  setChk('chk-c',
-    hasC ? 'ok' : 'fail',
-    hasC ? '✓' : '✕',
-    hasC
-      ? `${contacts.length} contacto(s) listo(s) para envío`
-      : 'Sin contactos — agregá en la pestaña Contactos'
-  );
-
-  // — Mensaje —
-  setChk('chk-m',
-    hasM ? 'ok' : 'fail',
-    hasM ? '✓' : '✕',
-    hasM
-      ? `${message.length} caracteres guardados`
-      : 'Sin mensaje — redactá en la pestaña Mensaje'
-  );
-
-  // — Variables —
-  if (!hasM) {
-    setChk('chk-v', 'warn', '⚠', 'Guardá el mensaje primero');
-  } else {
-    const vars     = message.match(/\{(\w+)\}/g) || [];
-    const known    = new Set(['nombre', 'numero', 'tipo', 'empresa']);
-    const unknowns = vars.filter(v => !known.has(v.slice(1, -1)));
-    if (unknowns.length) {
-      setChk('chk-v', 'warn', '⚠', `Variables no estándar: ${unknowns.join(' ')}`);
-    } else if (!vars.length) {
-      setChk('chk-v', 'warn', '⚠', 'Sin variables — el mismo texto para todos');
-    } else {
-      setChk('chk-v', 'ok', '✓', `${vars.length} variable(s): ${vars.join(' ')}`);
-    }
-  }
-
-  // Habilitar/deshabilitar botón de generar
-  document.getElementById('btn-gen').disabled = !(hasC && hasM);
-}
-
-function setChk(id, type, icon, sub) {
-  const el   = document.getElementById(id);
-  const icEl = document.getElementById(id + '-icon');
-  const subEl= document.getElementById(id + '-sub');
-  el.className      = `chk-item ${type}`;
-  icEl.className    = `chk-icon`;           // reset
-  icEl.className    = `chk-icon`;
-  icEl.textContent  = icon;
-  if (subEl) subEl.textContent = sub;
-}
-
-// ─────────────────────────────────────────────────────────
-// SLIDERS
-// ─────────────────────────────────────────────────────────
-function onSlider() {
-  delayMin = parseInt(document.getElementById('sl-min').value);
-  delayMax = parseInt(document.getElementById('sl-max').value);
-  loginTO  = parseInt(document.getElementById('sl-login').value);
-  // Asegurarse de que max >= min
-  if (delayMax < delayMin) {
-    delayMax = delayMin;
-    document.getElementById('sl-max').value = delayMax;
-  }
-  document.getElementById('lbl-min').textContent   = delayMin + ' s';
-  document.getElementById('lbl-max').textContent   = delayMax + ' s';
-  document.getElementById('lbl-login').textContent = loginTO  + ' s';
-  updateSummary();
-  // Si el script ya fue generado, regenerarlo con los nuevos delays
-  if (scriptReady) buildScript();
-}
-
-// ─────────────────────────────────────────────────────────
-// SUMMARY
-// ─────────────────────────────────────────────────────────
-function updateSummary() {
-  const n   = contacts.length;
-  const avg = (delayMin + delayMax) / 2;
-  document.getElementById('sum-n').textContent    = n;
-  document.getElementById('sum-msg').textContent  = message ? `${message.length} chars ✓` : 'No guardado';
-  document.getElementById('sum-avg').textContent  = avg.toFixed(1) + ' s';
-
-  if (n > 0) {
-    const mins = Math.round(n * avg / 60);
-    document.getElementById('sum-time').textContent = `~${mins} min`;
-    document.getElementById('sum-time').className   = 'summary-val ok';
-  } else {
-    document.getElementById('sum-time').textContent = '—';
-    document.getElementById('sum-time').className   = 'summary-val';
-  }
-}
-
-// ─────────────────────────────────────────────────────────
-// SCRIPT GENERATOR
-// ─────────────────────────────────────────────────────────
-function generateAndShow() {
-  if (!contacts.length || !message.trim()) {
-    toast('Completá el checklist primero', 'err');
-    return;
-  }
-  buildScript();
-  document.getElementById('btn-dl').disabled = false;
-  // Mostrar fila de descarga
-  document.getElementById('download-row').style.display = 'flex';
-  scriptReady = true;
-  toast('Script generado — ya podés descargarlo', 'ok');
-}
-
-function buildScript() {
-  // Limpiar campos internos antes de incrustar en el script
-  const cleanContacts = contacts.map(({ id, _valid, _error, ...c }) => c);
-
-  // Escapar backticks y $ para que el template literal no se rompa
-  const escapedMsg = message
-    .replace(/\\/g, '\\\\')
-    .replace(/`/g,  '\\`')
-    .replace(/\$/g, '\\$');
-
-  const script = `/**
- * bot-runner.js — Generado por Magic Show Bot v3.1
- * ─────────────────────────────────────────────────
- * Requisitos:
- *   node >= 18
- *   npm install puppeteer   (versión ^24 recomendada)
- *
- * Uso:
- *   node bot-runner.js
- *
- * Controles:
- *   P       → pausar / reanudar
- *   Ctrl+C  → detener y cerrar el navegador limpiamente
- */
-'use strict';
-
-const puppeteer = require('puppeteer');
-const readline  = require('readline');
-
-// ── Configuración ──────────────────────────────────────────────────────
-const CONFIG = {
-  delayMin:     ${delayMin * 1000},    // ms entre mensajes (mínimo)
-  delayMax:     ${delayMax * 1000},    // ms entre mensajes (máximo)
-  loginTimeout: ${loginTO  * 1000},    // ms para escanear el QR
-  sendTimeout:  30_000,
-  afterSend:    3_000,
-  humanPause:   1_200,
-  headless:     false,        // true = sin ventana (no recomendado con QR)
-  sessionDir:   './session',  // carpeta donde se guarda la sesión de WA
-};
-
-// ── Mensaje ────────────────────────────────────────────────────────────
-// Usá {nombre}, {empresa}, {numero}, {tipo} para personalizar por contacto.
-const MENSAJE_TEMPLATE = \`${escapedMsg}\`;
-
-// ── Contactos ──────────────────────────────────────────────────────────
-// ${cleanContacts.length} contacto(s) exportados desde la app el ${new Date().toLocaleString('es-AR')}
-const CONTACTOS = ${JSON.stringify(cleanContacts, null, 2)};
-
-// ── Selectores de WhatsApp Web (orden de prioridad) ────────────────────
-// Si WA actualiza su UI, podés agregar nuevos selectores al principio del array.
-const SEL = {
-  chatList: [
-    '[data-testid="chat-list"]',
-    '#pane-side',
-    'div[aria-label="Chat list"]',
-    'div[aria-label="Lista de chats"]',
-    'div[role="grid"]',
-  ],
-  composeBox: [
-    '[data-testid="conversation-compose-box-input"]',
-    'div[contenteditable="true"][data-tab="10"]',
-    'div[contenteditable="true"][data-tab="1"]',
-    'footer div[contenteditable="true"]',
-    'div[contenteditable="true"][role="textbox"]',
-  ],
-  errorPopup: '[data-testid="popup-contents"]',
-};
-
-// ── Estado ──────────────────────────────────────────────────────────────
-let pausado = false;
-let browser = null;
-let page    = null;
-
-// ── Utilidades ──────────────────────────────────────────────────────────
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-function personalize(template, contact) {
-  return template.replace(/\\{(\\w+)\\}/g, (match, key) =>
-    (contact[key] !== undefined && contact[key] !== '') ? contact[key] : match
-  );
-}
-
-function randomDelay(min, max) {
-  const ms = Math.floor(Math.random() * (max - min + 1)) + min;
-  console.log(\`  ⏳ Esperando \${(ms / 1000).toFixed(1)}s...\`);
-  return sleep(ms);
-}
-
-// ── Teclado ─────────────────────────────────────────────────────────────
-function initKeyboard() {
-  readline.emitKeypressEvents(process.stdin);
-  if (process.stdin.isTTY) process.stdin.setRawMode(true);
-
-  process.stdin.on('keypress', (str, key) => {
-    if (!key) return;
-    if (key.name === 'p') {
-      pausado = !pausado;
-      console.log(pausado ? '\\n⏸  PAUSADO — presioná P para reanudar' : '\\n▶  REANUDADO');
-    }
-    if (key.ctrl && key.name === 'c') {
-      console.log('\\n🛑 Deteniendo bot...');
-      shutdown(0);
-    }
-  });
-
-  console.log('💡 Controles: [P] pausar/reanudar  |  [Ctrl+C] detener\\n');
-}
-
-// ── Navegador ────────────────────────────────────────────────────────────
-async function launch() {
-  const fs = require('fs');
-  if (!fs.existsSync(CONFIG.sessionDir))
-    fs.mkdirSync(CONFIG.sessionDir, { recursive: true });
-
-  console.log('🚀 Iniciando Chrome...');
-  browser = await puppeteer.launch({
-    headless:    CONFIG.headless,
-    userDataDir: CONFIG.sessionDir,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--window-size=1280,800',
-    ],
-  });
-
-  page = (await browser.pages())[0] || await browser.newPage();
-  await page.setViewport({ width: 1280, height: 800 });
-
-  console.log('🌐 Abriendo WhatsApp Web...');
-  await page.goto('https://web.whatsapp.com', {
-    waitUntil: 'networkidle2',
-    timeout:   60_000,
-  });
-}
-
-// ── Login ────────────────────────────────────────────────────────────────
-async function waitLogin() {
-  console.log('🔄 Esperando sesión — escaneá el QR con tu celular si es necesario...');
-
-  // Espera hasta que cualquiera de los selectores del chat esté presente
-  await page.waitForFunction(
-    (sels) => sels.some(sel => !!document.querySelector(sel)),
-    { timeout: CONFIG.loginTimeout },
-    SEL.chatList
-  );
-
-  console.log('✅ Sesión activa.\\n');
-  await sleep(3_000);   // dar tiempo a que carguen los chats
-}
-
-// ── Enviar un mensaje ─────────────────────────────────────────────────────
-async function sendMessage(numero, texto) {
-  const clean = numero.replace(/\\D/g, '');
-  const url   = \`https://web.whatsapp.com/send?phone=\${clean}&text=\${encodeURIComponent(texto)}\`;
-
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: CONFIG.sendTimeout });
-
-  // Buscar el cuadro de texto probando cada selector en orden
-  let found = false;
-  for (const sel of SEL.composeBox) {
-    try {
-      await page.waitForSelector(sel, { timeout: 8_000 });
-      await page.click(sel);
-      found = true;
-      break;
-    } catch {
-      // este selector no funcionó, probar el siguiente
-    }
-  }
-
-  if (!found) {
-    throw new Error(
-      'No se encontró el cuadro de texto de WhatsApp. ' +
-      'Actualizá puppeteer (npm update puppeteer) e intentá de nuevo.'
-    );
-  }
-
-  // Pausa humanizada antes de enviar (simula tipeo humano)
-  await sleep(CONFIG.humanPause + Math.random() * 800);
-  await page.keyboard.press('Enter');
-  await sleep(CONFIG.afterSend);
-
-  // Verificar si WA mostró popup de error (número inválido, etc.)
-  const errEl = await page.$(SEL.errorPopup);
-  if (errEl) {
-    const errText = await page.evaluate(el => el.innerText, errEl);
-    throw new Error('WhatsApp: ' + errText.slice(0, 120));
-  }
-}
-
-// ── Shutdown limpio ───────────────────────────────────────────────────────
-async function shutdown(code = 0) {
-  if (browser) {
-    try { await browser.close(); } catch {}
-  }
-  process.exit(code);
-}
-
-// ── MAIN ──────────────────────────────────────────────────────────────────
-async function main() {
-  console.log('\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('   🎩 Magic Show Bot v3.1');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
-  console.log(\`📋 Contactos: \${CONTACTOS.length}\`);
-  console.log(\`⏱  Delay:     \${CONFIG.delayMin / 1000}s – \${CONFIG.delayMax / 1000}s\\n\`);
-
-  initKeyboard();
-  await launch();
-  await waitLogin();
-
-  let enviados = 0;
-  let errores  = 0;
-
-  for (let i = 0; i < CONTACTOS.length; i++) {
-    const c    = CONTACTOS[i];
-    const prog = \`[\${i + 1}/\${CONTACTOS.length}]\`;
-
-    // Esperar si está pausado
-    while (pausado) await sleep(500);
-
-    const msg = personalize(MENSAJE_TEMPLATE, c);
-
-    console.log(\`\${prog} 📤 \${c.nombre} (\${c.numero})\`);
-
-    try {
-      await sendMessage(c.numero, msg);
-      enviados++;
-      console.log(\`\${prog} ✅ Enviado — \${c.nombre}\`);
-    } catch (err) {
-      errores++;
-      console.log(\`\${prog} ❌ Error    — \${c.nombre}: \${err.message}\`);
-    }
-
-    console.log(\`     Progreso: \${enviados} enviados, \${errores} errores, \${CONTACTOS.length - i - 1} pendientes\\n\`);
-
-    // Delay entre mensajes (excepto después del último)
-    if (i < CONTACTOS.length - 1) {
-      await randomDelay(CONFIG.delayMin, CONFIG.delayMax);
-    }
-  }
-
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(\`🏁 COMPLETADO — Enviados: \${enviados} | Errores: \${errores}\`);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
-
-  await shutdown(errores > 0 ? 1 : 0);
-}
-
-main().catch(async (err) => {
-  console.error('\\n💥 Error fatal:', err.message);
-  await shutdown(1);
-});
-`;
-
-  document.getElementById('script-out').textContent = script;
-  return script;
-}
-
-// ─────────────────────────────────────────────────────────
-// DOWNLOAD / COPY
-// ─────────────────────────────────────────────────────────
-function getScript() {
-  return document.getElementById('script-out').textContent;
-}
-
-function downloadScript() {
-  const s = getScript();
-  if (s.startsWith('—')) { toast('Generá el script primero', 'err'); return; }
-  const blob = new Blob([s], { type: 'text/javascript' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href     = url;
-  a.download = 'bot-runner.js';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  toast('bot-runner.js descargado', 'ok');
-}
-
-function copyScript() {
-  const s = getScript();
-  if (s.startsWith('—')) { toast('Generá el script primero', 'err'); return; }
-  navigator.clipboard.writeText(s)
-    .then(() => toast('Script copiado al portapapeles', 'ok'))
-    .catch(()  => toast('No se pudo copiar — usá el botón Descargar', 'err'));
-}
-
-// ─────────────────────────────────────────────────────────
-// BOOT
-// ─────────────────────────────────────────────────────────
-init();
-</script>
 </body>
 </html>

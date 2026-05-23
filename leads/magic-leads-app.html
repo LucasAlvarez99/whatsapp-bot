@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- magic-bot/index.html  — Pantalla de inicio / dashboard -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -7,111 +6,40 @@
 <title>Magic Show Bot 🎩</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
-/* ── Hero ──────────────────────────────────────────────── */
-.hero {
-  text-align: center;
-  padding: 60px 20px 40px;
-}
-.hero-hat { font-size: 52px; margin-bottom: 16px; display: block; }
-.hero-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 38px; color: var(--text);
-  margin-bottom: 8px; line-height: 1.2;
-}
+.hero { text-align: center; padding: 60px 20px 40px; }
+.hero-hat   { font-size: 52px; margin-bottom: 16px; display: block; }
+.hero-title { font-family: 'Playfair Display', serif; font-size: 38px; color: var(--text); margin-bottom: 8px; line-height: 1.2; }
 .hero-title span { color: var(--gold); }
-.hero-sub {
-  font-size: 15px; color: var(--muted);
-  max-width: 480px; margin: 0 auto 32px;
-  line-height: 1.7;
-}
-.hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero-sub   { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto 32px; line-height: 1.7; }
+.hero-cta   { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-/* ── Steps ─────────────────────────────────────────────── */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-  margin: 40px 0;
-}
-.step-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 24px 20px;
-  text-align: center;
-  transition: all .2s;
-  text-decoration: none;
-  display: block;
-  position: relative;
-  overflow: hidden;
-}
-.step-card::before {
-  content: '';
-  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-  background: var(--border); transition: background .2s;
-}
+.dash-grid  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+.dash-stat  { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 16px; text-align: center; }
+.dash-num   { font-family: 'Playfair Display', serif; font-size: 32px; line-height: 1; color: var(--gold); margin-bottom: 5px; }
+.dash-label { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+
+.quick-row  { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
+.quick-row h3 { font-size: 13px; color: var(--muted); margin-right: 6px; font-weight: 400; }
+
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0; }
+.step-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 20px; text-align: center; transition: all .2s; text-decoration: none; display: block; position: relative; overflow: hidden; }
+.step-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--border); transition: background .2s; }
 .step-card:hover { border-color: var(--gold-dim); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.35); }
 .step-card:hover::before { background: var(--gold); }
-
-.step-num {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 2px;
-  margin-bottom: 10px;
-}
-.step-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+.step-num   { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
+.step-icon  { font-size: 28px; margin-bottom: 10px; display: block; }
 .step-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
 .step-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
 
-/* ── Dashboard stats ────────────────────────────────────── */
-.dash-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 28px;
-}
-.dash-stat {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 18px 16px;
-  text-align: center;
-}
-.dash-num {
-  font-family: 'Playfair Display', serif;
-  font-size: 32px; line-height: 1;
-  color: var(--gold); margin-bottom: 5px;
-}
-.dash-label { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+.warn-bar { background: rgba(224,82,82,.06); border: 1px solid rgba(224,82,82,.2); border-radius: var(--radius); padding: 11px 16px; font-size: 12px; color: #e8a8a8; line-height: 1.6; margin-top: 28px; }
 
-/* ── Quick actions ──────────────────────────────────────── */
-.quick-row {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  margin-bottom: 28px; align-items: center;
-}
-.quick-row h3 { font-size: 13px; color: var(--muted); margin-right: 6px; font-weight: 400; }
-
-/* ── Warning bar ─────────────────────────────────────────── */
-.warn-bar {
-  background: rgba(224,82,82,.06);
-  border: 1px solid rgba(224,82,82,.2);
-  border-radius: var(--radius);
-  padding: 11px 16px;
-  font-size: 12px; color: #e8a8a8;
-  line-height: 1.6; margin-top: 28px;
-}
-
-@media(max-width:860px) {
-  .steps { grid-template-columns: 1fr; }
-  .dash-grid { grid-template-columns: 1fr 1fr; }
-  .hero-title { font-size: 28px; }
-}
+@media(max-width:860px) { .steps { grid-template-columns: 1fr; } .dash-grid { grid-template-columns: 1fr 1fr; } .hero-title { font-size: 28px; } }
 </style>
 </head>
 <body>
 
 <header class="app-header">
-  <a href="index.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3</span></a>
+  <a href="magic-leads-app.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3.1</span></a>
   <nav class="header-nav">
     <a href="pages/contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
     <a href="pages/mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
@@ -125,8 +53,6 @@
 </header>
 
 <div class="page-body">
-
-  <!-- Hero -->
   <div class="hero">
     <span class="hero-hat">🎩</span>
     <h1 class="hero-title">Magic Show <span>Bot</span></h1>
@@ -135,105 +61,58 @@
       Creá tu lista, redactá tu mensaje con variables y ejecutá.
     </p>
     <div class="hero-cta">
-      <a href="pages/contactos.html" class="btn btn-primary" style="font-size:15px; padding:11px 24px;">
-        → Empezar ahora
-      </a>
-      <a href="pages/tutorial.html" class="btn btn-ghost">
-        📖 Ver tutorial
-      </a>
+      <a href="pages/contactos.html" class="btn btn-primary" style="font-size:15px;padding:11px 24px;">→ Empezar ahora</a>
+      <a href="pages/tutorial.html"  class="btn btn-ghost">📖 Ver tutorial</a>
     </div>
   </div>
 
-  <!-- Dashboard: live stats -->
   <div class="dash-grid">
-    <div class="dash-stat">
-      <div class="dash-num" id="d-total">0</div>
-      <div class="dash-label">Contactos</div>
-    </div>
-    <div class="dash-stat">
-      <div class="dash-num" id="d-tipos" style="font-size:22px;">—</div>
-      <div class="dash-label">Tipos cargados</div>
-    </div>
-    <div class="dash-stat">
-      <div class="dash-num" id="d-msg" style="font-size:22px;">—</div>
-      <div class="dash-label">Mensaje</div>
-    </div>
-    <div class="dash-stat">
-      <div class="dash-num" id="d-tiempo" style="font-size:22px;">—</div>
-      <div class="dash-label">Tiempo estimado</div>
-    </div>
+    <div class="dash-stat"><div class="dash-num" id="d-total">0</div><div class="dash-label">Contactos</div></div>
+    <div class="dash-stat"><div class="dash-num" id="d-tipos" style="font-size:22px;">—</div><div class="dash-label">Tipos cargados</div></div>
+    <div class="dash-stat"><div class="dash-num" id="d-msg"   style="font-size:22px;">—</div><div class="dash-label">Mensaje</div></div>
+    <div class="dash-stat"><div class="dash-num" id="d-time"  style="font-size:22px;">—</div><div class="dash-label">Tiempo estimado</div></div>
   </div>
 
-  <!-- Quick actions -->
   <div class="quick-row">
     <h3>Acceso rápido:</h3>
-    <a href="pages/contactos.html" class="btn btn-ghost btn-sm">👥 Gestionar contactos</a>
-    <a href="pages/mensaje.html"   class="btn btn-ghost btn-sm">✉️ Editar mensaje</a>
-    <a href="pages/ejecutar.html"  class="btn btn-ghost btn-sm">▶️ Ejecutar bot</a>
-    <button class="btn btn-danger btn-sm" onclick="resetAll()" style="margin-left:auto">🗑 Resetear todo</button>
+    <a href="pages/contactos.html" class="btn btn-ghost btn-sm">👥 Contactos</a>
+    <a href="pages/mensaje.html"   class="btn btn-ghost btn-sm">✉️ Mensaje</a>
+    <a href="pages/ejecutar.html"  class="btn btn-ghost btn-sm">▶️ Ejecutar</a>
+    <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="dashResetAll()">🗑 Resetear todo</button>
   </div>
 
-  <!-- Flow steps -->
   <div class="steps">
     <a href="pages/contactos.html" class="step-card">
       <div class="step-num">Paso 1</div>
       <span class="step-icon">👥</span>
       <div class="step-title">Cargá contactos</div>
-      <div class="step-desc">Creá tu lista manualmente fila por fila, o importá un CSV existente. Exportá como Excel.</div>
+      <div class="step-desc">Creá tu lista manualmente o importá un CSV. Exportá como Excel.</div>
     </a>
     <a href="pages/mensaje.html" class="step-card">
       <div class="step-num">Paso 2</div>
       <span class="step-icon">✉️</span>
       <div class="step-title">Redactá el mensaje</div>
-      <div class="step-desc">Usá variables como {nombre} y {empresa} para personalizar cada mensaje automáticamente.</div>
+      <div class="step-desc">Usá variables como {nombre} y {empresa} para personalizar cada mensaje.</div>
     </a>
     <a href="pages/ejecutar.html" class="step-card">
       <div class="step-num">Paso 3</div>
       <span class="step-icon">▶️</span>
       <div class="step-title">Ejecutá el bot</div>
-      <div class="step-desc">El bot abre WhatsApp Web, genera el script Node.js y envía cada mensaje con delays humanizados.</div>
+      <div class="step-desc">Generá el script Node.js, descargalo y correlo en tu terminal.</div>
     </a>
   </div>
 
   <div class="warn-bar">
-    ⚠️ <strong>Advertencia:</strong> El uso de bots no oficiales puede violar los Términos de Servicio de WhatsApp y resultar en el bloqueo del número. Usá el bot con responsabilidad y solo con contactos que consintieron recibir mensajes.
+    ⚠️ <strong>Advertencia:</strong> El uso de bots no oficiales puede violar los Términos de Servicio de WhatsApp y resultar en bloqueo del número. Usá con responsabilidad.
   </div>
-
 </div>
 
 <div id="toast-container"></div>
-<script src="js/shared.js"></script>
-<script>
-function loadDashboard() {
-  const contacts = Store.get('magic_contacts', []);
-  const message  = Store.get('magic_message', '');
 
-  document.getElementById('d-total').textContent = contacts.length;
+<script src="js/store.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/dashboard.js"></script>
+<script>document.addEventListener('DOMContentLoaded', dashInit);</script>
 
-  const types = [...new Set(contacts.map(c => c.tipo))].filter(Boolean);
-  document.getElementById('d-tipos').textContent = types.length ? types.join(', ') : '—';
-  document.getElementById('d-tipos').style.fontSize = types.length ? '13px' : '22px';
-
-  document.getElementById('d-msg').textContent = message ? `${message.length} chars` : '—';
-  document.getElementById('d-msg').style.fontSize = message ? '14px' : '22px';
-
-  if (contacts.length && message) {
-    const mins = Math.round(contacts.length * 31.5 / 60);
-    document.getElementById('d-tiempo').textContent = `~${mins} min`;
-  } else {
-    document.getElementById('d-tiempo').textContent = '—';
-  }
-}
-
-function resetAll() {
-  if (!confirm('¿Resetear toda la información guardada (contactos + mensaje)?')) return;
-  ['magic_contacts','magic_contacts_all','magic_message'].forEach(k => Store.del(k));
-  loadDashboard();
-  updateStatusPill();
-  toast('Todo reseteado', 'info');
-}
-
-loadDashboard();
-</script>
 </body>
 </html>
