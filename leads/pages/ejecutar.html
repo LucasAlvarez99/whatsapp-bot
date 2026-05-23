@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- magic-bot/pages/ejecutar.html -->
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -7,102 +6,130 @@
 <title>Ejecutar — Magic Show Bot</title>
 <link rel="stylesheet" href="../css/styles.css">
 <style>
+/* ── Layout ──────────────────────────────────────────── */
 .exec-layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 300px;
   gap: 16px;
   align-items: start;
 }
 
-.check-list { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
-.check-item {
-  display:flex; align-items:center; gap:12px;
-  padding:13px 15px;
-  border-radius:var(--radius); border:1px solid var(--border);
-  background:var(--surface2); transition:all .2s;
+/* ── Checklist ───────────────────────────────────────── */
+.chk-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+.chk-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 15px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  transition: all .2s;
 }
-.check-item.ok   { border-color:rgba(82,183,136,.3); background:rgba(82,183,136,.04); }
-.check-item.fail { border-color:rgba(224,82,82,.3);  background:rgba(224,82,82,.04); }
-.check-item.warn { border-color:rgba(201,147,58,.3); background:rgba(201,147,58,.04); }
-
-.check-icon {
-  width:30px; height:30px; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-size:13px; flex-shrink:0;
+.chk-item.ok   { border-color: rgba(82,183,136,.35); background: rgba(82,183,136,.04); }
+.chk-item.fail { border-color: rgba(224,82,82,.35);  background: rgba(224,82,82,.04); }
+.chk-item.warn { border-color: rgba(201,147,58,.35); background: rgba(201,147,58,.04); }
+.chk-icon {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+  background: var(--surface3);
 }
-.check-icon.ok   { background:rgba(82,183,136,.15); }
-.check-icon.fail { background:rgba(224,82,82,.15); }
-.check-icon.warn { background:rgba(201,147,58,.15); }
-.check-icon.idle { background:var(--surface3); }
+.chk-item.ok   .chk-icon { background: rgba(82,183,136,.2); color: var(--success); }
+.chk-item.fail .chk-icon { background: rgba(224,82,82,.2);  color: var(--danger); }
+.chk-item.warn .chk-icon { background: rgba(201,147,58,.2); color: var(--gold); }
+.chk-body  { flex: 1; min-width: 0; }
+.chk-label { font-size: 13px; color: var(--text); font-weight: 500; margin-bottom: 1px; }
+.chk-sub   { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace;
+             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.check-body { flex:1; }
-.check-label    { font-size:13px; color:var(--text); font-weight:500; margin-bottom:2px; }
-.check-sublabel { font-size:11px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
-.check-action   { font-size:11px; }
-
-.exec-btn-area { margin-top:4px; }
-.exec-main-btn {
-  width:100%; padding:15px;
-  font-size:15px; border-radius:var(--radius);
-  gap:10px; font-weight:500;
-  display:flex; align-items:center; justify-content:center;
+/* ── CTA area ────────────────────────────────────────── */
+.cta-area {
+  display: flex; flex-direction: column; gap: 10px;
+  margin-bottom: 20px;
 }
-.exec-main-btn:disabled { opacity:.35; cursor:not-allowed; transform:none !important; }
-
-.ctrl-row { display:flex; gap:10px; margin-top:10px; }
-.ctrl-row .btn { flex:1; }
-
-.result-stats {
-  display:grid; grid-template-columns:1fr 1fr 1fr;
-  gap:10px; margin-top:16px;
-}
-.res-stat {
-  text-align:center; padding:12px 10px;
-  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius);
-}
-.res-num {
-  font-family:'Playfair Display',serif; font-size:26px; line-height:1; margin-bottom:3px;
-}
-.res-label { font-size:9px; color:var(--muted); font-family:'JetBrains Mono',monospace; text-transform:uppercase; }
-
-.timing-list { display:flex; flex-direction:column; gap:14px; }
-.timing-item { display:flex; flex-direction:column; gap:5px; }
-.timing-row { display:flex; justify-content:space-between; align-items:center; }
-.timing-row span { font-size:12px; color:var(--text); }
-.timing-val { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); }
-
-.summary-list { font-size:12px; color:var(--muted); line-height:2.1; }
-.summary-list strong { color:var(--text); }
-
-.script-block {
-  background:var(--dark); border:1px solid var(--border);
-  border-radius:var(--radius); padding:12px 14px;
-  font-family:'JetBrains Mono',monospace; font-size:11px;
-  color:#a8d5a2; line-height:1.7; white-space:pre-wrap;
-  max-height:180px; overflow-y:auto; margin-top:8px;
+.btn-generate {
+  width: 100%; padding: 14px;
+  font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 
-.howto-list { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); line-height:2.3; }
-.howto-list span { color:var(--text); }
+/* ── Script block ────────────────────────────────────── */
+.script-wrap {
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+.script-toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.script-toolbar-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--muted);
+}
+.script-toolbar-actions { display: flex; gap: 6px; }
+.script-body {
+  padding: 14px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: #a8d5a2;
+  line-height: 1.75; white-space: pre-wrap;
+  max-height: 320px; overflow-y: auto;
+  word-break: break-word;
+}
 
-/* ── Aviso de simulación ──────────────────────────────────── */
-.sim-notice {
-  background: rgba(201,147,58,.08);
-  border: 1px solid rgba(201,147,58,.3);
+/* ── Steps ───────────────────────────────────────────── */
+.steps-list { display: flex; flex-direction: column; gap: 8px; }
+.step-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12px; color: var(--muted); line-height: 1.6;
+}
+.step-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(201,147,58,.15); color: var(--gold);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  font-weight: 700; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; margin-top: 1px;
+}
+.step-item strong { color: var(--text); }
+
+/* ── Config sliders ──────────────────────────────────── */
+.timing-list { display: flex; flex-direction: column; gap: 14px; }
+.timing-item { display: flex; flex-direction: column; gap: 5px; }
+.timing-row  { display: flex; justify-content: space-between; align-items: center; }
+.timing-row span { font-size: 12px; color: var(--text); }
+.timing-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); }
+
+/* ── Summary ─────────────────────────────────────────── */
+.summary-rows { display: flex; flex-direction: column; gap: 8px; }
+.summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px; padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.summary-row:last-child { border-bottom: none; }
+.summary-key { color: var(--muted); }
+.summary-val { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+.summary-val.ok  { color: var(--success); }
+.summary-val.bad { color: var(--danger); }
+
+/* ── Warning ─────────────────────────────────────────── */
+.warn-box {
+  background: rgba(224,82,82,.06);
+  border: 1px solid rgba(224,82,82,.2);
   border-radius: var(--radius);
   padding: 10px 14px;
-  font-size: 12px;
-  color: #d4a853;
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 12px; color: #e8a8a8; line-height: 1.7;
+  margin-top: 14px;
 }
 
-@media(max-width:860px) {
-  .exec-layout { grid-template-columns:1fr; }
-  .result-stats { grid-template-columns:1fr 1fr; }
+@media(max-width:900px) {
+  .exec-layout { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -124,166 +151,139 @@
 
 <div class="page-body">
   <div class="section-header">
-    <div class="section-title">Ejecutar Envíos</div>
-    <div class="section-desc">Verificá el checklist, descargá el script y correlo en tu terminal</div>
+    <div class="section-title">Generar y Ejecutar el Bot</div>
+    <div class="section-desc">Completá el checklist, generá el script y correlo en tu terminal para enviar los mensajes</div>
   </div>
 
   <div class="exec-layout">
 
-    <!-- LEFT -->
+    <!-- ── LEFT ──────────────────────────────────────── -->
     <div>
 
       <!-- CHECKLIST -->
-      <div class="check-list" id="check-list">
-        <div class="check-item" id="chk-contacts">
-          <div class="check-icon idle" id="chk-contacts-icon">⏳</div>
-          <div class="check-body">
-            <div class="check-label">Lista de contactos</div>
-            <div class="check-sublabel" id="chk-contacts-sub">Cargando...</div>
+      <div class="chk-list" id="chk-list">
+        <div class="chk-item" id="chk-c">
+          <div class="chk-icon" id="chk-c-icon">—</div>
+          <div class="chk-body">
+            <div class="chk-label">Contactos cargados</div>
+            <div class="chk-sub"  id="chk-c-sub">Cargando...</div>
           </div>
-          <a href="contactos.html" class="btn btn-ghost btn-sm check-action">Ir →</a>
+          <a href="contactos.html" class="btn btn-ghost btn-sm">Ir →</a>
         </div>
-        <div class="check-item" id="chk-msg">
-          <div class="check-icon idle" id="chk-msg-icon">⏳</div>
-          <div class="check-body">
-            <div class="check-label">Mensaje guardado</div>
-            <div class="check-sublabel" id="chk-msg-sub">Cargando...</div>
+        <div class="chk-item" id="chk-m">
+          <div class="chk-icon" id="chk-m-icon">—</div>
+          <div class="chk-body">
+            <div class="chk-label">Mensaje guardado</div>
+            <div class="chk-sub"  id="chk-m-sub">Cargando...</div>
           </div>
-          <a href="mensaje.html" class="btn btn-ghost btn-sm check-action">Ir →</a>
+          <a href="mensaje.html" class="btn btn-ghost btn-sm">Ir →</a>
         </div>
-        <div class="check-item" id="chk-vars">
-          <div class="check-icon idle" id="chk-vars-icon">⏳</div>
-          <div class="check-body">
-            <div class="check-label">Variables del mensaje</div>
-            <div class="check-sublabel" id="chk-vars-sub">Esperando mensaje...</div>
+        <div class="chk-item" id="chk-v">
+          <div class="chk-icon" id="chk-v-icon">—</div>
+          <div class="chk-body">
+            <div class="chk-label">Variables del mensaje</div>
+            <div class="chk-sub"  id="chk-v-sub">Esperando mensaje...</div>
           </div>
         </div>
       </div>
 
-      <!-- AVISO DE SIMULACIÓN — siempre visible -->
-      <div class="sim-notice">
-        🎭 <strong>Modo simulación:</strong> el botón "Simular" solo muestra una demo visual. Para envíos reales, descargá el script y correlo en tu terminal con Node.js.
-      </div>
-
-      <!-- PROGRESS -->
-      <div id="progress-section" style="display:none">
-        <div class="progress-wrap">
-          <div class="progress-label">
-            <span id="prog-text">Simulando...</span>
-            <span id="prog-pct">0%</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="prog-fill" style="width:0%"></div>
-          </div>
-        </div>
-        <div class="result-stats">
-          <div class="res-stat"><div class="res-num" id="res-sent"    style="color:var(--success)">0</div><div class="res-label">Simulados ✓</div></div>
-          <div class="res-stat"><div class="res-num" id="res-errors"  style="color:var(--danger)">0</div><div class="res-label">Simulados ✗</div></div>
-          <div class="res-stat"><div class="res-num" id="res-pending" style="color:var(--muted)">0</div><div class="res-label">Pendientes</div></div>
-        </div>
-      </div>
-
-      <!-- BUTTONS -->
-      <div class="exec-btn-area">
-        <button class="btn btn-ghost exec-main-btn" id="exec-btn" onclick="startExec()" disabled
-          style="border-color:rgba(201,147,58,.4); color:var(--gold);">
-          🎭 Simular envíos (demo visual)
+      <!-- CTA BUTTONS -->
+      <div class="cta-area">
+        <button class="btn btn-primary btn-generate" id="btn-gen" onclick="generateAndShow()" disabled>
+          ⚙️ Generar script bot-runner.js
         </button>
-        <div class="ctrl-row" id="ctrl-row" style="display:none">
-          <button class="btn btn-ghost" id="pause-btn" onclick="togglePause()">⏸ Pausar</button>
-          <button class="btn btn-danger" onclick="stopExec()">⏹ Detener</button>
-        </div>
-      </div>
-
-      <!-- LOG -->
-      <div class="log-panel">
-        <div class="log-header">
-          <span>Log de simulación</span>
-          <button class="btn btn-ghost btn-sm" onclick="clearLog()">Limpiar</button>
-        </div>
-        <div class="log-body" id="log-body">
-          <span class="log-line">🎩 Completá el checklist y descargá el script para envíos reales.</span>
-        </div>
-      </div>
-
-      <!-- SCRIPT GENERATOR -->
-      <div class="card" style="margin-top:16px;">
-        <div class="card-title"><div class="card-icon">📄</div>Script generado para Node.js</div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:8px;">
-          Guardalo como <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">bot-runner.js</code>
-          y ejecutalo con <code style="color:var(--gold);font-family:'JetBrains Mono',monospace">node bot-runner.js</code>.
-          Este archivo contiene tus contactos y mensaje — <strong style="color:var(--text)">tratalo como datos sensibles</strong>.
-        </p>
-        <div class="script-block" id="script-output">— Completá el checklist para generar el script —</div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
+        <div style="display:flex;gap:8px;" id="download-row" style="display:none!important">
+          <button class="btn btn-success" style="flex:1;font-weight:600;" id="btn-dl" onclick="downloadScript()" disabled>
+            ⬇ Descargar bot-runner.js
+          </button>
           <button class="btn btn-ghost btn-sm" onclick="copyScript()">📋 Copiar</button>
-          <button class="btn btn-primary btn-sm" onclick="downloadScript()">⬇ Descargar bot-runner.js</button>
+        </div>
+      </div>
+
+      <!-- SCRIPT OUTPUT -->
+      <div class="script-wrap">
+        <div class="script-toolbar">
+          <span class="script-toolbar-title">bot-runner.js — script generado</span>
+          <div class="script-toolbar-actions">
+            <button class="btn btn-ghost btn-sm" onclick="copyScript()">📋 Copiar</button>
+            <button class="btn btn-primary btn-sm" onclick="downloadScript()">⬇ Descargar</button>
+          </div>
+        </div>
+        <div class="script-body" id="script-out">
+— Completá el checklist de arriba y hacé click en "Generar script" para ver el código aquí —
+        </div>
+      </div>
+
+      <!-- HOW TO RUN -->
+      <div class="card" style="margin-top:16px;">
+        <div class="card-title"><div class="card-icon">💡</div>Cómo ejecutar el bot</div>
+        <div class="steps-list">
+          <div class="step-item"><div class="step-num">1</div><div>Descargá el script haciendo click en <strong>Descargar bot-runner.js</strong></div></div>
+          <div class="step-item"><div class="step-num">2</div><div>Movelo a tu carpeta de proyecto donde tenés Node.js instalado</div></div>
+          <div class="step-item"><div class="step-num">3</div><div>Si es la primera vez, instalá puppeteer: <strong style="color:var(--gold);font-family:'JetBrains Mono',monospace">npm install puppeteer</strong></div></div>
+          <div class="step-item"><div class="step-num">4</div><div>Abrí la terminal en esa carpeta y ejecutá: <strong style="color:var(--gold);font-family:'JetBrains Mono',monospace">node bot-runner.js</strong></div></div>
+          <div class="step-item"><div class="step-num">5</div><div>Se abrirá Chrome con WhatsApp Web. <strong>Escaneá el QR</strong> con tu celular si no tenés sesión guardada</div></div>
+          <div class="step-item"><div class="step-num">6</div><div>El bot enviará cada mensaje automáticamente con delays aleatorios entre envíos</div></div>
+          <div class="step-item"><div class="step-num">7</div><div>Controles: <strong>P</strong> = pausar/reanudar · <strong>Ctrl+C</strong> = detener y cerrar limpiamente</div></div>
+        </div>
+        <div class="warn-box">
+          ⚠️ El uso de bots no oficiales puede violar los Términos de Servicio de WhatsApp y resultar en el bloqueo del número. Usá el bot con responsabilidad y solo con contactos que consintieron recibir mensajes.
         </div>
       </div>
 
     </div>
 
-    <!-- RIGHT sidebar -->
+    <!-- ── RIGHT sidebar ─────────────────────────────── -->
     <div>
 
-      <div class="card">
-        <div class="card-title"><div class="card-icon">⚙️</div>Configuración de delays</div>
+      <!-- Timing config -->
+      <div class="card" style="margin-bottom:12px;">
+        <div class="card-title"><div class="card-icon">⏱️</div>Delays entre mensajes</div>
         <div class="timing-list">
           <div class="timing-item">
             <div class="timing-row">
-              <span>Delay mínimo</span>
-              <span class="timing-val" id="val-min">28s</span>
+              <span>Mínimo</span>
+              <span class="timing-val" id="lbl-min">28 s</span>
             </div>
-            <input type="range" min="10" max="60" value="28" id="sl-min" oninput="onSlider()">
+            <input type="range" min="10" max="90" value="28" id="sl-min" oninput="onSlider()">
           </div>
           <div class="timing-item">
             <div class="timing-row">
-              <span>Delay máximo</span>
-              <span class="timing-val" id="val-max">35s</span>
+              <span>Máximo</span>
+              <span class="timing-val" id="lbl-max">35 s</span>
             </div>
-            <input type="range" min="15" max="90" value="35" id="sl-max" oninput="onSlider()">
+            <input type="range" min="15" max="120" value="35" id="sl-max" oninput="onSlider()">
           </div>
           <div class="timing-item">
             <div class="timing-row">
-              <span>Timeout QR login</span>
-              <span class="timing-val" id="val-login">120s</span>
+              <span>Timeout login QR</span>
+              <span class="timing-val" id="lbl-login">120 s</span>
             </div>
             <input type="range" min="60" max="300" value="120" step="10" id="sl-login" oninput="onSlider()">
           </div>
         </div>
       </div>
 
+      <!-- Summary -->
       <div class="card">
         <div class="card-title"><div class="card-icon">📋</div>Resumen del envío</div>
-        <div class="summary-list">
-          <div>Contactos válidos: <strong id="sum-n">0</strong></div>
-          <div>Tiempo estimado: <strong id="sum-t" style="color:var(--gold)">—</strong></div>
-          <div>Mensaje: <strong id="sum-m">No guardado</strong></div>
-          <div>Delay promedio: <strong id="sum-d" style="color:var(--gold)">31.5s</strong></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title"><div class="card-icon">💡</div>Cómo correr el bot real</div>
-        <div class="howto-list">
-          <div>1. <span>Descargá el script generado</span></div>
-          <div>2. <span>Movelo a tu carpeta del proyecto</span></div>
-          <div>3. <span>Abrí la terminal ahí</span></div>
-          <div>4. <span>Instalá puppeteer si no lo tenés:</span></div>
-        </div>
-        <div style="background:var(--dark);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8d5a2;margin-top:8px;margin-bottom:8px;">
-          npm install puppeteer
-        </div>
-        <div class="howto-list">
-          <div>5. <span>Ejecutá el bot:</span></div>
-        </div>
-        <div style="background:var(--dark);border:1px solid var(--border);border-radius:var(--radius);padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#a8d5a2;margin-top:8px;">
-          node bot-runner.js
-        </div>
-        <div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.7;">
-          6. Escaneá el QR en WhatsApp Web<br>
-          7. El bot envía automáticamente<br>
-          <strong style="color:var(--text)">P</strong> pausar / <strong style="color:var(--text)">Ctrl+C</strong> salir
+        <div class="summary-rows">
+          <div class="summary-row">
+            <span class="summary-key">Contactos válidos</span>
+            <span class="summary-val" id="sum-n">0</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Mensaje</span>
+            <span class="summary-val" id="sum-msg">No guardado</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Delay promedio</span>
+            <span class="summary-val" id="sum-avg">31.5 s</span>
+          </div>
+          <div class="summary-row">
+            <span class="summary-key">Tiempo estimado</span>
+            <span class="summary-val ok" id="sum-time">—</span>
+          </div>
         </div>
       </div>
 
@@ -294,121 +294,192 @@
 <div id="toast-container"></div>
 <script src="../js/shared.js"></script>
 <script>
-let contacts = [], message = '';
-let running = false, paused = false, stopReq = false;
-let curIdx = 0, sent = 0, errors = 0;
-let delayMin = 28, delayMax = 35, loginTO = 120;
+'use strict';
 
+// ─────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────
+let contacts = [];
+let message  = '';
+let delayMin = 28;
+let delayMax = 35;
+let loginTO  = 120;
+let scriptReady = false;
+
+// ─────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────
 function init() {
-  contacts = Store.get('magic_contacts', []);
-  message  = Store.get('magic_message', '');
-  updateChecks();
+  contacts = Store.get('magic_contacts', []);   // solo válidos (guardados por contactos.html)
+  message  = Store.get('magic_message',  '');
+  updateChecklist();
   updateSummary();
-  generateScript();
 }
 
-// ── Checklist ─────────────────────────────────────────────
-function updateChecks() {
+// ─────────────────────────────────────────────────────────
+// CHECKLIST
+// ─────────────────────────────────────────────────────────
+function updateChecklist() {
   const hasC = contacts.length > 0;
   const hasM = message.trim().length > 0;
 
-  setCheck('chk-contacts',
+  // — Contactos —
+  setChk('chk-c',
     hasC ? 'ok' : 'fail',
     hasC ? '✓' : '✕',
-    hasC ? `${contacts.length} contacto(s) válido(s)` : 'Sin contactos — ir a Contactos'
+    hasC
+      ? `${contacts.length} contacto(s) listo(s) para envío`
+      : 'Sin contactos — agregá en la pestaña Contactos'
   );
 
-  setCheck('chk-msg',
+  // — Mensaje —
+  setChk('chk-m',
     hasM ? 'ok' : 'fail',
     hasM ? '✓' : '✕',
-    hasM ? `${message.length} caracteres guardados` : 'Sin mensaje — ir a Mensaje'
+    hasM
+      ? `${message.length} caracteres guardados`
+      : 'Sin mensaje — redactá en la pestaña Mensaje'
   );
 
-  const vars      = hasM ? (message.match(/\{(\w+)\}/g) || []) : [];
-  const knownKeys = ['nombre', 'numero', 'tipo', 'empresa'];
-  const unknowns  = vars.filter(v => !knownKeys.includes(v.slice(1, -1)));
-
+  // — Variables —
   if (!hasM) {
-    setCheck('chk-vars', 'warn', '⚠', 'Guardá el mensaje primero');
-  } else if (unknowns.length) {
-    setCheck('chk-vars', 'warn', '⚠', `Variables no estándar: ${unknowns.join(' ')}`);
-  } else if (!vars.length) {
-    setCheck('chk-vars', 'warn', '⚠', 'El mensaje no usa variables — igual para todos');
+    setChk('chk-v', 'warn', '⚠', 'Guardá el mensaje primero');
   } else {
-    setCheck('chk-vars', 'ok', '✓', `${vars.length} variable(s): ${vars.join(' ')}`);
+    const vars     = message.match(/\{(\w+)\}/g) || [];
+    const known    = new Set(['nombre', 'numero', 'tipo', 'empresa']);
+    const unknowns = vars.filter(v => !known.has(v.slice(1, -1)));
+    if (unknowns.length) {
+      setChk('chk-v', 'warn', '⚠', `Variables no estándar: ${unknowns.join(' ')}`);
+    } else if (!vars.length) {
+      setChk('chk-v', 'warn', '⚠', 'Sin variables — el mismo texto para todos');
+    } else {
+      setChk('chk-v', 'ok', '✓', `${vars.length} variable(s): ${vars.join(' ')}`);
+    }
   }
 
-  document.getElementById('exec-btn').disabled = !(hasC && hasM);
+  // Habilitar/deshabilitar botón de generar
+  document.getElementById('btn-gen').disabled = !(hasC && hasM);
 }
 
-function setCheck(id, type, icon, sub) {
-  document.getElementById(id).className          = `check-item ${type}`;
-  document.getElementById(id + '-icon').className = `check-icon ${type}`;
-  document.getElementById(id + '-icon').textContent = icon;
-  const subEl = document.getElementById(id + '-sub');
+function setChk(id, type, icon, sub) {
+  const el   = document.getElementById(id);
+  const icEl = document.getElementById(id + '-icon');
+  const subEl= document.getElementById(id + '-sub');
+  el.className      = `chk-item ${type}`;
+  icEl.className    = `chk-icon`;           // reset
+  icEl.className    = `chk-icon`;
+  icEl.textContent  = icon;
   if (subEl) subEl.textContent = sub;
 }
 
-// ── Sliders ───────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────
+// SLIDERS
+// ─────────────────────────────────────────────────────────
 function onSlider() {
   delayMin = parseInt(document.getElementById('sl-min').value);
   delayMax = parseInt(document.getElementById('sl-max').value);
   loginTO  = parseInt(document.getElementById('sl-login').value);
-  document.getElementById('val-min').textContent   = delayMin + 's';
-  document.getElementById('val-max').textContent   = delayMax + 's';
-  document.getElementById('val-login').textContent = loginTO + 's';
+  // Asegurarse de que max >= min
+  if (delayMax < delayMin) {
+    delayMax = delayMin;
+    document.getElementById('sl-max').value = delayMax;
+  }
+  document.getElementById('lbl-min').textContent   = delayMin + ' s';
+  document.getElementById('lbl-max').textContent   = delayMax + ' s';
+  document.getElementById('lbl-login').textContent = loginTO  + ' s';
   updateSummary();
-  generateScript();
+  // Si el script ya fue generado, regenerarlo con los nuevos delays
+  if (scriptReady) buildScript();
 }
 
+// ─────────────────────────────────────────────────────────
+// SUMMARY
+// ─────────────────────────────────────────────────────────
 function updateSummary() {
   const n   = contacts.length;
   const avg = (delayMin + delayMax) / 2;
-  const mins = n ? Math.round(n * avg / 60) : 0;
-  document.getElementById('sum-n').textContent = n;
-  document.getElementById('sum-t').textContent = n ? `~${mins} min` : '—';
-  document.getElementById('sum-m').textContent = message ? `${message.length} chars ✓` : 'No guardado';
-  document.getElementById('sum-d').textContent = avg.toFixed(1) + 's';
+  document.getElementById('sum-n').textContent    = n;
+  document.getElementById('sum-msg').textContent  = message ? `${message.length} chars ✓` : 'No guardado';
+  document.getElementById('sum-avg').textContent  = avg.toFixed(1) + ' s';
+
+  if (n > 0) {
+    const mins = Math.round(n * avg / 60);
+    document.getElementById('sum-time').textContent = `~${mins} min`;
+    document.getElementById('sum-time').className   = 'summary-val ok';
+  } else {
+    document.getElementById('sum-time').textContent = '—';
+    document.getElementById('sum-time').className   = 'summary-val';
+  }
 }
 
-// ── Script generator ──────────────────────────────────────
-function generateScript() {
+// ─────────────────────────────────────────────────────────
+// SCRIPT GENERATOR
+// ─────────────────────────────────────────────────────────
+function generateAndShow() {
   if (!contacts.length || !message.trim()) {
-    document.getElementById('script-output').textContent =
-      '— Completá el checklist (contactos + mensaje) para generar el script —';
+    toast('Completá el checklist primero', 'err');
     return;
   }
+  buildScript();
+  document.getElementById('btn-dl').disabled = false;
+  // Mostrar fila de descarga
+  document.getElementById('download-row').style.display = 'flex';
+  scriptReady = true;
+  toast('Script generado — ya podés descargarlo', 'ok');
+}
 
-  const escapedMsg   = message.replace(/`/g, '\\`').replace(/\$/g, '\\$');
-  const contactsJSON = JSON.stringify(
-    contacts.map(({ id, _valid, _error, ...c }) => c),  // limpiar campos internos
-    null, 2
-  );
+function buildScript() {
+  // Limpiar campos internos antes de incrustar en el script
+  const cleanContacts = contacts.map(({ id, _valid, _error, ...c }) => c);
+
+  // Escapar backticks y $ para que el template literal no se rompa
+  const escapedMsg = message
+    .replace(/\\/g, '\\\\')
+    .replace(/`/g,  '\\`')
+    .replace(/\$/g, '\\$');
 
   const script = `/**
  * bot-runner.js — Generado por Magic Show Bot v3.1
- * Ejecutar: node bot-runner.js
- * Requiere: npm install puppeteer  (versión ^24)
+ * ─────────────────────────────────────────────────
+ * Requisitos:
+ *   node >= 18
+ *   npm install puppeteer   (versión ^24 recomendada)
+ *
+ * Uso:
+ *   node bot-runner.js
+ *
+ * Controles:
+ *   P       → pausar / reanudar
+ *   Ctrl+C  → detener y cerrar el navegador limpiamente
  */
 'use strict';
 
 const puppeteer = require('puppeteer');
 const readline  = require('readline');
 
+// ── Configuración ──────────────────────────────────────────────────────
 const CONFIG = {
-  delayMin:     ${delayMin * 1000},
-  delayMax:     ${delayMax * 1000},
-  loginTimeout: ${loginTO * 1000},
-  headless:     false,
-  sessionDir:   './session',
+  delayMin:     ${delayMin * 1000},    // ms entre mensajes (mínimo)
+  delayMax:     ${delayMax * 1000},    // ms entre mensajes (máximo)
+  loginTimeout: ${loginTO  * 1000},    // ms para escanear el QR
+  sendTimeout:  30_000,
+  afterSend:    3_000,
+  humanPause:   1_200,
+  headless:     false,        // true = sin ventana (no recomendado con QR)
+  sessionDir:   './session',  // carpeta donde se guarda la sesión de WA
 };
 
+// ── Mensaje ────────────────────────────────────────────────────────────
+// Usá {nombre}, {empresa}, {numero}, {tipo} para personalizar por contacto.
 const MENSAJE_TEMPLATE = \`${escapedMsg}\`;
 
-const CONTACTOS = ${contactsJSON};
+// ── Contactos ──────────────────────────────────────────────────────────
+// ${cleanContacts.length} contacto(s) exportados desde la app el ${new Date().toLocaleString('es-AR')}
+const CONTACTOS = ${JSON.stringify(cleanContacts, null, 2)};
 
-// Selectores en orden de prioridad — el bot prueba cada uno hasta encontrar uno
-const SELECTORS = {
+// ── Selectores de WhatsApp Web (orden de prioridad) ────────────────────
+// Si WA actualiza su UI, podés agregar nuevos selectores al principio del array.
+const SEL = {
   chatList: [
     '[data-testid="chat-list"]',
     '#pane-side',
@@ -426,249 +497,230 @@ const SELECTORS = {
   errorPopup: '[data-testid="popup-contents"]',
 };
 
+// ── Estado ──────────────────────────────────────────────────────────────
 let pausado = false;
 let browser = null;
 let page    = null;
 
+// ── Utilidades ──────────────────────────────────────────────────────────
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 function personalize(template, contact) {
-  return template.replace(/\\{(\\w+)\\}/g, (m, k) =>
-    contact[k] !== undefined && contact[k] !== '' ? contact[k] : m
+  return template.replace(/\\{(\\w+)\\}/g, (match, key) =>
+    (contact[key] !== undefined && contact[key] !== '') ? contact[key] : match
   );
 }
 
-function delay(min, max) {
+function randomDelay(min, max) {
   const ms = Math.floor(Math.random() * (max - min + 1)) + min;
-  console.log(\`⏳ Esperando \${(ms / 1000).toFixed(1)}s...\`);
-  return new Promise(r => setTimeout(r, ms));
+  console.log(\`  ⏳ Esperando \${(ms / 1000).toFixed(1)}s...\`);
+  return sleep(ms);
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
+// ── Teclado ─────────────────────────────────────────────────────────────
 function initKeyboard() {
   readline.emitKeypressEvents(process.stdin);
   if (process.stdin.isTTY) process.stdin.setRawMode(true);
+
   process.stdin.on('keypress', (str, key) => {
     if (!key) return;
     if (key.name === 'p') {
       pausado = !pausado;
-      console.log(pausado ? '⏸ PAUSADO' : '▶ REANUDADO');
+      console.log(pausado ? '\\n⏸  PAUSADO — presioná P para reanudar' : '\\n▶  REANUDADO');
     }
     if (key.ctrl && key.name === 'c') {
-      console.log('🛑 Saliendo...');
-      if (browser) browser.close();
-      process.exit(0);
+      console.log('\\n🛑 Deteniendo bot...');
+      shutdown(0);
     }
   });
-  console.log('💡 [P] pausar/reanudar | [Ctrl+C] salir\\n');
+
+  console.log('💡 Controles: [P] pausar/reanudar  |  [Ctrl+C] detener\\n');
 }
 
+// ── Navegador ────────────────────────────────────────────────────────────
 async function launch() {
   const fs = require('fs');
   if (!fs.existsSync(CONFIG.sessionDir))
     fs.mkdirSync(CONFIG.sessionDir, { recursive: true });
 
+  console.log('🚀 Iniciando Chrome...');
   browser = await puppeteer.launch({
     headless:    CONFIG.headless,
     userDataDir: CONFIG.sessionDir,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--window-size=1280,800',
+    ],
   });
-  page = await browser.newPage();
+
+  page = (await browser.pages())[0] || await browser.newPage();
   await page.setViewport({ width: 1280, height: 800 });
-  await page.goto('https://web.whatsapp.com', { waitUntil: 'networkidle2', timeout: 60000 });
+
+  console.log('🌐 Abriendo WhatsApp Web...');
+  await page.goto('https://web.whatsapp.com', {
+    waitUntil: 'networkidle2',
+    timeout:   60_000,
+  });
 }
 
+// ── Login ────────────────────────────────────────────────────────────────
 async function waitLogin() {
-  console.log('🔄 Esperando inicio de sesión — escaneá el QR si es necesario...');
+  console.log('🔄 Esperando sesión — escaneá el QR con tu celular si es necesario...');
+
+  // Espera hasta que cualquiera de los selectores del chat esté presente
   await page.waitForFunction(
-    (sels) => sels.some(sel => document.querySelector(sel) !== null),
+    (sels) => sels.some(sel => !!document.querySelector(sel)),
     { timeout: CONFIG.loginTimeout },
-    SELECTORS.chatList
+    SEL.chatList
   );
+
   console.log('✅ Sesión activa.\\n');
-  await sleep(3000);
+  await sleep(3_000);   // dar tiempo a que carguen los chats
 }
 
-async function send(number, text) {
-  const clean = number.replace(/\\D/g, '');
-  const url   = \`https://web.whatsapp.com/send?phone=\${clean}&text=\${encodeURIComponent(text)}\`;
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+// ── Enviar un mensaje ─────────────────────────────────────────────────────
+async function sendMessage(numero, texto) {
+  const clean = numero.replace(/\\D/g, '');
+  const url   = \`https://web.whatsapp.com/send?phone=\${clean}&text=\${encodeURIComponent(texto)}\`;
 
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: CONFIG.sendTimeout });
+
+  // Buscar el cuadro de texto probando cada selector en orden
   let found = false;
-  for (const sel of SELECTORS.composeBox) {
+  for (const sel of SEL.composeBox) {
     try {
-      await page.waitForSelector(sel, { timeout: 8000 });
+      await page.waitForSelector(sel, { timeout: 8_000 });
       await page.click(sel);
       found = true;
       break;
-    } catch {}
+    } catch {
+      // este selector no funcionó, probar el siguiente
+    }
   }
-  if (!found) throw new Error(
-    'No se encontró el cuadro de texto. Actualizá puppeteer: npm update puppeteer'
-  );
 
-  await sleep(1200 + Math.random() * 800);
+  if (!found) {
+    throw new Error(
+      'No se encontró el cuadro de texto de WhatsApp. ' +
+      'Actualizá puppeteer (npm update puppeteer) e intentá de nuevo.'
+    );
+  }
+
+  // Pausa humanizada antes de enviar (simula tipeo humano)
+  await sleep(CONFIG.humanPause + Math.random() * 800);
   await page.keyboard.press('Enter');
-  await sleep(3000);
+  await sleep(CONFIG.afterSend);
 
-  const err = await page.$(SELECTORS.errorPopup);
-  if (err) {
-    const txt = await page.evaluate(el => el.innerText, err);
-    throw new Error('WhatsApp: ' + txt.slice(0, 100));
+  // Verificar si WA mostró popup de error (número inválido, etc.)
+  const errEl = await page.$(SEL.errorPopup);
+  if (errEl) {
+    const errText = await page.evaluate(el => el.innerText, errEl);
+    throw new Error('WhatsApp: ' + errText.slice(0, 120));
   }
 }
 
+// ── Shutdown limpio ───────────────────────────────────────────────────────
+async function shutdown(code = 0) {
+  if (browser) {
+    try { await browser.close(); } catch {}
+  }
+  process.exit(code);
+}
+
+// ── MAIN ──────────────────────────────────────────────────────────────────
 async function main() {
-  console.log('\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('   🎩 Magic Show Bot v3.1                  ');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
-  console.log(\`📋 Contactos: \${CONTACTOS.length} | Delay: \${CONFIG.delayMin/1000}s–\${CONFIG.delayMax/1000}s\\n\`);
+  console.log('\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('   🎩 Magic Show Bot v3.1');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
+  console.log(\`📋 Contactos: \${CONTACTOS.length}\`);
+  console.log(\`⏱  Delay:     \${CONFIG.delayMin / 1000}s – \${CONFIG.delayMax / 1000}s\\n\`);
 
   initKeyboard();
   await launch();
   await waitLogin();
 
-  let sent = 0, errors = 0;
+  let enviados = 0;
+  let errores  = 0;
 
   for (let i = 0; i < CONTACTOS.length; i++) {
     const c    = CONTACTOS[i];
     const prog = \`[\${i + 1}/\${CONTACTOS.length}]\`;
 
+    // Esperar si está pausado
     while (pausado) await sleep(500);
 
     const msg = personalize(MENSAJE_TEMPLATE, c);
+
     console.log(\`\${prog} 📤 \${c.nombre} (\${c.numero})\`);
 
     try {
-      await send(c.numero, msg);
-      sent++;
-      console.log(\`\${prog} ✅ OK — \${c.nombre}\`);
-    } catch (e) {
-      errors++;
-      console.log(\`\${prog} ❌ ERROR — \${c.nombre} — \${e.message}\`);
+      await sendMessage(c.numero, msg);
+      enviados++;
+      console.log(\`\${prog} ✅ Enviado — \${c.nombre}\`);
+    } catch (err) {
+      errores++;
+      console.log(\`\${prog} ❌ Error    — \${c.nombre}: \${err.message}\`);
     }
 
-    console.log(\`📊 Enviados: \${sent} | Errores: \${errors} | Pendientes: \${CONTACTOS.length - i - 1}\\n\`);
+    console.log(\`     Progreso: \${enviados} enviados, \${errores} errores, \${CONTACTOS.length - i - 1} pendientes\\n\`);
 
-    if (i < CONTACTOS.length - 1) await delay(CONFIG.delayMin, CONFIG.delayMax);
+    // Delay entre mensajes (excepto después del último)
+    if (i < CONTACTOS.length - 1) {
+      await randomDelay(CONFIG.delayMin, CONFIG.delayMax);
+    }
   }
 
-  console.log('\\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(\`🏁 COMPLETADO — Enviados: \${sent} | Errores: \${errors}\`);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
-  await browser.close();
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(\`🏁 COMPLETADO — Enviados: \${enviados} | Errores: \${errores}\`);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\\n');
+
+  await shutdown(errores > 0 ? 1 : 0);
 }
 
-main().catch(async e => {
-  console.error('💥 Error fatal:', e.message);
-  if (browser) await browser.close();
-  process.exit(1);
+main().catch(async (err) => {
+  console.error('\\n💥 Error fatal:', err.message);
+  await shutdown(1);
 });
 `;
 
-  document.getElementById('script-output').textContent = script;
+  document.getElementById('script-out').textContent = script;
+  return script;
 }
 
-function copyScript() {
-  const s = document.getElementById('script-output').textContent;
-  if (s.startsWith('—')) { toast('Completá el checklist primero', 'err'); return; }
-  navigator.clipboard.writeText(s).then(() => toast('Script copiado', 'ok'));
+// ─────────────────────────────────────────────────────────
+// DOWNLOAD / COPY
+// ─────────────────────────────────────────────────────────
+function getScript() {
+  return document.getElementById('script-out').textContent;
 }
 
 function downloadScript() {
-  const s = document.getElementById('script-output').textContent;
-  if (s.startsWith('—')) { toast('Completá el checklist primero', 'err'); return; }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([s], { type: 'text/javascript' }));
+  const s = getScript();
+  if (s.startsWith('—')) { toast('Generá el script primero', 'err'); return; }
+  const blob = new Blob([s], { type: 'text/javascript' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
   a.download = 'bot-runner.js';
+  document.body.appendChild(a);
   a.click();
-  toast('Script descargado', 'ok');
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('bot-runner.js descargado', 'ok');
 }
 
-// ── Simulación ────────────────────────────────────────────
-function startExec() {
-  if (!contacts.length || !message.trim()) return;
-  running = true; paused = false; stopReq = false;
-  sent = 0; errors = 0; curIdx = 0;
-
-  document.getElementById('exec-btn').style.display        = 'none';
-  document.getElementById('ctrl-row').style.display        = 'flex';
-  document.getElementById('progress-section').style.display = 'block';
-  document.getElementById('status-dot').className          = 'status-dot running';
-  document.getElementById('status-text').textContent       = 'Simulando...';
-
-  logLine('🎭 SIMULACIÓN — ningún mensaje real se está enviando', 'log-gold');
-  logLine(`📋 ${contacts.length} contactos | delay simulado: ${delayMin}s–${delayMax}s`, '');
-  logLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
-  simulateNext();
+function copyScript() {
+  const s = getScript();
+  if (s.startsWith('—')) { toast('Generá el script primero', 'err'); return; }
+  navigator.clipboard.writeText(s)
+    .then(() => toast('Script copiado al portapapeles', 'ok'))
+    .catch(()  => toast('No se pudo copiar — usá el botón Descargar', 'err'));
 }
 
-function simulateNext() {
-  if (stopReq || curIdx >= contacts.length) { finishExec(); return; }
-  if (paused) { setTimeout(simulateNext, 500); return; }
-
-  const c   = contacts[curIdx];
-  const pct = (curIdx / contacts.length * 100).toFixed(1);
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('prog-pct').textContent  = Math.round(pct) + '%';
-  document.getElementById('prog-text').textContent = `Simulando ${curIdx + 1}/${contacts.length}...`;
-  logLine(`📤 [${curIdx + 1}/${contacts.length}] ${c.nombre} (${c.numero})`, '');
-
-  const ok     = Math.random() > 0.05;
-  const waitMs = Math.min((delayMin + Math.random() * (delayMax - delayMin)) * 100, 1600);
-
-  setTimeout(() => {
-    if (ok) { sent++;   logLine(`✅ [simulado] ${c.nombre}`, 'log-ok'); }
-    else    { errors++; logLine(`❌ [simulado] ${c.nombre} — número no encontrado`, 'log-error'); }
-
-    document.getElementById('res-sent').textContent    = sent;
-    document.getElementById('res-errors').textContent  = errors;
-    document.getElementById('res-pending').textContent = Math.max(0, contacts.length - curIdx - 1);
-
-    curIdx++;
-    if (curIdx < contacts.length && !stopReq) setTimeout(simulateNext, 400);
-    else finishExec();
-  }, waitMs);
-}
-
-function finishExec() {
-  running = false;
-  document.getElementById('exec-btn').style.display    = 'block';
-  document.getElementById('ctrl-row').style.display    = 'none';
-  document.getElementById('prog-fill').style.width     = '100%';
-  document.getElementById('prog-text').textContent     = 'Simulación completada';
-  document.getElementById('prog-pct').textContent      = '100%';
-  document.getElementById('status-dot').className      = 'status-dot ready';
-  document.getElementById('status-text').textContent   = `${contacts.length} contactos`;
-  logLine('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
-  logLine(`🎭 Simulación terminada — Descargá el script para envíos reales`, 'log-gold');
-}
-
-function togglePause() {
-  paused = !paused;
-  document.getElementById('pause-btn').textContent = paused ? '▶ Reanudar' : '⏸ Pausar';
-  logLine(paused ? '⏸ PAUSADO' : '▶ REANUDADO', 'log-gold');
-}
-
-function stopExec() {
-  if (!confirm('¿Detener la simulación?')) return;
-  stopReq = true;
-  logLine('🛑 Detenido', 'log-error');
-}
-
-function logLine(text, cls = '') {
-  const body = document.getElementById('log-body');
-  const span = document.createElement('span');
-  span.className   = 'log-line ' + cls;
-  const t          = new Date().toTimeString().slice(0, 8);
-  span.textContent = `[${t}] ${text}`;
-  body.appendChild(span);
-  body.scrollTop = body.scrollHeight;
-}
-
-function clearLog() {
-  document.getElementById('log-body').innerHTML = '<span class="log-line">Log limpiado.</span>';
-}
-
+// ─────────────────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────────────────
 init();
 </script>
 </body>
