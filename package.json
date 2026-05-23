@@ -1,16 +1,16 @@
 {
   "name": "magic-show-bot",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Bot de WhatsApp para Magic Show — mensajes personalizados por tipo de contacto",
   "main": "src/index.js",
   "scripts": {
-    "start":        "node src/index.js",
-    "validate":     "node src/utils/validateContacts.js",
-    "preview":      "node src/utils/previewMessages.js",
-    "leads":        "open leads/magic-leads-app.html || xdg-open leads/magic-leads-app.html 2>/dev/null || echo 'Abrí manualmente: leads/magic-leads-app.html'"
+    "start":    "node src/index.js",
+    "validate": "node src/utils/validateContacts.js",
+    "preview":  "node src/utils/previewMessages.js",
+    "leads":    "open leads/magic-leads-app.html || xdg-open leads/magic-leads-app.html 2>/dev/null || echo 'Abrí manualmente: leads/magic-leads-app.html'"
   },
   "dependencies": {
-    "puppeteer": "^21.0.0"
+    "puppeteer": "^24.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
