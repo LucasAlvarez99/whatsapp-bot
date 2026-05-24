@@ -12,14 +12,16 @@
  * Live Server en puerto 5500), apuntamos explícitamente a
  * localhost:3000 para que la API funcione igual.
  * ─────────────────────────────────────────────────────────────── */
-const SERVER_PORT = 3000;
-const API_BASE = window.location.port === String(SERVER_PORT)
-  ? ''                                        // mismo origen → URLs relativas
-  : `http://localhost:${SERVER_PORT}`;        // origen distinto → URL absoluta
+const API_BASE = window.location.hostname === 'localhost' && window.location.port !== '3000'
+  ? 'http://localhost:3000'   // Live Server u otro puerto local
+  : '';                       // mismo origen (producción o npm start)
 
 function apiUrl(path) {
   return API_BASE + path;
 }
+
+
+
 
 /* ── State ──────────────────────────────────────────────────── */
 let evtSource  = null;
