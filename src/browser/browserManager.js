@@ -75,6 +75,7 @@ async function launch() {
     '--no-first-run',
     '--no-zygote',
     '--window-size=1280,800',
+    '--disable-blink-features=AutomationControlled',
   ];
 
   const launchOptions = {
@@ -97,6 +98,24 @@ async function launch() {
   const pages = await browser.pages();
   log(`Páginas abiertas al inicio: ${pages.length}`);
   page = pages[0] ?? await browser.newPage();
+
+  // ── Anti-detección ────────────────────────────────────────
+  // WhatsApp bloquea Chromium headless viejo — fingimos ser Chrome moderno
+  const USER_AGENT =
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 ' +
+    '(KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36';
+
+  await page.setUserAgent(USER_AGENT);
+  log(`User-agent seteado: ${USER_AGENT}`);
+
+  // Ocultar que es un browser automatizado
+  await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+    Object.defineProperty(navigator, 'languages', { get: () => ['es-AR', 'es', 'en'] });
+    window.chrome = { runtime: {} };
+  });
+  log('Anti-detección aplicada');
 
   // Capturar errores de consola del browser
   page.on('console', msg => {
