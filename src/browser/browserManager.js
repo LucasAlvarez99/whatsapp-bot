@@ -1,121 +1,175 @@
-/**
- * browserManager.js — Ciclo de vida del navegador (Puppeteer)
- * ─────────────────────────────────────────────────────────────
- * Responsabilidades:
- *   - Lanzar y cerrar el navegador
- *   - Esperar el login de WhatsApp
- *   - Enviar un mensaje a un número
- *
- * CAMBIOS v3.1:
- *   - waitForLogin usa waitForFunction con array de selectores (robusto ante
- *     cambios de UI de WhatsApp)
- *   - sendMessage itera el array composeBox en lugar de un selector único
- *   - sleep movido acá para no depender de delay.js (evita circular dep)
- */
-
 'use strict';
 
 const puppeteer = require('puppeteer');
 const fs        = require('fs');
-const logger    = require('../utils/logger');
-const { paths, browser: BROWSER_CFG, whatsapp: WA, timing } = require('../config/config');
+const path      = require('path');
+
+const IS_PROD = process.env.NODE_ENV === 'production';
+
+const TIMING = {
+  loginTimeout: 120_000,
+  sendTimeout:  30_000,
+  afterSend:    3_000,
+  humanPause:   1_200,
+};
+
+const SESSION_DIR = path.resolve(__dirname, '../../session');
+const WA_URL      = 'https://web.whatsapp.com';
+
+const SEL = {
+  chatList: [
+    '[data-testid="chat-list"]',
+    '#pane-side',
+    'div[aria-label="Chat list"]',
+    'div[aria-label="Lista de chats"]',
+    'div[role="grid"]',
+  ],
+  composeBox: [
+    '[data-testid="conversation-compose-box-input"]',
+    'div[contenteditable="true"][data-tab="10"]',
+    'div[contenteditable="true"][data-tab="1"]',
+    'footer div[contenteditable="true"]',
+    'div[contenteditable="true"][role="textbox"]',
+  ],
+  errorPopup: '[data-testid="popup-contents"]',
+  qr: [
+    'canvas',
+    '[data-testid="qrcode"]',
+    '[aria-label="Scan me!"]',
+    '[aria-label="Escanéame!"]',
+  ],
+};
 
 let browser = null;
 let page    = null;
 
-// ── Launch ─────────────────────────────────────────────────────────────────────
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
+
+// ── Launch ────────────────────────────────────────────────────
 async function launch() {
-  if (!fs.existsSync(paths.session)) {
-    fs.mkdirSync(paths.session, { recursive: true });
+  if (!fs.existsSync(SESSION_DIR)) {
+    fs.mkdirSync(SESSION_DIR, { recursive: true });
   }
 
-  logger.info('🚀 Iniciando navegador...');
+  // Flags base + extras para entornos sin display (Linux server / Docker)
+  const args = [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-accelerated-2d-canvas',
+    '--disable-gpu',
+    '--no-first-run',
+    '--no-zygote',
+    '--window-size=1280,800',
+  ];
 
-  browser = await puppeteer.launch({
-    headless:    BROWSER_CFG.headless,
-    userDataDir: paths.session,
-    args:        BROWSER_CFG.args,
-  });
+  const launchOptions = {
+    headless: IS_PROD ? 'new' : false,   // headless en producción, visible en local
+    userDataDir: SESSION_DIR,
+    args,
+  };
 
-  page = await browser.newPage();
-  await page.setViewport(BROWSER_CFG.viewport);
+  // En producción usa el Chromium del sistema (seteado por la variable de entorno)
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
 
-  logger.info('🌐 Navegando a WhatsApp Web...');
-  await page.goto(WA.url, { waitUntil: 'networkidle2', timeout: 60_000 });
+  browser = await puppeteer.launch(launchOptions);
+  page    = (await browser.pages())[0] ?? await browser.newPage();
+  await page.setViewport({ width: 1280, height: 800 });
+  await page.goto(WA_URL, { waitUntil: 'networkidle2', timeout: 60_000 });
 }
 
-// ── Login ──────────────────────────────────────────────────────────────────────
-// Usa waitForFunction con todos los selectores del array para que no falle
-// cuando WhatsApp cambia uno de ellos.
-async function waitForLogin() {
-  logger.info('🔄 Esperando inicio de sesión (escaneá el QR si es necesario)...');
+// ── waitForLoginWithQR ────────────────────────────────────────
+async function waitForLoginWithQR(onQR) {
+  let pollingActive = true;
 
-  const selectors = WA.selectors.chatList;
+  async function pollQR() {
+    while (pollingActive) {
+      try {
+        const loggedIn = await page.evaluate(
+          sels => sels.some(s => !!document.querySelector(s)),
+          SEL.chatList
+        );
+        if (loggedIn) break;
 
-  await page.waitForFunction(
-    (sels) => sels.some(sel => document.querySelector(sel) !== null),
-    { timeout: timing.loginTimeout },
-    selectors
-  );
+        for (const sel of SEL.qr) {
+          const el  = await page.$(sel).catch(() => null);
+          if (!el) continue;
+          const buf = await el.screenshot({ type: 'png' }).catch(() => null);
+          if (buf) {
+            onQR('data:image/png;base64,' + buf.toString('base64'));
+            break;
+          }
+        }
+      } catch (_) {}
 
-  logger.ok('✅ Sesión de WhatsApp activa.');
-  // Pausa extra para que WhatsApp termine de cargar los chats
-  await sleep(3_000);
-}
-
-// ── Send ───────────────────────────────────────────────────────────────────────
-// Itera el array de selectores de composeBox hasta encontrar uno que funcione.
-async function sendMessage(rawNumber, message) {
-  const number = rawNumber.replace(/\D/g, '');
-  const url    = `${WA.url}/send?phone=${number}&text=${encodeURIComponent(message)}`;
-
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: timing.sendTimeout });
-
-  // Buscar el cuadro de texto probando cada selector
-  let found = false;
-  for (const selector of WA.selectors.composeBox) {
-    try {
-      await page.waitForSelector(selector, { timeout: 8_000 });
-      await page.click(selector);
-      found = true;
-      break;
-    } catch {
-      // Selector no encontrado, probar el siguiente
+      await sleep(3_000);
     }
   }
 
-  if (!found) {
-    throw new Error(
-      'No se encontró el cuadro de texto. WhatsApp puede haber actualizado su interfaz. ' +
-      'Ejecutá "npm update puppeteer" y revisá los selectores en config.js.'
-    );
+  const pollPromise = pollQR();
+
+  await page.waitForFunction(
+    sels => sels.some(sel => !!document.querySelector(sel)),
+    { timeout: TIMING.loginTimeout },
+    SEL.chatList
+  );
+
+  pollingActive = false;
+  await pollPromise;
+  await sleep(3_000);
+}
+
+// ── Legacy ────────────────────────────────────────────────────
+async function waitForLogin() {
+  await page.waitForFunction(
+    sels => sels.some(sel => !!document.querySelector(sel)),
+    { timeout: TIMING.loginTimeout },
+    SEL.chatList
+  );
+  await sleep(3_000);
+}
+
+// ── Send ──────────────────────────────────────────────────────
+async function sendMessage(rawNumber, message) {
+  const number = rawNumber.replace(/\D/g, '');
+  const url    = `${WA_URL}/send?phone=${number}&text=${encodeURIComponent(message)}`;
+
+  await page.goto(url, { waitUntil: 'networkidle2', timeout: TIMING.sendTimeout });
+
+  let found = false;
+  for (const sel of SEL.composeBox) {
+    try {
+      await page.waitForSelector(sel, { timeout: 8_000 });
+      await page.click(sel);
+      found = true;
+      break;
+    } catch (_) {}
   }
 
-  // Pausa humanizada antes de enviar
-  await sleep(timing.humanPause + Math.random() * 800);
-  await page.keyboard.press('Enter');
-  await sleep(timing.afterSend);
+  if (!found) throw new Error('No se encontró el cuadro de texto. Actualizá puppeteer.');
 
-  // Detección de error de WhatsApp (número inválido, etc.)
-  const errorEl = await page.$(WA.selectors.errorPopup);
-  if (errorEl) {
-    const errorText = await page.evaluate(el => el.innerText, errorEl);
-    throw new Error(`WhatsApp: ${errorText.substring(0, 120)}`);
+  await sleep(TIMING.humanPause + Math.random() * 800);
+  await page.keyboard.press('Enter');
+  await sleep(TIMING.afterSend);
+
+  const errEl = await page.$(SEL.errorPopup);
+  if (errEl) {
+    const txt = await page.evaluate(el => el.innerText, errEl);
+    throw new Error('WhatsApp: ' + txt.substring(0, 120));
   }
 }
 
-// ── Close ──────────────────────────────────────────────────────────────────────
+// ── Close ─────────────────────────────────────────────────────
 async function close() {
   if (browser) {
-    await browser.close();
+    try { await browser.close(); } catch (_) {}
     browser = null;
     page    = null;
   }
 }
 
-// ── Util ───────────────────────────────────────────────────────────────────────
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-module.exports = { launch, waitForLogin, sendMessage, close };
+module.exports = { launch, waitForLogin, waitForLoginWithQR, sendMessage, close };

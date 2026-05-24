@@ -1,21 +1,9 @@
-/**
- * logger.js — Logging centralizado
- * ──────────────────────────────────
- * Escribe en consola y en archivo de log.
- * Niveles: INFO | OK | WARN | ERROR | CTRL | FATAL | DONE
- *
- * CAMBIOS v3.1:
- *   - Reemplazado appendFileSync (bloqueante, lento) por un WriteStream
- *     abierto una sola vez al inicio. Cierre limpio con closeStream().
- */
-
 'use strict';
 
 const fs   = require('fs');
 const path = require('path');
 const { paths } = require('../config/config');
 
-// Colores ANSI para consola
 const COLORS = {
   INFO:  '\x1b[37m',
   OK:    '\x1b[32m',
@@ -27,7 +15,6 @@ const COLORS = {
   RESET: '\x1b[0m',
 };
 
-// ── Stream de log ──────────────────────────────────────────────────────────────
 let _stream = null;
 
 function getStream() {
@@ -40,36 +27,25 @@ function getStream() {
 }
 
 function closeStream() {
-  if (_stream) {
-    _stream.end();
-    _stream = null;
-  }
+  if (_stream) { _stream.end(); _stream = null; }
 }
 
-// ── Log principal ──────────────────────────────────────────────────────────────
 function log(message, level = 'INFO') {
   const timestamp = new Date().toISOString();
   const plain     = `[${timestamp}] [${level.padEnd(5)}] ${message}`;
   const colored   = `${COLORS[level] || ''}${plain}${COLORS.RESET}`;
-
   console.log(colored);
-
-  try {
-    getStream().write(plain + '\n');
-  } catch (err) {
-    console.error('⚠ No se pudo escribir en el log:', err.message);
-  }
+  try { getStream().write(plain + '\n'); } catch (_) {}
 }
 
-// ── Shortcuts ──────────────────────────────────────────────────────────────────
 module.exports = {
-  info:        (msg) => log(msg, 'INFO'),
-  ok:          (msg) => log(msg, 'OK'),
-  warn:        (msg) => log(msg, 'WARN'),
-  error:       (msg) => log(msg, 'ERROR'),
-  ctrl:        (msg) => log(msg, 'CTRL'),
-  fatal:       (msg) => log(msg, 'FATAL'),
-  done:        (msg) => log(msg, 'DONE'),
-  raw:         log,
+  info:  (msg) => log(msg, 'INFO'),
+  ok:    (msg) => log(msg, 'OK'),
+  warn:  (msg) => log(msg, 'WARN'),
+  error: (msg) => log(msg, 'ERROR'),
+  ctrl:  (msg) => log(msg, 'CTRL'),
+  fatal: (msg) => log(msg, 'FATAL'),
+  done:  (msg) => log(msg, 'DONE'),
+  raw:   log,
   closeStream,
 };

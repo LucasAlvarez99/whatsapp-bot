@@ -1,6 +1,5 @@
 /**
  * store.js — Manejo de estado global via localStorage
- * Todos los módulos leen y escriben por acá.
  */
 
 const Store = {

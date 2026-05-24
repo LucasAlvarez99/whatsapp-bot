@@ -1,19 +1,8 @@
-/**
- * keyboardController.js — Control por teclado
- * ─────────────────────────────────────────────
- * P         → Pausar / reanudar envíos
- * Ctrl + C  → Salir limpiamente
- *
- * Exporta un objeto de estado reactivo { paused }
- * que el loop principal puede leer sin acoplamientos.
- */
-
 'use strict';
 
 const readline = require('readline');
 const logger   = require('./logger');
 
-// Estado compartido — el loop lee `state.paused`
 const state = { paused: false };
 
 function init(onExit) {
@@ -22,23 +11,17 @@ function init(onExit) {
 
   process.stdin.on('keypress', (str, key) => {
     if (!key) return;
-
     if (key.name === 'p') {
       state.paused = !state.paused;
-      logger.ctrl(state.paused
-        ? '⏸  Envíos PAUSADOS — presioná P para reanudar'
-        : '▶️  Envíos REANUDADOS'
-      );
+      logger.ctrl(state.paused ? '⏸ Pausado' : '▶️ Reanudado');
     }
-
     if (key.ctrl && key.name === 'c') {
-      logger.ctrl('🛑 Ctrl+C detectado — saliendo...');
+      logger.ctrl('🛑 Ctrl+C — saliendo...');
       if (typeof onExit === 'function') onExit();
-      // onExit llama a shutdown() que hace process.exit()
     }
   });
 
-  logger.info('💡 Controles: [P] pausar/reanudar  |  [Ctrl+C] salir');
+  logger.info('💡 [P] pausar/reanudar  |  [Ctrl+C] salir');
 }
 
 module.exports = { init, state };

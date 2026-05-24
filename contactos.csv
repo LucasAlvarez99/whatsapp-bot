@@ -1,11 +1,5 @@
 nombre,numero,tipo,empresa
 María García,5491167867229,cliente,
-Juan Pérez,5491167867229,cliente_nuevo,
-Salón El Gran Evento,5491167867229,salon,El Gran Evento
-Laura Rodríguez,5491167867229,cliente,
-Carlos López,5491167867229,cliente_nuevo,
-Eventos y Fiestas SA,5491167867229,empresa,Eventos y Fiestas SA
-Ana Martínez,5491167867229,cliente,
-Salón Los Robles,5491167867229,salon,Los Robles
-TechCorp Argentina,5491167867229,empresa,TechCorp Argentina
-Pedro Suárez,5491167867229,cliente_nuevo,
+Juan Pérez,5491167867230,cliente_nuevo,
+Salón El Gran Evento,5491167867231,salon,El Gran Evento
+TechCorp Argentina,5491167867232,empresa,TechCorp Argentina
