@@ -66,6 +66,17 @@ class BotRunner extends EventEmitter {
 
       // Browser launch
       this._log('🚀 Iniciando Chrome...');
+
+      // Redirigir console.log del proceso al log SSE mientras el bot corre
+      const _origLog = console.log;
+      console.log = (...args) => {
+        const msg = args.join(' ');
+        _origLog(msg);
+        if (msg.includes('[BrowserManager]')) {
+          this._log(msg.replace(/\[BrowserManager\] \S+ — /, ''), 'info');
+        }
+      };
+
       await browserManager.launch();
 
       // Wait for WhatsApp session (with QR emission)
@@ -121,6 +132,8 @@ class BotRunner extends EventEmitter {
       this.emit('done', { ...this._stats, fatalError: err.message });
     } finally {
       try { await browserManager.close(); } catch (_) {}
+      // Restaurar console.log original
+      if (typeof _origLog !== 'undefined') console.log = _origLog;
       this.running = false;
       this._emitState();
     }
