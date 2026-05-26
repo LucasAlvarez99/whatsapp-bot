@@ -3,31 +3,201 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mensaje — Magic Show Bot</title>
+<title>Mensaje — Marketing Web-Bot</title>
 <link rel="stylesheet" href="../css/styles.css">
 <style>
-.msg-layout  { display: grid; grid-template-columns: 1fr 340px; gap: 16px; align-items: start; }
-.machete-card { background: var(--surf); border: 1px solid var(--gold-dim); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 14px; }
-.machete-label { font-size: 10px; color: var(--gold); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; }
-.machete-grid  { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.var-chip { display: flex; align-items: center; justify-content: space-between; background: var(--surf2); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 10px; cursor: pointer; transition: all .15s; }
-.var-chip:hover { border-color: var(--gold-dim); background: rgba(201,147,58,.05); }
-.var-code { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gold); }
-.var-desc { font-size: 10px; color: var(--muted); }
-.var-hint { font-size: 9px; color: var(--muted); background: var(--surf3); padding: 2px 5px; border-radius: 3px; }
-.editor-toolbar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding: 9px 12px; background: var(--surf2); border: 1px solid var(--border); border-bottom: none; border-radius: var(--radius) var(--radius) 0 0; }
-.editor-label { font-size: 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
-#msg-textarea { width: 100%; min-height: 240px; background: var(--surf); border: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 14px; resize: vertical; outline: none; transition: border-color .2s; line-height: 1.8; }
-#msg-textarea:focus { border-color: var(--gold-dim); }
-.char-count { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-align: right; margin-top: 5px; }
-.msg-actions { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; align-items: center; }
-@media(max-width:860px) { .msg-layout { grid-template-columns: 1fr; } .machete-grid { grid-template-columns: 1fr; } }
+.msg-layout { display:grid; grid-template-columns:1fr 360px; gap:20px; align-items:start; }
+
+/* Machete */
+.machete-card {
+  background:var(--surface); border:1px solid var(--gold-dim);
+  border-radius:var(--radius-lg); padding:18px; margin-bottom:14px;
+  box-shadow: 0 0 24px var(--gold-glow), inset 0 1px 0 rgba(255,255,255,.03);
+}
+.machete-label {
+  font-size:10px; color:var(--gold);
+  font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:.12em;
+  margin-bottom:12px; display:flex; align-items:center; gap:6px;
+}
+.machete-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.var-chip {
+  display:flex; align-items:center; justify-content:space-between;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:10px 12px;
+  cursor:pointer;
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease), transform var(--t) var(--ease);
+}
+.var-chip:hover {
+  border-color:var(--gold);
+  background:var(--gold-glow);
+  transform:translateY(-1px);
+  box-shadow: 0 4px 12px var(--gold-glow);
+}
+.var-chip-left { display:flex; flex-direction:column; gap:2px; }
+.var-code { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--gold); font-weight:500; }
+.var-desc { font-size:10px; color:var(--muted); }
+.var-hint {
+  font-size:9px; color:var(--gold);
+  background:var(--gold-glow); padding:2px 8px;
+  border-radius:10px; border:1px solid var(--gold-dim);
+  font-family:'JetBrains Mono',monospace; font-weight:600;
+  white-space:nowrap;
+}
+
+/* Editor */
+.editor-toolbar {
+  display:flex; align-items:center; gap:6px; flex-wrap:wrap;
+  padding:10px 14px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-bottom:none; border-radius:var(--radius) var(--radius) 0 0;
+}
+.editor-label {
+  font-size:9px; color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:.1em; margin-right:4px;
+}
+.var-quick-btn {
+  font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600;
+  padding:4px 11px; border-radius:20px;
+  border:1px solid var(--gold-dim);
+  background:var(--gold-glow); color:var(--gold);
+  cursor:pointer;
+  transition: background var(--t) var(--ease), color var(--t) var(--ease), transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+.var-quick-btn:hover {
+  background:var(--gold); color:#0c0a06;
+  border-color:var(--gold);
+  transform:translateY(-1px);
+  box-shadow: 0 4px 12px rgba(240,160,48,.3);
+}
+
+#msg-textarea {
+  width:100%; min-height:220px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:0 0 var(--radius) var(--radius);
+  color:var(--text); font-family:'JetBrains Mono',monospace;
+  font-size:13px; padding:14px; resize:vertical; outline:none;
+  line-height:1.8;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease);
+}
+#msg-textarea:focus {
+  border-color:var(--gold-dim);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+.char-count {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  color:var(--muted); text-align:right; margin-top:5px;
+}
+.msg-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; align-items:center; }
+
+/* ── Preview WhatsApp ─────────────────────────────────────────── */
+.preview-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-lg); overflow:hidden;
+  position:sticky; top:74px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+/* Barra macOS */
+.preview-bar {
+  padding:10px 14px;
+  background:#1f2c34;
+  display:flex; align-items:center; gap:8px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.preview-dots { display:flex; gap:5px; }
+.preview-dot  { width:10px; height:10px; border-radius:50%; transition:opacity .15s; }
+.preview-dots:hover .preview-dot { opacity:.75; }
+.preview-bar-title {
+  font-size:11px; color:rgba(255,255,255,.38);
+  font-family:'JetBrains Mono',monospace; margin-left:4px;
+  letter-spacing:.04em;
+}
+
+/* Selector */
+.preview-select-wrap {
+  padding:10px 14px;
+  background:#0b141a;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.preview-select-wrap label {
+  font-size:9px; color:rgba(255,255,255,.3);
+  font-family:'JetBrains Mono',monospace;
+  display:block; margin-bottom:6px;
+  text-transform:uppercase; letter-spacing:.1em;
+}
+.preview-select-wrap select {
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.09);
+  color:rgba(255,255,255,.75);
+  font-size:12px; border-radius:6px;
+}
+
+/* Chat background */
+.preview-chat-area {
+  background:#0b141a;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='1' cy='1' r='.5' fill='rgba(255,255,255,.02)'/%3E%3C/svg%3E");
+  padding:16px 12px 14px;
+  min-height:220px;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  gap:8px;
+}
+
+/* Contacto */
+.preview-contact-row { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.preview-avatar {
+  width:38px; height:38px; border-radius:50%;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:#0c0a06; font-weight:700;
+  font-family:'JetBrains Mono',monospace; flex-shrink:0;
+  box-shadow: 0 2px 10px rgba(0,0,0,.4), 0 0 0 2px rgba(240,160,48,.2);
+}
+.preview-name { font-size:13px; font-weight:600; color:rgba(255,255,255,.88); line-height:1.2; }
+.preview-num  { font-size:10px; color:rgba(255,255,255,.35); font-family:'JetBrains Mono',monospace; }
+
+/* Burbuja outgoing WhatsApp */
+.preview-bubble {
+  background:#005c4b;
+  border-radius:12px 12px 2px 12px;
+  padding:10px 13px 6px;
+  font-size:13px; line-height:1.7; color:#e9edef;
+  white-space:pre-wrap; word-break:break-word;
+  align-self:flex-end; max-width:90%;
+  position:relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+}
+/* Cola de la burbuja */
+.preview-bubble::after {
+  content:'';
+  position:absolute; bottom:0; right:-7px;
+  width:0; height:0;
+  border-left:8px solid #005c4b;
+  border-bottom:8px solid transparent;
+}
+.preview-time {
+  font-size:10px; color:rgba(233,237,239,.5);
+  text-align:right; margin-top:4px;
+  display:flex; align-items:center; justify-content:flex-end; gap:3px;
+}
+.preview-ticks { color:#53bdeb; font-size:12px; }
+
+@media(max-width:900px) {
+  .msg-layout    { grid-template-columns:1fr; }
+  .machete-grid  { grid-template-columns:1fr; }
+  .preview-card  { position:static; }
+}
 </style>
 </head>
 <body>
 
 <header class="app-header">
-  <a href="../magic-leads-app.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3.1</span></a>
+  <a href="../magic-leads-app.html" class="app-logo">
+    <span class="app-logo-emoji">🤖</span>
+    Marketing Web-Bot <span class="app-logo-badge">v3.2</span>
+  </a>
   <nav class="header-nav">
     <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
     <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
@@ -48,39 +218,50 @@
 
   <div class="msg-layout">
 
+    <!-- LEFT: Editor -->
     <div>
-      <!-- Machete de variables -->
       <div class="machete-card">
-        <div class="machete-label">🗂 Variables disponibles — hacé click para insertar</div>
+        <div class="machete-label">🗂 Variables — hacé click para insertar en el cursor</div>
         <div class="machete-grid">
           <div class="var-chip" onclick="msgInsertVar('{nombre}')">
-            <div><div class="var-code">{nombre}</div><div class="var-desc">Nombre del contacto</div></div>
-            <div class="var-hint">insertar</div>
+            <div class="var-chip-left">
+              <div class="var-code">{nombre}</div>
+              <div class="var-desc">Nombre del contacto</div>
+            </div>
+            <div class="var-hint">+ insertar</div>
           </div>
           <div class="var-chip" onclick="msgInsertVar('{empresa}')">
-            <div><div class="var-code">{empresa}</div><div class="var-desc">Nombre de empresa</div></div>
-            <div class="var-hint">insertar</div>
+            <div class="var-chip-left">
+              <div class="var-code">{empresa}</div>
+              <div class="var-desc">Nombre de empresa</div>
+            </div>
+            <div class="var-hint">+ insertar</div>
           </div>
           <div class="var-chip" onclick="msgInsertVar('{numero}')">
-            <div><div class="var-code">{numero}</div><div class="var-desc">Número de WhatsApp</div></div>
-            <div class="var-hint">insertar</div>
+            <div class="var-chip-left">
+              <div class="var-code">{numero}</div>
+              <div class="var-desc">Número de WhatsApp</div>
+            </div>
+            <div class="var-hint">+ insertar</div>
           </div>
           <div class="var-chip" onclick="msgInsertVar('{tipo}')">
-            <div><div class="var-code">{tipo}</div><div class="var-desc">Tipo de contacto</div></div>
-            <div class="var-hint">insertar</div>
+            <div class="var-chip-left">
+              <div class="var-code">{tipo}</div>
+              <div class="var-desc">Tipo de contacto</div>
+            </div>
+            <div class="var-hint">+ insertar</div>
           </div>
         </div>
       </div>
 
-      <!-- Editor -->
       <div class="editor-toolbar">
-        <span class="editor-label">Insertar:</span>
+        <span class="editor-label">Insertar rápido:</span>
         <button class="var-quick-btn" onclick="msgInsertVar('{nombre}')">+ {nombre}</button>
         <button class="var-quick-btn" onclick="msgInsertVar('{empresa}')">+ {empresa}</button>
         <button class="var-quick-btn" onclick="msgInsertVar('{tipo}')">+ {tipo}</button>
       </div>
       <textarea id="msg-textarea"
-                placeholder="Hola {nombre}! 👋&#10;&#10;Te escribimos desde Magic Show 🎩..."
+                placeholder="Hola {nombre}! 👋&#10;&#10;Te escribimos desde Marketing Web-Bot 🤖..."
                 oninput="msgOnChange()"></textarea>
       <div class="char-count" id="char-count">0 caracteres</div>
 
@@ -92,7 +273,7 @@
       </div>
     </div>
 
-    <!-- Preview -->
+    <!-- RIGHT: Preview -->
     <div>
       <div class="preview-card">
         <div class="preview-bar">
@@ -101,15 +282,17 @@
             <div class="preview-dot" style="background:#febc2e"></div>
             <div class="preview-dot" style="background:#28c840"></div>
           </div>
-          Preview — WhatsApp
+          <span class="preview-bar-title">Preview — WhatsApp Web</span>
         </div>
+
         <div class="preview-select-wrap">
           <label>Vista previa para:</label>
           <select id="preview-select" onchange="msgUpdatePreview()">
             <option value="">— Cargá contactos primero —</option>
           </select>
         </div>
-        <div class="preview-bubble-wrap">
+
+        <div class="preview-chat-area">
           <div class="preview-contact-row">
             <div class="preview-avatar" id="prev-avatar">?</div>
             <div>
@@ -119,7 +302,10 @@
           </div>
           <div class="preview-bubble" id="prev-bubble">
             Escribí un mensaje para ver la vista previa...
-            <div class="preview-time">Ahora ✓✓</div>
+            <div class="preview-time">
+              <span>13:41</span>
+              <span class="preview-ticks">✓✓</span>
+            </div>
           </div>
         </div>
       </div>

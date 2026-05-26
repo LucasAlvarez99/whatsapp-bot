@@ -3,35 +3,78 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Contactos — Magic Show Bot</title>
+<title>Contactos — Marketing Web-Bot</title>
 <link rel="stylesheet" href="../css/styles.css">
 <style>
-.top-grid { display: grid; grid-template-columns: 1fr 260px; gap: 16px; margin-bottom: 16px; }
-.add-form  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.add-form .span2 { grid-column: span 2; display: flex; gap: 8px; margin-top: 4px; }
-.stats-col { display: flex; flex-direction: column; gap: 10px; }
-.stat-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; text-align: center; }
-.stat-card .num { font-family: 'Playfair Display', serif; font-size: 36px; line-height: 1; color: var(--gold); margin-bottom: 4px; }
-.stat-card .lbl { font-size: 9px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1.5px; }
-.type-breakdown { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
-.type-breakdown-title { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
-.type-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 12px; }
-.type-row + .type-row { border-top: 1px solid rgba(255,255,255,.04); }
-.type-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--gold); }
-.table-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-.table-header h3 { font-size: 13px; color: var(--text); font-weight: 500; }
-.table-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.top-grid { display:grid; grid-template-columns:1fr 260px; gap:16px; margin-bottom:16px; }
+.add-form  { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.add-form .span2 { grid-column:span 2; display:flex; gap:8px; margin-top:4px; }
+
+.stats-col { display:flex; flex-direction:column; gap:10px; }
+.stat-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-lg); padding:18px; text-align:center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+  transition: border-color var(--t) var(--ease), transform var(--t) var(--ease);
+}
+.stat-card:hover { border-color:rgba(255,255,255,.09); transform:translateY(-1px); }
+.stat-card .num {
+  font-family:'Syne',sans-serif; font-size:38px; line-height:1;
+  color:var(--gold); margin-bottom:5px; font-weight:700;
+}
+.stat-card .lbl {
+  font-size:9px; color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:1.8px;
+}
+
+.type-breakdown {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-lg); padding:16px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+.type-breakdown-title {
+  font-size:9px; color:var(--muted);
+  font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; letter-spacing:1.5px; margin-bottom:12px;
+}
+.type-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:6px 0; font-size:12px; color:var(--text-sub);
+}
+.type-row + .type-row { border-top:1px solid rgba(255,255,255,.035); }
+.type-count {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  color:var(--gold); font-weight:600;
+  background:var(--gold-glow); border:1px solid var(--gold-dim);
+  padding:2px 8px; border-radius:10px;
+}
+
+.table-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:12px; flex-wrap:wrap; gap:8px;
+}
+.table-header h3 {
+  font-family:'Syne',sans-serif;
+  font-size:14px; color:var(--text); font-weight:600;
+  letter-spacing:-.01em;
+}
+.table-actions { display:flex; gap:8px; flex-wrap:wrap; }
+
 @media(max-width:900px) {
-  .top-grid { grid-template-columns: 1fr; }
-  .add-form  { grid-template-columns: 1fr; }
-  .add-form .span2 { flex-direction: column; }
+  .top-grid           { grid-template-columns:1fr; }
+  .add-form           { grid-template-columns:1fr; }
+  .add-form .span2    { flex-direction:column; }
 }
 </style>
 </head>
 <body>
 
 <header class="app-header">
-  <a href="../magic-leads-app.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3.1</span></a>
+  <a href="../magic-leads-app.html" class="app-logo">
+    <span class="app-logo-emoji">🤖</span>
+    Marketing Web-Bot <span class="app-logo-badge">v3.2</span>
+  </a>
   <nav class="header-nav">
     <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
     <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
@@ -47,11 +90,10 @@
 <div class="page-body">
   <div class="section-header">
     <div class="section-title">Gestión de Contactos</div>
-    <div class="section-desc">Agregá contactos uno a uno, importá un CSV o exportá tu base</div>
+    <div class="section-desc">Agregá contactos uno a uno, importá un CSV o exportá tu base de datos</div>
   </div>
 
   <div class="top-grid">
-
     <div>
       <!-- Agregar manualmente -->
       <div class="card" style="margin-bottom:14px;">
@@ -83,7 +125,7 @@
           </div>
           <div class="span2">
             <button class="btn btn-primary" style="flex:1" onclick="contactAdd()">+ Agregar contacto</button>
-            <button class="btn btn-ghost btn-sm" onclick="contactLoadSample()">📋 Ejemplo</button>
+            <button class="btn btn-ghost btn-sm" onclick="contactLoadSample()">📋 Cargar ejemplo</button>
           </div>
         </div>
       </div>
@@ -100,7 +142,7 @@
              ondragover="contactDragOver(event)"
              ondragleave="contactDragLeave()"
              ondrop="contactDrop(event)">
-          <div style="font-size:28px;opacity:.5;">📂</div>
+          <div style="font-size:28px;opacity:.4;margin-bottom:6px;">📂</div>
           <p>Arrastrá un .csv o .txt, o hacé click para seleccionar</p>
         </div>
         <input type="file" id="file-input" style="display:none" accept=".csv,.txt"
@@ -124,14 +166,13 @@
         <div class="lbl">Con errores</div>
       </div>
       <div class="type-breakdown">
-        <div class="type-breakdown-title">Por tipo</div>
-        <div class="type-row"><span>🧑 cliente</span>      <span class="type-count" id="tc-cliente">0</span></div>
-        <div class="type-row"><span>🆕 cliente_nuevo</span><span class="type-count" id="tc-cliente_nuevo">0</span></div>
-        <div class="type-row"><span>🏛️ salon</span>         <span class="type-count" id="tc-salon">0</span></div>
-        <div class="type-row"><span>🏢 empresa</span>       <span class="type-count" id="tc-empresa">0</span></div>
+        <div class="type-breakdown-title">Desglose por tipo</div>
+        <div class="type-row"><span>🧑 cliente</span>       <span class="type-count" id="tc-cliente">0</span></div>
+        <div class="type-row"><span>🆕 cliente_nuevo</span> <span class="type-count" id="tc-cliente_nuevo">0</span></div>
+        <div class="type-row"><span>🏛️ salon</span>          <span class="type-count" id="tc-salon">0</span></div>
+        <div class="type-row"><span>🏢 empresa</span>        <span class="type-count" id="tc-empresa">0</span></div>
       </div>
     </div>
-
   </div>
 
   <!-- Tabla -->
@@ -160,7 +201,6 @@
       <tbody id="contacts-tbody"></tbody>
     </table>
   </div>
-
 </div>
 
 <div id="toast-container"></div>

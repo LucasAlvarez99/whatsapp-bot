@@ -3,43 +3,132 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Magic Show Bot 🎩</title>
+<title>Marketing Web-Bot 🤖</title>
 <link rel="stylesheet" href="css/styles.css">
 <style>
-.hero { text-align: center; padding: 60px 20px 40px; }
-.hero-hat   { font-size: 52px; margin-bottom: 16px; display: block; }
-.hero-title { font-family: 'Playfair Display', serif; font-size: 38px; color: var(--text); margin-bottom: 8px; line-height: 1.2; }
+/* ── Hero ──────────────────────────────────────────────────── */
+.hero {
+  text-align: center;
+  padding: 64px 20px 48px;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 0%, rgba(240,160,48,.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-robot {
+  font-size: 52px; margin-bottom: 18px; display: block; line-height: 1;
+  filter: drop-shadow(0 0 18px rgba(240,160,48,.35));
+  animation: floatRobot 4s ease-in-out infinite;
+}
+@keyframes floatRobot {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 42px; font-weight: 800;
+  color: var(--text); margin-bottom: 10px;
+  line-height: 1.1; letter-spacing: -.03em;
+}
 .hero-title span { color: var(--gold); }
-.hero-sub   { font-size: 15px; color: var(--muted); max-width: 480px; margin: 0 auto 32px; line-height: 1.7; }
-.hero-cta   { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero-sub {
+  font-size: 15px; color: var(--muted);
+  max-width: 500px; margin: 0 auto 36px;
+  line-height: 1.75;
+}
+.hero-cta { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
 
-.dash-grid  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
-.dash-stat  { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 16px; text-align: center; }
-.dash-num   { font-family: 'Playfair Display', serif; font-size: 32px; line-height: 1; color: var(--gold); margin-bottom: 5px; }
-.dash-label { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+/* ── Dashboard grid ────────────────────────────────────────── */
+.dash-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 28px;
+}
+.dash-stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px; text-align: center;
+  transition: border-color var(--t) var(--ease), transform var(--t) var(--ease);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.03);
+}
+.dash-stat:hover { border-color: var(--gold-dim); transform: translateY(-1px); }
+.dash-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 34px; line-height: 1;
+  color: var(--gold); margin-bottom: 6px;
+  font-weight: 700; letter-spacing: -.02em;
+}
+.dash-label {
+  font-size: 10px; color: var(--muted);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase; letter-spacing: 1.5px;
+}
 
-.quick-row  { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
-.quick-row h3 { font-size: 13px; color: var(--muted); margin-right: 6px; font-weight: 400; }
+/* ── Quick row ─────────────────────────────────────────────── */
+.quick-row {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 28px; align-items: center;
+}
+.quick-row h3 { font-size: 13px; color: var(--muted); margin-right: 4px; font-weight: 400; }
 
-.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 40px 0; }
-.step-card { background: var(--surf); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px 20px; text-align: center; transition: all .2s; text-decoration: none; display: block; position: relative; overflow: hidden; }
-.step-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--border); transition: background .2s; }
-.step-card:hover { border-color: var(--gold-dim); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,.35); }
+/* ── Steps ─────────────────────────────────────────────────── */
+.steps {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 16px; margin: 32px 0;
+}
+.step-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 26px 22px; text-align: center;
+  transition: border-color var(--t) var(--ease), transform var(--t) var(--ease), box-shadow var(--t) var(--ease);
+  text-decoration: none; display: block;
+  position: relative; overflow: hidden;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+}
+.step-card::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--border);
+  transition: background var(--t) var(--ease);
+}
+.step-card:hover {
+  border-color: var(--gold-dim);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 36px rgba(0,0,0,.4), 0 0 0 1px var(--gold-dim);
+}
 .step-card:hover::before { background: var(--gold); }
-.step-num   { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; }
-.step-icon  { font-size: 28px; margin-bottom: 10px; display: block; }
-.step-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
-.step-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.step-num {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 2.5px; margin-bottom: 12px; font-weight: 600;
+}
+.step-icon  { font-size: 30px; margin-bottom: 12px; display: block; }
+.step-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--text); margin-bottom: 7px;
+  letter-spacing: -.015em;
+}
+.step-desc  { font-size: 12px; color: var(--muted); line-height: 1.65; }
 
-.warn-bar { background: rgba(224,82,82,.06); border: 1px solid rgba(224,82,82,.2); border-radius: var(--radius); padding: 11px 16px; font-size: 12px; color: #e8a8a8; line-height: 1.6; margin-top: 28px; }
-
-@media(max-width:860px) { .steps { grid-template-columns: 1fr; } .dash-grid { grid-template-columns: 1fr 1fr; } .hero-title { font-size: 28px; } }
+@media(max-width:860px) {
+  .steps      { grid-template-columns: 1fr; }
+  .dash-grid  { grid-template-columns: 1fr 1fr; }
+  .hero-title { font-size: 30px; }
+}
 </style>
 </head>
 <body>
 
 <header class="app-header">
-  <a href="magic-leads-app.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3.1</span></a>
+  <a href="magic-leads-app.html" class="app-logo">
+    <span class="app-logo-emoji">🤖</span>
+    Marketing Web-Bot <span class="app-logo-badge">v3.2</span>
+  </a>
   <nav class="header-nav">
     <a href="pages/contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
     <a href="pages/mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
@@ -54,23 +143,35 @@
 
 <div class="page-body">
   <div class="hero">
-    <span class="hero-hat">🎩</span>
-    <h1 class="hero-title">Magic Show <span>Bot</span></h1>
+    <span class="hero-robot">🤖</span>
+    <h1 class="hero-title">Marketing <span>Web-Bot</span></h1>
     <p class="hero-sub">
       Enviá mensajes personalizados por WhatsApp a múltiples contactos de forma automática.
-      Creá tu lista, redactá tu mensaje con variables y ejecutá.
+      Cargá tu lista, redactá con variables y ejecutá con un click.
     </p>
     <div class="hero-cta">
-      <a href="pages/contactos.html" class="btn btn-primary" style="font-size:15px;padding:11px 24px;">→ Empezar ahora</a>
-      <a href="pages/tutorial.html"  class="btn btn-ghost">📖 Ver tutorial</a>
+      <a href="pages/contactos.html" class="btn btn-primary" style="font-size:15px;padding:12px 26px;">→ Empezar ahora</a>
+      <a href="pages/tutorial.html"  class="btn btn-ghost"   style="font-size:15px;padding:12px 26px;">📖 Ver tutorial</a>
     </div>
   </div>
 
   <div class="dash-grid">
-    <div class="dash-stat"><div class="dash-num" id="d-total">0</div><div class="dash-label">Contactos</div></div>
-    <div class="dash-stat"><div class="dash-num" id="d-tipos" style="font-size:22px;">—</div><div class="dash-label">Tipos cargados</div></div>
-    <div class="dash-stat"><div class="dash-num" id="d-msg"   style="font-size:22px;">—</div><div class="dash-label">Mensaje</div></div>
-    <div class="dash-stat"><div class="dash-num" id="d-time"  style="font-size:22px;">—</div><div class="dash-label">Tiempo estimado</div></div>
+    <div class="dash-stat">
+      <div class="dash-num" id="d-total">0</div>
+      <div class="dash-label">Contactos</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-num" id="d-tipos" style="font-size:22px;">—</div>
+      <div class="dash-label">Tipos cargados</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-num" id="d-msg" style="font-size:22px;">—</div>
+      <div class="dash-label">Mensaje</div>
+    </div>
+    <div class="dash-stat">
+      <div class="dash-num" id="d-time" style="font-size:22px;">—</div>
+      <div class="dash-label">Tiempo estimado</div>
+    </div>
   </div>
 
   <div class="quick-row">
@@ -83,22 +184,22 @@
 
   <div class="steps">
     <a href="pages/contactos.html" class="step-card">
-      <div class="step-num">Paso 1</div>
+      <div class="step-num">Paso 01</div>
       <span class="step-icon">👥</span>
       <div class="step-title">Cargá contactos</div>
-      <div class="step-desc">Creá tu lista manualmente o importá un CSV. Exportá como Excel.</div>
+      <div class="step-desc">Creá tu lista manualmente o importá un CSV. Exportá como Excel con un click.</div>
     </a>
     <a href="pages/mensaje.html" class="step-card">
-      <div class="step-num">Paso 2</div>
+      <div class="step-num">Paso 02</div>
       <span class="step-icon">✉️</span>
       <div class="step-title">Redactá el mensaje</div>
-      <div class="step-desc">Usá variables como {nombre} y {empresa} para personalizar cada mensaje.</div>
+      <div class="step-desc">Usá variables como {nombre} y {empresa} para personalizar cada envío automáticamente.</div>
     </a>
     <a href="pages/ejecutar.html" class="step-card">
-      <div class="step-num">Paso 3</div>
-      <span class="step-icon">▶️</span>
+      <div class="step-num">Paso 03</div>
+      <span class="step-icon">🚀</span>
       <div class="step-title">Ejecutá el bot</div>
-      <div class="step-desc">Generá el script Node.js, descargalo y correlo en tu terminal.</div>
+      <div class="step-desc">Presioná Ejecutar. El bot abre WhatsApp Web y envía todo solo, con delays anti-ban.</div>
     </a>
   </div>
 

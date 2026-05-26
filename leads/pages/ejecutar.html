@@ -3,14 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ejecutar — Magic Show Bot</title>
+<title>Ejecutar — Marketing Web-Bot</title>
 <link rel="stylesheet" href="../css/styles.css">
 <link rel="stylesheet" href="../css/ejecutar.css">
 </head>
 <body>
 
 <header class="app-header">
-  <a href="../magic-leads-app.html" class="app-logo">🎩 Magic Show Bot <span class="app-logo-badge">v3.1</span></a>
+  <a href="../magic-leads-app.html" class="app-logo">
+    <span class="app-logo-emoji">🤖</span>
+    Marketing Web-Bot <span class="app-logo-badge">v3.2</span>
+  </a>
   <nav class="header-nav">
     <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
     <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
@@ -31,12 +34,11 @@
 
   <div class="exec-layout">
 
-    <!-- ── Main column ───────────────────────────────────── -->
+    <!-- ── Columna principal ─────────────────────────────────── -->
     <div class="exec-main">
 
       <!-- Checklist -->
       <div class="chk-list">
-
         <div class="chk-item" id="chk-c">
           <div class="chk-icon" id="chk-c-icon">—</div>
           <div class="chk-body">
@@ -45,7 +47,6 @@
           </div>
           <a href="contactos.html" class="btn btn-ghost btn-sm">Ir →</a>
         </div>
-
         <div class="chk-item" id="chk-m">
           <div class="chk-icon" id="chk-m-icon">—</div>
           <div class="chk-body">
@@ -54,7 +55,6 @@
           </div>
           <a href="mensaje.html" class="btn btn-ghost btn-sm">Ir →</a>
         </div>
-
         <div class="chk-item" id="chk-s">
           <div class="chk-icon" id="chk-s-icon">…</div>
           <div class="chk-body">
@@ -62,10 +62,9 @@
             <div class="chk-sub"  id="chk-s-sub">Conectando...</div>
           </div>
         </div>
-
       </div>
 
-      <!-- ── Controls bar ────────────────────────────────── -->
+      <!-- Controles -->
       <div class="controls-bar">
         <button class="btn-exec" id="btn-start" disabled>
           <span class="btn-exec-icon">▶️</span>
@@ -79,11 +78,9 @@
         </button>
       </div>
 
-      <!-- ── QR section (hidden until needed) ────────────── -->
+      <!-- QR (oculto hasta que sea necesario) -->
       <div class="qr-section" id="qr-section" hidden>
-        <div class="qr-badge">
-          <span>📱</span> Escaneá el código QR
-        </div>
+        <div class="qr-badge"><span>📱</span> Escaneá el código QR</div>
         <div class="qr-body">
           <div class="qr-frame">
             <img id="qr-img" src="" alt="Código QR de WhatsApp Web">
@@ -94,14 +91,14 @@
               <li>Abrí WhatsApp en tu celular</li>
               <li>Tocá los tres puntos ⋮ (Android) o Ajustes ⚙ (iPhone)</li>
               <li>Seleccioná <strong>Dispositivos vinculados</strong></li>
-              <li>Tocá <strong>Vincular un dispositivo</strong> y apuntá la cámara al QR</li>
+              <li>Tocá <strong>Vincular un dispositivo</strong> y apuntá la cámara</li>
             </ol>
             <p class="qr-note">El QR se actualiza automáticamente cada 30 segundos</p>
           </div>
         </div>
       </div>
 
-      <!-- ── Progress bar (hidden until running) ─────────── -->
+      <!-- Progreso (oculto hasta que corra) -->
       <div class="progress-section" id="progress-section" hidden>
         <div class="progress-header">
           <span class="progress-title">Progreso de envíos</span>
@@ -111,13 +108,13 @@
           <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
         </div>
         <div class="progress-stats">
-          <span class="stat-ok">  ✅ Enviados: <strong id="stat-sent">0</strong></span>
-          <span class="stat-err"> ❌ Errores:  <strong id="stat-errors">0</strong></span>
+          <span class="stat-ok">✅ Enviados: <strong id="stat-sent">0</strong></span>
+          <span class="stat-err">❌ Errores: <strong id="stat-errors">0</strong></span>
           <span class="stat-pend">⏳ Pendientes: <strong id="stat-pending">0</strong></span>
         </div>
       </div>
 
-      <!-- ── Live log ─────────────────────────────────────── -->
+      <!-- Log en tiempo real -->
       <div class="log-panel">
         <div class="log-panel-header">
           <span>📋 Log en tiempo real</span>
@@ -130,10 +127,9 @@
 
     </div><!-- /exec-main -->
 
-    <!-- ── Sidebar ───────────────────────────────────────── -->
+    <!-- ── Sidebar ────────────────────────────────────────────── -->
     <div class="exec-sidebar">
 
-      <!-- Summary -->
       <div class="card">
         <div class="card-title"><div class="card-icon">📋</div>Resumen</div>
         <div class="summary-rows">
@@ -152,34 +148,17 @@
         </div>
       </div>
 
-      <!-- How it works -->
       <div class="card">
         <div class="card-title"><div class="card-icon">💡</div>¿Cómo funciona?</div>
         <div class="how-it-works">
-          <div class="how-step">
-            <div class="how-num">1</div>
-            Presionás <strong>Ejecutar Bot</strong>
-          </div>
-          <div class="how-step">
-            <div class="how-num">2</div>
-            Se abre Chrome con WhatsApp Web
-          </div>
-          <div class="how-step">
-            <div class="how-num">3</div>
-            Si no hay sesión guardada, aparece el QR acá arriba para escanear
-          </div>
-          <div class="how-step">
-            <div class="how-num">4</div>
-            El bot envía cada mensaje con delays aleatorios anti-ban
-          </div>
-          <div class="how-step">
-            <div class="how-num">5</div>
-            Podés pausar o detener en cualquier momento
-          </div>
+          <div class="how-step"><div class="how-num">1</div>Presionás <strong>Ejecutar Bot</strong></div>
+          <div class="how-step"><div class="how-num">2</div>Se abre Chrome con WhatsApp Web</div>
+          <div class="how-step"><div class="how-num">3</div>Si no hay sesión, escaneás el QR que aparece acá</div>
+          <div class="how-step"><div class="how-num">4</div>El bot envía cada mensaje con delays anti-ban</div>
+          <div class="how-step"><div class="how-num">5</div>Podés pausar o detener en cualquier momento</div>
         </div>
       </div>
 
-      <!-- Warning -->
       <div class="warn-box">
         ⚠️ El uso de bots no oficiales puede violar los Términos de Servicio de WhatsApp. Usá con responsabilidad.
       </div>
