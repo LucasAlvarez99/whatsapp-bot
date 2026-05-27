@@ -30,7 +30,6 @@ class BotRunner extends EventEmitter {
     this._stats   = { sent: 0, errors: 0, total: 0, current: 0 };
   }
 
-  // ── Public state snapshot ───────────────────────────────────
   getState() {
     return {
       running: this.running,
@@ -39,7 +38,6 @@ class BotRunner extends EventEmitter {
     };
   }
 
-  // ── Internal helpers ────────────────────────────────────────
   _log(msg, level = 'info') {
     this.emit('log', {
       msg,
@@ -54,7 +52,6 @@ class BotRunner extends EventEmitter {
     this.emit('state', this.getState());
   }
 
-  // ── Main run ────────────────────────────────────────────────
   async start(contacts, messageTemplate) {
     this.running  = true;
     this._stopped = false;
@@ -63,23 +60,12 @@ class BotRunner extends EventEmitter {
 
     try {
       this._log(`📋 ${contacts.length} contactos en cola`);
-
-      // Browser launch
       this._log('🚀 Iniciando Chrome...');
 
-      // Redirigir console.log del proceso al log SSE mientras el bot corre
-      const _origLog = console.log;
-      console.log = (...args) => {
-        const msg = args.join(' ');
-        _origLog(msg);
-        if (msg.includes('[BrowserManager]')) {
-          this._log(msg.replace(/\[BrowserManager\] \S+ — /, ''), 'info');
-        }
-      };
+      // Pasar callback de log al browserManager — sin override de console.log global
+      const logCallback = (msg) => this._log(msg, 'info');
+      await browserManager.launch(logCallback);
 
-      await browserManager.launch();
-
-      // Wait for WhatsApp session (with QR emission)
       this._log('🔄 Esperando inicio de sesión en WhatsApp...');
       await browserManager.waitForLoginWithQR(qrData => {
         this.emit('qr', { data: qrData });
@@ -88,11 +74,9 @@ class BotRunner extends EventEmitter {
       this.emit('qr-clear');
       this._log('✅ Sesión activa — comenzando envíos', 'ok');
 
-      // Send loop
       for (let i = 0; i < contacts.length; i++) {
         if (this._stopped) break;
 
-        // Pause gate
         while (this.paused && !this._stopped) await sleep(500);
         if (this._stopped) break;
 
@@ -114,16 +98,14 @@ class BotRunner extends EventEmitter {
 
         this.emit('progress', { ...this._stats });
 
-        // Inter-message delay
         if (i < contacts.length - 1 && !this._stopped) {
           const ms = randomMs();
-          this._log(`⏳ Esperando ${(ms / 1000).toFixed(1)} s antes del próximo envío...`);
+          this._log(`⏳ Esperando ${(ms / 1000).toFixed(1)}s antes del próximo envío...`);
           await sleep(ms);
         }
       }
 
-      const summary =
-        `🏁 Completado — Enviados: ${this._stats.sent} | Errores: ${this._stats.errors}`;
+      const summary = `🏁 Completado — Enviados: ${this._stats.sent} | Errores: ${this._stats.errors}`;
       this._log(summary, 'done');
       this.emit('done', { ...this._stats });
 
@@ -132,14 +114,11 @@ class BotRunner extends EventEmitter {
       this.emit('done', { ...this._stats, fatalError: err.message });
     } finally {
       try { await browserManager.close(); } catch (_) {}
-      // Restaurar console.log original
-      if (typeof _origLog !== 'undefined') console.log = _origLog;
       this.running = false;
       this._emitState();
     }
   }
 
-  // ── Controls ────────────────────────────────────────────────
   togglePause() {
     this.paused = !this.paused;
     this._log(this.paused ? '⏸ Envíos pausados' : '▶️ Envíos reanudados', 'ctrl');

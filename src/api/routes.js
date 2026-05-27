@@ -7,9 +7,8 @@ const router     = express.Router();
 const sseClients = new Set();
 
 let currentRunner = null;
-let _botStarting  = false;   // FIX 1: lock para evitar arranques múltiples simultáneos
+let _botStarting  = false;  // lock para evitar arranques múltiples simultáneos
 
-// ── Broadcast to all SSE clients ─────────────────────────────
 function broadcast(event, data) {
   const payload = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
   for (const res of sseClients) {
@@ -28,10 +27,10 @@ function attachRunner(runner) {
 
 // ── SSE stream ────────────────────────────────────────────────
 router.get('/stream', (req, res) => {
-  res.setHeader('Content-Type',       'text/event-stream');
-  res.setHeader('Cache-Control',      'no-cache');
-  res.setHeader('Connection',         'keep-alive');
-  res.setHeader('X-Accel-Buffering',  'no');
+  res.setHeader('Content-Type',      'text/event-stream');
+  res.setHeader('Cache-Control',     'no-cache');
+  res.setHeader('Connection',        'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
 
   sseClients.add(res);
@@ -53,7 +52,6 @@ router.get('/stream', (req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────
 router.post('/bot/start', (req, res) => {
-  // FIX 1: doble chequeo — running O arrancando
   if (_botStarting || currentRunner?.running) {
     return res.json({ ok: false, msg: 'El bot ya está corriendo' });
   }
@@ -79,7 +77,7 @@ router.post('/bot/start', (req, res) => {
       broadcast('done', { fatalError: err.message, sent: 0, errors: 0 });
     })
     .finally(() => {
-      _botStarting = false;   // liberar el lock siempre
+      _botStarting = false;
     });
 });
 
@@ -98,7 +96,7 @@ router.post('/bot/stop', async (req, res) => {
     return res.json({ ok: false, msg: 'No hay bot corriendo' });
   }
   await currentRunner.stop();
-  _botStarting = false;   // limpiar el lock también en stop
+  _botStarting = false;
   res.json({ ok: true });
 });
 
