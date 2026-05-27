@@ -7,22 +7,30 @@ const path      = require('path');
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 const TIMING = {
-  loginTimeout: 120_000,
+  loginTimeout: 300_000,   // ← FIX 1: 5 min en vez de 2 (WhatsApp tarda en cargar post-QR)
   sendTimeout:  30_000,
   afterSend:    3_000,
   humanPause:   1_200,
 };
 
-const SESSION_DIR = path.resolve(__dirname, '../../session');
-const WA_URL      = 'https://web.whatsapp.com';
+const SESSION_DIR = process.env.SESSION_DIR
+  ? path.resolve(process.env.SESSION_DIR)           // ← FIX 2: respeta la env var del Docker
+  : path.resolve(__dirname, '../../session');
+
+const WA_URL = 'https://web.whatsapp.com';
 
 const SEL = {
+  // ← FIX 3: más selectores — WhatsApp cambia data-testid con frecuencia
   chatList: [
     '[data-testid="chat-list"]',
+    '[data-testid="side"]',
+    'header[data-testid="chatlist-header"]',
     '#pane-side',
     'div[aria-label="Chat list"]',
     'div[aria-label="Lista de chats"]',
     'div[role="grid"]',
+    'div#side',
+    'div._aigv',           // clase interna WA (cambia, pero cubre versiones actuales)
   ],
   composeBox: [
     '[data-testid="conversation-compose-box-input"]',
@@ -39,6 +47,17 @@ const SEL = {
     '[aria-label="Escanéame!"]',
   ],
 };
+
+// Textos que indican que el QR ya fue escaneado pero WA aún está cargando
+const POST_SCAN_TEXTS = [
+  'loading your chats',
+  'cargando tus chats',
+  'end-to-end encrypted',
+  'cifrado de extremo',
+  'connecting to whatsapp',
+  "don't close this window",
+  'no cierres esta ventana',
+];
 
 let browser = null;
 let page    = null;
@@ -99,8 +118,6 @@ async function launch() {
   log(`Páginas abiertas al inicio: ${pages.length}`);
   page = pages[0] ?? await browser.newPage();
 
-  // ── Anti-detección ────────────────────────────────────────
-  // WhatsApp bloquea Chromium headless viejo — fingimos ser Chrome moderno
   const USER_AGENT =
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 ' +
     '(KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36';
@@ -108,25 +125,18 @@ async function launch() {
   await page.setUserAgent(USER_AGENT);
   log(`User-agent seteado: ${USER_AGENT}`);
 
-  // Ocultar que es un browser automatizado
   await page.evaluateOnNewDocument(() => {
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3] });
+    Object.defineProperty(navigator, 'plugins',   { get: () => [1, 2, 3] });
     Object.defineProperty(navigator, 'languages', { get: () => ['es-AR', 'es', 'en'] });
     window.chrome = { runtime: {} };
   });
   log('Anti-detección aplicada');
 
-  // Capturar errores de consola del browser
   page.on('console', msg => {
-    if (msg.type() === 'error') {
-      log(`[PAGE console.error] ${msg.text()}`);
-    }
+    if (msg.type() === 'error') log(`[PAGE console.error] ${msg.text()}`);
   });
-
-  page.on('pageerror', err => {
-    log(`[PAGE ERROR] ${err.message}`);
-  });
+  page.on('pageerror', err => log(`[PAGE ERROR] ${err.message}`));
 
   await page.setViewport({ width: 1280, height: 800 });
   log(`Navegando a ${WA_URL}...`);
@@ -144,109 +154,115 @@ async function launch() {
 // ── waitForLoginWithQR ────────────────────────────────────────
 async function waitForLoginWithQR(onQR) {
   log('Iniciando waitForLoginWithQR...');
-  let pollingActive = true;
+
+  let resolved      = false;
+  let qrWasScanned  = false;   // ← track post-scan state
   let pollCount     = 0;
   let qrSentCount   = 0;
 
-  async function pollQR() {
-    while (pollingActive) {
+  // Resolución manual cuando el poll detecta login
+  let resolveLogin;
+  const loginDetected = new Promise(r => { resolveLogin = r; });
+
+  async function pollLoop() {
+    while (!resolved) {
       pollCount++;
-      log(`Poll #${pollCount} — verificando estado de la página...`);
+      log(`Poll #${pollCount} — verificando estado...`);
 
       try {
-        const currentUrl = page.url();
-        log(`  URL actual: ${currentUrl}`);
-
-        // Verificar si ya está logueado
+        // Chequeo rápido de chat list
         const loggedIn = await page.evaluate(
           sels => sels.some(s => !!document.querySelector(s)),
           SEL.chatList
-        );
+        ).catch(() => false);
+
         log(`  ¿Logueado?: ${loggedIn}`);
 
         if (loggedIn) {
-          log('  ✅ Sesión activa detectada — saliendo del poll');
+          log('  ✅ Chat list detectado — login OK');
+          resolveLogin();
           break;
         }
 
-        // Ver qué hay en el DOM
-        const bodyText = await page.evaluate(() => document.body?.innerText?.slice(0, 200) || '(vacío)');
-        log(`  Texto del body (primeros 200 chars): ${bodyText.replace(/\n/g, ' ')}`);
+        const bodyText = await page.evaluate(
+          () => (document.body?.innerText || '').slice(0, 300)
+        ).catch(() => '');
+        log(`  Body (300 chars): ${bodyText.replace(/\n/g, ' ')}`);
 
-        // Buscar el QR
-        log('  Buscando QR en la página...');
-        let qrFound = false;
+        // ← FIX: si WhatsApp está cargando chats, el QR ya fue escaneado
+        const bodyLower = bodyText.toLowerCase();
+        const postScan  = POST_SCAN_TEXTS.some(t => bodyLower.includes(t));
 
-        for (const sel of SEL.qr) {
-          const el = await page.$(sel).catch(() => null);
-          if (!el) {
-            log(`    Selector "${sel}": no encontrado`);
-            continue;
-          }
-
-          log(`    Selector "${sel}": ENCONTRADO — tomando screenshot...`);
-          const buf = await el.screenshot({ type: 'png' }).catch(e => {
-            log(`    Screenshot falló: ${e.message}`);
-            return null;
-          });
-
-          if (buf) {
-            qrSentCount++;
-            log(`    QR capturado OK (${buf.length} bytes) — enviando al cliente (envío #${qrSentCount})`);
-            onQR('data:image/png;base64,' + buf.toString('base64'));
-            qrFound = true;
-            break;
-          } else {
-            log(`    Screenshot devolvió null`);
-          }
+        if (postScan && !qrWasScanned) {
+          qrWasScanned = true;
+          log('  🔄 QR escaneado — WhatsApp está cargando, esperando chat list...');
         }
 
-        if (!qrFound) {
-          log('  ⚠ QR no encontrado en ningún selector');
+        // Solo buscar QR si aún no fue escaneado
+        if (!qrWasScanned) {
+          let qrFound = false;
+          for (const sel of SEL.qr) {
+            const el = await page.$(sel).catch(() => null);
+            if (!el) { log(`  Selector "${sel}": no encontrado`); continue; }
 
-          // Listar todos los elementos canvas e img por si hay algo
-          const elements = await page.evaluate(() => {
-            const canvases = document.querySelectorAll('canvas');
-            const imgs     = document.querySelectorAll('img');
-            return {
-              canvases: canvases.length,
-              imgs: imgs.length,
+            log(`  Selector "${sel}": ENCONTRADO — tomando screenshot...`);
+            const buf = await el.screenshot({ type: 'png' }).catch(e => {
+              log(`  Screenshot falló: ${e.message}`);
+              return null;
+            });
+
+            if (buf) {
+              qrSentCount++;
+              log(`  QR capturado OK (${buf.length} bytes) — envío #${qrSentCount}`);
+              onQR('data:image/png;base64,' + buf.toString('base64'));
+              qrFound = true;
+              break;
+            }
+          }
+
+          if (!qrFound) {
+            log('  ⚠ QR no encontrado en ningún selector');
+            const info = await page.evaluate(() => ({
+              canvases:    document.querySelectorAll('canvas').length,
+              imgs:        document.querySelectorAll('img').length,
               bodyClasses: document.body?.className || '',
-            };
-          });
-          log(`  canvas en página: ${elements.canvases}, img: ${elements.imgs}, body.class: "${elements.bodyClasses}"`);
+            })).catch(() => ({}));
+            log(`  canvas: ${info.canvases}, img: ${info.imgs}, body.class: "${info.bodyClasses}"`);
+          }
         }
 
       } catch (err) {
         log(`  ERROR en poll: ${err.message}`);
       }
 
-      log(`  Esperando 3s antes del próximo poll...`);
-      await sleep(3_000);
+      // Intervalo más corto si ya se escaneó el QR (queremos detectar el login rápido)
+      const wait = qrWasScanned ? 2_000 : 3_000;
+      log(`  Esperando ${wait / 1000}s antes del próximo poll...`);
+      await sleep(wait);
     }
 
-    log(`Poll terminado — total polls: ${pollCount}, QRs enviados: ${qrSentCount}`);
+    log(`Poll terminado — polls: ${pollCount}, QRs enviados: ${qrSentCount}`);
   }
 
-  const pollPromise = pollQR();
+  // Correr poll en paralelo con un timeout global
+  const timeoutPromise = sleep(TIMING.loginTimeout).then(() => {
+    if (!resolved) throw new Error(`Login timeout: ${TIMING.loginTimeout / 1000}s excedidos`);
+  });
 
-  log('Esperando detección de sesión activa (waitForFunction)...');
+  const pollPromise = pollLoop();
+
   try {
-    await page.waitForFunction(
-      sels => sels.some(sel => !!document.querySelector(sel)),
-      { timeout: TIMING.loginTimeout },
-      SEL.chatList
-    );
-    log('waitForFunction completado — sesión detectada');
+    await Promise.race([loginDetected, timeoutPromise]);
+    resolved = true;
   } catch (err) {
-    log(`waitForFunction FALLÓ: ${err.message}`);
-    pollingActive = false;
-    await pollPromise;
+    resolved = true;
+    await pollPromise.catch(() => {});
     throw err;
   }
 
-  pollingActive = false;
-  await pollPromise;
+  resolved = true;
+  // Esperar a que el poll termine limpiamente
+  await pollPromise.catch(() => {});
 
   log('Esperando 3s para que WhatsApp termine de cargar...');
   await sleep(3_000);
