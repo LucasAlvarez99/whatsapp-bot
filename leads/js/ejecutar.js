@@ -1,27 +1,14 @@
 /**
  * ejecutar.js — Lógica de la página de ejecución del bot
- * Se comunica con el servidor vía SSE (Server-Sent Events) y
- * controla el bot mediante llamadas fetch a la API REST.
  */
 
 'use strict';
 
-/* ── API base URL ────────────────────────────────────────────────
- * El servidor Express siempre corre en el puerto 3000.
- * Si el usuario abre el HTML desde otro origen (ej: VS Code
- * Live Server en puerto 5500), apuntamos explícitamente a
- * localhost:3000 para que la API funcione igual.
- * ─────────────────────────────────────────────────────────────── */
 const API_BASE = window.location.hostname === 'localhost' && window.location.port !== '3000'
-  ? 'http://localhost:3000'   // Live Server u otro puerto local
-  : '';                       // mismo origen (producción o npm start)
+  ? 'http://localhost:3000'
+  : '';
 
-function apiUrl(path) {
-  return API_BASE + path;
-}
-
-
-
+function apiUrl(path) { return API_BASE + path; }
 
 /* ── State ──────────────────────────────────────────────────── */
 let evtSource  = null;
@@ -64,12 +51,8 @@ function execBuildChecklist() {
     hasMsg ? `${message.length} caracteres` : 'Sin mensaje — ir a Mensaje'
   );
 
-  // Summary sidebar
-  document.getElementById('sum-contacts').textContent =
-    contacts.length ? String(contacts.length) : '—';
-
-  document.getElementById('sum-msg').textContent =
-    message ? `${message.length} chars ✓` : 'No guardado';
+  document.getElementById('sum-contacts').textContent = contacts.length ? String(contacts.length) : '—';
+  document.getElementById('sum-msg').textContent      = message ? `${message.length} chars ✓` : 'No guardado';
 
   if (contacts.length > 0) {
     const mins = Math.round(contacts.length * 31.5 / 60);
@@ -91,29 +74,15 @@ function execConnectStream() {
 
   evtSource.onerror = () => {
     serverOk = false;
-    execSetChk('s', 'fail', '✕',
-      `Servidor no disponible en puerto ${SERVER_PORT} — ejecutá: npm start`);
+    execSetChk('s', 'fail', '✕', 'Servidor no disponible — ejecutá: npm start');
     execSyncButtons();
     setTimeout(execConnectStream, 5_000);
   };
 
-  evtSource.addEventListener('log', e => {
-    const { msg, level } = JSON.parse(e.data);
-    execAppendLog(msg, level);
-  });
-
-  evtSource.addEventListener('qr', e => {
-    const { data } = JSON.parse(e.data);
-    execShowQR(data);
-  });
-
-  evtSource.addEventListener('qr-clear', () => {
-    execHideQR();
-  });
-
-  evtSource.addEventListener('progress', e => {
-    execUpdateProgress(JSON.parse(e.data));
-  });
+  evtSource.addEventListener('log',      e => { const { msg, level } = JSON.parse(e.data); execAppendLog(msg, level); });
+  evtSource.addEventListener('qr',       e => { const { data } = JSON.parse(e.data); execShowQR(data); });
+  evtSource.addEventListener('qr-clear', () => execHideQR());
+  evtSource.addEventListener('progress', e => execUpdateProgress(JSON.parse(e.data)));
 
   evtSource.addEventListener('state', e => {
     const state = JSON.parse(e.data);
@@ -123,10 +92,7 @@ function execConnectStream() {
     if (state.stats) execUpdateProgress(state.stats);
   });
 
-  evtSource.addEventListener('done', e => {
-    const data = JSON.parse(e.data);
-    execHandleDone(data);
-  });
+  evtSource.addEventListener('done', e => execHandleDone(JSON.parse(e.data)));
 }
 
 /* ── Bot controls ────────────────────────────────────────────── */
@@ -136,6 +102,10 @@ async function botStart() {
 
   if (!contacts.length) { toast('Cargá contactos primero', 'err'); return; }
   if (!message.trim())  { toast('Guardá el mensaje primero', 'err'); return; }
+
+  // FIX 1: deshabilitar el botón INMEDIATAMENTE antes del fetch
+  // para evitar doble/triple click mientras llega la respuesta
+  document.getElementById('btn-start').disabled = true;
 
   execClearLog();
   document.getElementById('progress-section').hidden = false;
@@ -147,7 +117,11 @@ async function botStart() {
   });
   const data = await res.json();
 
-  if (!data.ok) toast(data.msg || 'Error al iniciar', 'err');
+  if (!data.ok) {
+    toast(data.msg || 'Error al iniciar', 'err');
+    // Si el servidor rechazó, re-habilitar el botón
+    execSyncButtons();
+  }
 }
 
 async function botPause() {
@@ -168,7 +142,6 @@ function execSetChk(id, type, icon, sub) {
   const el    = document.getElementById(`chk-${id}`);
   const icEl  = document.getElementById(`chk-${id}-icon`);
   const subEl = document.getElementById(`chk-${id}-sub`);
-
   if (el)    el.className      = `chk-item ${type}`;
   if (icEl)  icEl.textContent  = icon;
   if (subEl) subEl.textContent = sub;
@@ -195,21 +168,18 @@ function execSyncButtons() {
 
 function execAppendLog(msg, level = 'info') {
   const body = document.getElementById('log-body');
-
   const placeholder = body.querySelector('.log-placeholder');
   if (placeholder) placeholder.remove();
 
   const line = document.createElement('span');
   line.className   = `log-line log-${level}`;
   line.textContent = msg;
-
   body.appendChild(line);
   body.scrollTop = body.scrollHeight;
 }
 
 function execClearLog() {
-  const body = document.getElementById('log-body');
-  body.innerHTML = '';
+  document.getElementById('log-body').innerHTML = '';
 }
 
 function execShowQR(dataUrl) {

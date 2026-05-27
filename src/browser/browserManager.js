@@ -7,20 +7,20 @@ const path      = require('path');
 const IS_PROD = process.env.NODE_ENV === 'production';
 
 const TIMING = {
-  loginTimeout: 300_000,   // ← FIX 1: 5 min en vez de 2 (WhatsApp tarda en cargar post-QR)
-  sendTimeout:  30_000,
-  afterSend:    3_000,
-  humanPause:   1_200,
+  loginTimeout:    300_000,   // 5 min total
+  postScanTimeout: 180_000,   // 3 min esperando que carguen los chats (Render es lento)
+  sendTimeout:     30_000,
+  afterSend:       3_000,
+  humanPause:      1_200,
 };
 
 const SESSION_DIR = process.env.SESSION_DIR
-  ? path.resolve(process.env.SESSION_DIR)           // ← FIX 2: respeta la env var del Docker
+  ? path.resolve(process.env.SESSION_DIR)
   : path.resolve(__dirname, '../../session');
 
 const WA_URL = 'https://web.whatsapp.com';
 
 const SEL = {
-  // ← FIX 3: más selectores — WhatsApp cambia data-testid con frecuencia
   chatList: [
     '[data-testid="chat-list"]',
     '[data-testid="side"]',
@@ -30,7 +30,6 @@ const SEL = {
     'div[aria-label="Lista de chats"]',
     'div[role="grid"]',
     'div#side',
-    'div._aigv',           // clase interna WA (cambia, pero cubre versiones actuales)
   ],
   composeBox: [
     '[data-testid="conversation-compose-box-input"]',
@@ -48,7 +47,7 @@ const SEL = {
   ],
 };
 
-// Textos que indican que el QR ya fue escaneado pero WA aún está cargando
+// Textos que indican que el QR fue escaneado pero WA aún está sincronizando
 const POST_SCAN_TEXTS = [
   'loading your chats',
   'cargando tus chats',
@@ -81,8 +80,6 @@ async function launch() {
     log('Carpeta de sesión creada');
   } else {
     log('Carpeta de sesión ya existe');
-    const files = fs.readdirSync(SESSION_DIR);
-    log(`Archivos en session/: ${files.length > 0 ? files.join(', ') : '(vacía)'}`);
   }
 
   const args = [
@@ -106,8 +103,6 @@ async function launch() {
   if (process.env.PUPPETEER_EXECUTABLE_PATH) {
     launchOptions.executablePath = process.env.PUPPETEER_EXECUTABLE_PATH;
     log(`Usando Chromium del sistema: ${process.env.PUPPETEER_EXECUTABLE_PATH}`);
-  } else {
-    log('Usando Chromium incluido en puppeteer');
   }
 
   log(`Lanzando con headless=${launchOptions.headless}`);
@@ -123,7 +118,6 @@ async function launch() {
     '(KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36';
 
   await page.setUserAgent(USER_AGENT);
-  log(`User-agent seteado: ${USER_AGENT}`);
 
   await page.evaluateOnNewDocument(() => {
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
@@ -131,46 +125,40 @@ async function launch() {
     Object.defineProperty(navigator, 'languages', { get: () => ['es-AR', 'es', 'en'] });
     window.chrome = { runtime: {} };
   });
-  log('Anti-detección aplicada');
 
   page.on('console', msg => {
     if (msg.type() === 'error') log(`[PAGE console.error] ${msg.text()}`);
   });
-  page.on('pageerror', err => log(`[PAGE ERROR] ${err.message}`));
 
   await page.setViewport({ width: 1280, height: 800 });
   log(`Navegando a ${WA_URL}...`);
 
-  try {
-    await page.goto(WA_URL, { waitUntil: 'networkidle2', timeout: 60_000 });
-    log(`Navegación OK — URL actual: ${page.url()}`);
-    log(`Título de la página: ${await page.title()}`);
-  } catch (err) {
-    log(`ERROR en goto: ${err.message}`);
-    throw err;
-  }
+  await page.goto(WA_URL, { waitUntil: 'networkidle2', timeout: 60_000 });
+  log(`Navegación OK — URL: ${page.url()} — Título: ${await page.title()}`);
 }
 
 // ── waitForLoginWithQR ────────────────────────────────────────
 async function waitForLoginWithQR(onQR) {
   log('Iniciando waitForLoginWithQR...');
 
-  let resolved      = false;
-  let qrWasScanned  = false;   // ← track post-scan state
-  let pollCount     = 0;
-  let qrSentCount   = 0;
-
-  // Resolución manual cuando el poll detecta login
-  let resolveLogin;
-  const loginDetected = new Promise(r => { resolveLogin = r; });
+  let resolved         = false;
+  let qrWasScanned     = false;
+  let postScanStart    = null;
+  let pollCount        = 0;
+  let qrSentCount      = 0;
 
   async function pollLoop() {
     while (!resolved) {
       pollCount++;
       log(`Poll #${pollCount} — verificando estado...`);
 
+      // FIX 2: si page es null (stop() fue llamado), salir del loop
+      if (!page) {
+        log('  page es null — stop() llamado, saliendo del poll');
+        break;
+      }
+
       try {
-        // Chequeo rápido de chat list
         const loggedIn = await page.evaluate(
           sels => sels.some(s => !!document.querySelector(s)),
           SEL.chatList
@@ -180,32 +168,46 @@ async function waitForLoginWithQR(onQR) {
 
         if (loggedIn) {
           log('  ✅ Chat list detectado — login OK');
-          resolveLogin();
+          resolved = true;
           break;
         }
 
         const bodyText = await page.evaluate(
           () => (document.body?.innerText || '').slice(0, 300)
         ).catch(() => '');
-        log(`  Body (300 chars): ${bodyText.replace(/\n/g, ' ')}`);
+        log(`  Body: ${bodyText.replace(/\n/g, ' ')}`);
 
-        // ← FIX: si WhatsApp está cargando chats, el QR ya fue escaneado
         const bodyLower = bodyText.toLowerCase();
         const postScan  = POST_SCAN_TEXTS.some(t => bodyLower.includes(t));
 
         if (postScan && !qrWasScanned) {
-          qrWasScanned = true;
-          log('  🔄 QR escaneado — WhatsApp está cargando, esperando chat list...');
+          qrWasScanned  = true;
+          postScanStart = Date.now();
+          log('  🔄 QR escaneado — esperando que cargue el chat list...');
         }
 
-        // Solo buscar QR si aún no fue escaneado
+        // FIX 3: si llevamos mucho tiempo en estado post-scan,
+        // WhatsApp ya autenticó pero tarda en renderizar (típico en Render).
+        // Intentamos navegar directamente al envío.
+        if (qrWasScanned && postScanStart) {
+          const elapsed = Date.now() - postScanStart;
+          log(`  ⏱ Post-scan elapsed: ${Math.round(elapsed / 1000)}s`);
+
+          if (elapsed >= TIMING.postScanTimeout) {
+            log('  ⚠ Timeout post-scan — asumiendo sesión activa y continuando');
+            resolved = true;
+            break;
+          }
+        }
+
+        // Buscar QR solo si aún no fue escaneado
         if (!qrWasScanned) {
           let qrFound = false;
           for (const sel of SEL.qr) {
             const el = await page.$(sel).catch(() => null);
             if (!el) { log(`  Selector "${sel}": no encontrado`); continue; }
 
-            log(`  Selector "${sel}": ENCONTRADO — tomando screenshot...`);
+            log(`  Selector "${sel}": ENCONTRADO — capturando...`);
             const buf = await el.screenshot({ type: 'png' }).catch(e => {
               log(`  Screenshot falló: ${e.message}`);
               return null;
@@ -213,7 +215,7 @@ async function waitForLoginWithQR(onQR) {
 
             if (buf) {
               qrSentCount++;
-              log(`  QR capturado OK (${buf.length} bytes) — envío #${qrSentCount}`);
+              log(`  QR OK (${buf.length} bytes) — envío #${qrSentCount}`);
               onQR('data:image/png;base64,' + buf.toString('base64'));
               qrFound = true;
               break;
@@ -221,48 +223,32 @@ async function waitForLoginWithQR(onQR) {
           }
 
           if (!qrFound) {
-            log('  ⚠ QR no encontrado en ningún selector');
-            const info = await page.evaluate(() => ({
-              canvases:    document.querySelectorAll('canvas').length,
-              imgs:        document.querySelectorAll('img').length,
-              bodyClasses: document.body?.className || '',
-            })).catch(() => ({}));
-            log(`  canvas: ${info.canvases}, img: ${info.imgs}, body.class: "${info.bodyClasses}"`);
+            log('  ⚠ QR no encontrado');
           }
         }
 
       } catch (err) {
         log(`  ERROR en poll: ${err.message}`);
+        // Si el error es por page null, salir
+        if (err.message.includes('null')) break;
       }
 
-      // Intervalo más corto si ya se escaneó el QR (queremos detectar el login rápido)
       const wait = qrWasScanned ? 2_000 : 3_000;
-      log(`  Esperando ${wait / 1000}s antes del próximo poll...`);
       await sleep(wait);
     }
 
     log(`Poll terminado — polls: ${pollCount}, QRs enviados: ${qrSentCount}`);
   }
 
-  // Correr poll en paralelo con un timeout global
-  const timeoutPromise = sleep(TIMING.loginTimeout).then(() => {
-    if (!resolved) throw new Error(`Login timeout: ${TIMING.loginTimeout / 1000}s excedidos`);
+  // Timeout global de seguridad
+  const timeout = sleep(TIMING.loginTimeout).then(() => {
+    if (!resolved) {
+      resolved = true;
+      throw new Error(`Login timeout global: ${TIMING.loginTimeout / 1000}s excedidos`);
+    }
   });
 
-  const pollPromise = pollLoop();
-
-  try {
-    await Promise.race([loginDetected, timeoutPromise]);
-    resolved = true;
-  } catch (err) {
-    resolved = true;
-    await pollPromise.catch(() => {});
-    throw err;
-  }
-
-  resolved = true;
-  // Esperar a que el poll termine limpiamente
-  await pollPromise.catch(() => {});
+  await Promise.race([pollLoop(), timeout]);
 
   log('Esperando 3s para que WhatsApp termine de cargar...');
   await sleep(3_000);
@@ -271,14 +257,12 @@ async function waitForLoginWithQR(onQR) {
 
 // ── Legacy ────────────────────────────────────────────────────
 async function waitForLogin() {
-  log('waitForLogin (legacy) iniciado...');
   await page.waitForFunction(
     sels => sels.some(sel => !!document.querySelector(sel)),
     { timeout: TIMING.loginTimeout },
     SEL.chatList
   );
   await sleep(3_000);
-  log('waitForLogin completado');
 }
 
 // ── Send ──────────────────────────────────────────────────────
@@ -295,7 +279,7 @@ async function sendMessage(rawNumber, message) {
       await page.waitForSelector(sel, { timeout: 8_000 });
       await page.click(sel);
       found = true;
-      log(`  composeBox encontrado con: ${sel}`);
+      log(`  composeBox: ${sel}`);
       break;
     } catch (_) {}
   }
@@ -312,7 +296,7 @@ async function sendMessage(rawNumber, message) {
     throw new Error('WhatsApp: ' + txt.substring(0, 120));
   }
 
-  log(`  ✅ Mensaje enviado a ${number}`);
+  log(`  ✅ Enviado a ${number}`);
 }
 
 // ── Close ─────────────────────────────────────────────────────

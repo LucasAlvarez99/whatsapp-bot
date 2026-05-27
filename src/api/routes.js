@@ -7,6 +7,7 @@ const router     = express.Router();
 const sseClients = new Set();
 
 let currentRunner = null;
+let _botStarting  = false;   // FIX 1: lock para evitar arranques múltiples simultáneos
 
 // ── Broadcast to all SSE clients ─────────────────────────────
 function broadcast(event, data) {
@@ -27,21 +28,19 @@ function attachRunner(runner) {
 
 // ── SSE stream ────────────────────────────────────────────────
 router.get('/stream', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection',    'keep-alive');
-  res.setHeader('X-Accel-Buffering', 'no');
+  res.setHeader('Content-Type',       'text/event-stream');
+  res.setHeader('Cache-Control',      'no-cache');
+  res.setHeader('Connection',         'keep-alive');
+  res.setHeader('X-Accel-Buffering',  'no');
   res.flushHeaders();
 
   sseClients.add(res);
 
-  // Send current state immediately so the client syncs on connect
   const state = currentRunner
     ? currentRunner.getState()
     : { running: false, paused: false, stats: { sent: 0, errors: 0, total: 0, current: 0 } };
   res.write(`event: state\ndata: ${JSON.stringify(state)}\n\n`);
 
-  // Keepalive every 20 s to prevent connection timeout
   const ping = setInterval(() => {
     try { res.write(':ping\n\n'); } catch (_) {}
   }, 20_000);
@@ -54,7 +53,8 @@ router.get('/stream', (req, res) => {
 
 // ── Start ─────────────────────────────────────────────────────
 router.post('/bot/start', (req, res) => {
-  if (currentRunner?.running) {
+  // FIX 1: doble chequeo — running O arrancando
+  if (_botStarting || currentRunner?.running) {
     return res.json({ ok: false, msg: 'El bot ya está corriendo' });
   }
 
@@ -67,16 +67,20 @@ router.post('/bot/start', (req, res) => {
     return res.json({ ok: false, msg: 'No hay mensaje guardado' });
   }
 
+  _botStarting  = true;
   currentRunner = new BotRunner();
   attachRunner(currentRunner);
 
   res.json({ ok: true });
 
-  // Fire and forget — progress comes through SSE
-  currentRunner.start(contacts, message).catch(err => {
-    console.error('[BotRunner] error fatal:', err.message);
-    broadcast('done', { fatalError: err.message, sent: 0, errors: 0 });
-  });
+  currentRunner.start(contacts, message)
+    .catch(err => {
+      console.error('[BotRunner] error fatal:', err.message);
+      broadcast('done', { fatalError: err.message, sent: 0, errors: 0 });
+    })
+    .finally(() => {
+      _botStarting = false;   // liberar el lock siempre
+    });
 });
 
 // ── Pause / resume ────────────────────────────────────────────
@@ -94,10 +98,11 @@ router.post('/bot/stop', async (req, res) => {
     return res.json({ ok: false, msg: 'No hay bot corriendo' });
   }
   await currentRunner.stop();
+  _botStarting = false;   // limpiar el lock también en stop
   res.json({ ok: true });
 });
 
-// ── Status (polling fallback) ─────────────────────────────────
+// ── Status ────────────────────────────────────────────────────
 router.get('/bot/status', (req, res) => {
   res.json(
     currentRunner
