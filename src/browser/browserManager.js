@@ -8,7 +8,7 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 
 const TIMING = {
   loginTimeout:    300_000,   // 5 min total
-  postScanTimeout: 180_000,   // 3 min esperando que carguen los chats (Render es lento)
+  postScanTimeout:  60_000,   // 60s — si en 1 min no cargó el chat list, procedemos igual
   sendTimeout:     30_000,
   afterSend:       3_000,
   humanPause:      1_200,
@@ -111,7 +111,14 @@ async function launch() {
 
   const pages = await browser.pages();
   log(`Páginas abiertas al inicio: ${pages.length}`);
+
+  // Cerrar tabs extras que Chrome restaura de sesiones anteriores
+  // Nos quedamos solo con la primera para evitar confusión de contexto
+  for (let i = 1; i < pages.length; i++) {
+    try { await pages[i].close(); } catch (_) {}
+  }
   page = pages[0] ?? await browser.newPage();
+  log('Tabs extras cerradas — trabajando en tab única');
 
   const USER_AGENT =
     'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 ' +
