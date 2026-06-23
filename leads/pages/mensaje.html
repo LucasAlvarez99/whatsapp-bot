@@ -189,6 +189,54 @@
   .machete-grid  { grid-template-columns:1fr; }
   .preview-card  { position:static; }
 }
+
+/* ── Tabs de categoría ─────────────────────────────────────────── */
+.cat-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+.cat-tab {
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;
+  padding:8px 14px; border-radius:20px;
+  border:1px solid var(--border); background:var(--surface2);
+  color:var(--muted); cursor:pointer;
+  transition: all var(--t) var(--ease);
+}
+.cat-tab:hover { border-color:var(--gold-dim); color:var(--text); }
+.cat-tab.active {
+  background:var(--gold); color:#0c0a06; border-color:var(--gold);
+  box-shadow: 0 4px 12px rgba(240,160,48,.3);
+}
+
+/* ── Lista de mensajes guardados ───────────────────────────────── */
+.msg-list-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius-lg); padding:16px; margin-bottom:16px;
+}
+.msg-list-title {
+  font-size:10px; color:var(--muted); text-transform:uppercase;
+  letter-spacing:.1em; font-family:'JetBrains Mono',monospace;
+  margin-bottom:10px;
+}
+.msg-empty {
+  font-size:12px; color:var(--muted); padding:18px 10px; text-align:center;
+  border:1px dashed var(--border); border-radius:var(--radius);
+}
+.msg-card {
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:var(--radius); padding:10px 12px; margin-bottom:8px;
+}
+.msg-card-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+.msg-card-num  { font-size:10px; color:var(--gold); font-family:'JetBrains Mono',monospace; font-weight:600; }
+.msg-card-actions { display:flex; gap:4px; }
+.btn-icon {
+  background:transparent; border:1px solid var(--border); border-radius:6px;
+  padding:3px 7px; cursor:pointer; font-size:12px;
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease);
+}
+.btn-icon:hover { border-color:var(--gold-dim); background:var(--gold-glow); }
+.msg-card-body { font-size:12px; color:var(--text); white-space:pre-wrap; line-height:1.6; }
+.editor-mode-label {
+  font-size:11px; color:var(--gold); font-weight:600;
+  font-family:'JetBrains Mono',monospace; margin-bottom:8px;
+}
 </style>
 </head>
 <body>
@@ -212,14 +260,20 @@
 
 <div class="page-body">
   <div class="section-header">
-    <div class="section-title">Redacción del Mensaje</div>
-    <div class="section-desc">Escribí el texto que se enviará. Usá {variable} para personalizar por contacto.</div>
+    <div class="section-title">Mensajes por categoría</div>
+    <div class="section-desc">Cada categoría puede tener varias variantes de mensaje. Al ejecutar el bot, se elige una al azar por contacto, sin repetir la última usada con ese número.</div>
   </div>
+
+  <div class="cat-tabs" id="cat-tabs"></div>
 
   <div class="msg-layout">
 
-    <!-- LEFT: Editor -->
+    <!-- LEFT: Editor + lista -->
     <div>
+      <div class="msg-list-card">
+        <div class="msg-list-title">📋 Mensajes guardados en esta categoría</div>
+        <div id="msg-list"></div>
+      </div>
       <div class="machete-card">
         <div class="machete-label">🗂 Variables — hacé click para insertar en el cursor</div>
         <div class="machete-grid">
@@ -254,6 +308,7 @@
         </div>
       </div>
 
+      <div class="editor-mode-label" id="editor-mode-label">➕ Nuevo mensaje</div>
       <div class="editor-toolbar">
         <span class="editor-label">Insertar rápido:</span>
         <button class="var-quick-btn" onclick="msgInsertVar('{nombre}')">+ {nombre}</button>
@@ -266,9 +321,9 @@
       <div class="char-count" id="char-count">0 caracteres</div>
 
       <div class="msg-actions">
-        <button class="btn btn-ghost"   onclick="msgClear()">🗑 Limpiar</button>
         <button class="btn btn-ghost"   onclick="msgLoadExample()">✨ Ejemplo</button>
-        <button class="btn btn-primary" onclick="msgSave()" style="margin-left:auto">💾 Guardar mensaje</button>
+        <button class="btn btn-ghost"   id="btn-cancel-edit" onclick="msgCancelEdit()" hidden>✕ Cancelar</button>
+        <button class="btn btn-primary" id="btn-save-msg" onclick="msgSave()" style="margin-left:auto">💾 Agregar mensaje</button>
         <span class="saved-badge" id="saved-badge">✓ Guardado</span>
       </div>
     </div>
@@ -317,6 +372,7 @@
 <div id="toast-container"></div>
 
 <script src="../js/store.js"></script>
+<script src="../js/messages-store.js"></script>
 <script src="../js/ui.js"></script>
 <script src="../js/mensaje.js"></script>
 <script>document.addEventListener('DOMContentLoaded', msgInit);</script>

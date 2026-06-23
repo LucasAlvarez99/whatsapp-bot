@@ -56,13 +56,13 @@ router.post('/bot/start', (req, res) => {
     return res.json({ ok: false, msg: 'El bot ya está corriendo' });
   }
 
-  const { contacts, message } = req.body;
+  const { contacts } = req.body;
 
   if (!Array.isArray(contacts) || contacts.length === 0) {
     return res.json({ ok: false, msg: 'No hay contactos válidos' });
   }
-  if (!message?.trim()) {
-    return res.json({ ok: false, msg: 'No hay mensaje guardado' });
+  if (!contacts.every(c => typeof c.mensaje === 'string' && c.mensaje.trim())) {
+    return res.json({ ok: false, msg: 'Hay contactos sin mensaje asignado para su categoría' });
   }
 
   _botStarting  = true;
@@ -71,7 +71,7 @@ router.post('/bot/start', (req, res) => {
 
   res.json({ ok: true });
 
-  currentRunner.start(contacts, message)
+  currentRunner.start(contacts)
     .catch(err => {
       console.error('[BotRunner] error fatal:', err.message);
       broadcast('done', { fatalError: err.message, sent: 0, errors: 0 });

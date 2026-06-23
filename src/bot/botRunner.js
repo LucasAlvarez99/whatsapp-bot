@@ -2,12 +2,10 @@
 
 const EventEmitter   = require('events');
 const browserManager = require('../browser/browserManager');
-
-const DELAY_MIN = 28_000;
-const DELAY_MAX = 35_000;
+const { timing }     = require('../config/config');
 
 function randomMs() {
-  return Math.floor(Math.random() * (DELAY_MAX - DELAY_MIN + 1) + DELAY_MIN);
+  return Math.floor(Math.random() * (timing.delayMax - timing.delayMin + 1) + timing.delayMin);
 }
 
 function personalize(template, contact) {
@@ -52,7 +50,7 @@ class BotRunner extends EventEmitter {
     this.emit('state', this.getState());
   }
 
-  async start(contacts, messageTemplate) {
+  async start(contacts) {
     this.running  = true;
     this._stopped = false;
     this._stats   = { sent: 0, errors: 0, total: contacts.length, current: 0 };
@@ -84,7 +82,7 @@ class BotRunner extends EventEmitter {
         this._stats.current = i + 1;
         this.emit('progress', { ...this._stats });
 
-        const msg = personalize(messageTemplate, contact);
+        const msg = contact.mensaje;
         this._log(`📤 [${i + 1}/${contacts.length}] ${contact.nombre} (${contact.numero})`);
 
         try {

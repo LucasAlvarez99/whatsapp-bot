@@ -33,7 +33,6 @@ function execBindButtons() {
 /* ── Readiness check ─────────────────────────────────────────── */
 function execBuildChecklist() {
   const contacts = Store.get('magic_contacts', []);
-  const message  = Store.get('magic_message',  '');
 
   const hasContacts = contacts.length > 0;
   execSetChk('c',
@@ -44,15 +43,24 @@ function execBuildChecklist() {
       : 'Sin contactos — ir a Contactos'
   );
 
-  const hasMsg = message.trim().length > 0;
+  // Validar que cada categoría usada por los contactos tenga al menos 1 mensaje
+  const tiposUsados  = [...new Set(contacts.map(c => c.tipo))];
+  const tiposFaltantes = tiposUsados.filter(t => MessagesStore.getByCategory(t).length === 0);
+  const hasMsg = tiposUsados.length > 0 && tiposFaltantes.length === 0;
+  const totalMsgs = MessagesStore.countAll();
+
   execSetChk('m',
     hasMsg ? 'ok' : 'fail',
     hasMsg ? '✓' : '✕',
-    hasMsg ? `${message.length} caracteres` : 'Sin mensaje — ir a Mensaje'
+    hasMsg
+      ? `${totalMsgs} mensaje${totalMsgs !== 1 ? 's' : ''} en ${tiposUsados.length} categoría${tiposUsados.length !== 1 ? 's' : ''}`
+      : (tiposFaltantes.length
+          ? `Faltan mensajes para: ${tiposFaltantes.join(', ')}`
+          : 'Sin mensajes — ir a Mensaje')
   );
 
   document.getElementById('sum-contacts').textContent = contacts.length ? String(contacts.length) : '—';
-  document.getElementById('sum-msg').textContent      = message ? `${message.length} chars ✓` : 'No guardado';
+  document.getElementById('sum-msg').textContent      = totalMsgs ? `${totalMsgs} mensajes ✓` : 'No guardados';
 
   if (contacts.length > 0) {
     const mins = Math.round(contacts.length * 31.5 / 60);
@@ -96,12 +104,31 @@ function execConnectStream() {
 }
 
 /* ── Bot controls ────────────────────────────────────────────── */
-async function botStart() {
+function execBuildContactsWithMessages() {
   const contacts = Store.get('magic_contacts', []);
-  const message  = Store.get('magic_message', '');
+  const result = [];
+  const sinMensaje = [];
 
-  if (!contacts.length) { toast('Cargá contactos primero', 'err'); return; }
-  if (!message.trim())  { toast('Guardá el mensaje primero', 'err'); return; }
+  for (const c of contacts) {
+    const picked = MessagesStore.pickMessage(c.tipo, c.numero);
+    if (!picked) { sinMensaje.push(c); continue; }
+    const mensaje = picked.text.replace(/\{(\w+)\}/g, (m, k) =>
+      (c[k] !== undefined && c[k] !== '') ? c[k] : m
+    );
+    result.push({ ...c, mensaje });
+  }
+
+  return { contacts: result, sinMensaje };
+}
+
+async function botStart() {
+  const { contacts, sinMensaje } = execBuildContactsWithMessages();
+
+  if (!contacts.length && !sinMensaje.length) { toast('Cargá contactos primero', 'err'); return; }
+  if (sinMensaje.length) {
+    toast(`${sinMensaje.length} contacto(s) sin mensaje para su categoría — revisá "Mensaje"`, 'err');
+    if (!contacts.length) return;
+  }
 
   // FIX 1: deshabilitar el botón INMEDIATAMENTE antes del fetch
   // para evitar doble/triple click mientras llega la respuesta
@@ -113,7 +140,7 @@ async function botStart() {
   const res  = await fetch(apiUrl('/api/bot/start'), {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ contacts, message }),
+    body:    JSON.stringify({ contacts }),
   });
   const data = await res.json();
 
@@ -149,8 +176,9 @@ function execSetChk(id, type, icon, sub) {
 
 function execSyncButtons() {
   const contacts = Store.get('magic_contacts', []);
-  const message  = Store.get('magic_message', '');
-  const canStart = serverOk && contacts.length > 0 && message.trim().length > 0 && !botRunning;
+  const tiposUsados = [...new Set(contacts.map(c => c.tipo))];
+  const hasMsgForAll = tiposUsados.length > 0 && tiposUsados.every(t => MessagesStore.getByCategory(t).length > 0);
+  const canStart = serverOk && contacts.length > 0 && hasMsgForAll && !botRunning;
 
   document.getElementById('btn-start').disabled = !canStart;
   document.getElementById('btn-pause').disabled = !botRunning;
