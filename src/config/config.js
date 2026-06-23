@@ -5,8 +5,8 @@ const path = require('path');
 module.exports = {
 
   timing: {
-    delayMin:     28_000,
-    delayMax:     35_000,
+    delayMin:     300_000,
+    delayMax:     900_000,
     loginTimeout: 120_000,
     sendTimeout:  30_000,
     afterSend:    3_000,
