@@ -169,7 +169,8 @@ function execSetChk(id, type, icon, sub) {
   const el    = document.getElementById(`chk-${id}`);
   const icEl  = document.getElementById(`chk-${id}-icon`);
   const subEl = document.getElementById(`chk-${id}-sub`);
-  if (el)    el.className      = `chk-item ${type}`;
+  const cls   = type === 'ok' ? 'list-success' : type === 'fail' ? 'list-fail' : 'list-pending';
+  if (el)    el.className      = `list-group-item d-flex align-items-center gap-3 ${cls}`;
   if (icEl)  icEl.textContent  = icon;
   if (subEl) subEl.textContent = sub;
 }

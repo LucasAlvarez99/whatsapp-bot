@@ -1,0 +1,127 @@
+/* ============================================================
+   bootstrap-theme.css
+   Mapea las variables de Bootstrap 5.3 a la paleta dorado/oscuro
+   de Marketing Web-Bot. Cargar DESPUÉS de bootstrap.min.css y
+   ANTES de styles.css.
+   ============================================================ */
+
+[data-bs-theme="dark"],
+:root {
+  --bs-body-bg:            #060a10;
+  --bs-body-color:         #d8e8f6;
+  --bs-secondary-color:    #8aabcc;
+  --bs-border-color:       rgba(255,255,255,.08);
+  --bs-border-radius:      .5rem;
+  --bs-border-radius-lg:   .85rem;
+
+  --bs-primary:            #f0a030;
+  --bs-primary-rgb:        240,160,48;
+  --bs-success:            #25d48a;
+  --bs-success-rgb:        37,212,138;
+  --bs-danger:             #ff4d5e;
+  --bs-danger-rgb:         255,77,94;
+  --bs-info:               #4a9eff;
+  --bs-info-rgb:           74,158,255;
+  --bs-warning:            #ffc158;
+  --bs-warning-rgb:        255,193,88;
+
+  --bs-link-color:         #f0a030;
+  --bs-link-hover-color:   #ffc158;
+
+  --bs-tertiary-bg:        #111820;
+  --bs-secondary-bg:       #0b1018;
+}
+
+body { background-color: var(--bs-body-bg); }
+
+/* Tarjetas oscuras */
+.card {
+  background-color: #0b1018;
+  border-color: rgba(255,255,255,.08);
+  color: var(--bs-body-color);
+}
+.card-header { background-color: #111820; border-color: rgba(255,255,255,.08); }
+
+/* Botones dorados (override del color de texto en hover/focus para contraste) */
+.btn-primary {
+  --bs-btn-color: #0c0a06;
+  --bs-btn-bg: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-color: #0c0a06;
+  --bs-btn-hover-bg: #ffc158;
+  --bs-btn-hover-border-color: #ffc158;
+  --bs-btn-active-color: #0c0a06;
+  --bs-btn-active-bg: #c07820;
+  font-weight: 600;
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--bs-primary);
+  --bs-btn-border-color: var(--bs-primary);
+  --bs-btn-hover-color: #0c0a06;
+  --bs-btn-hover-bg: var(--bs-primary);
+  --bs-btn-active-bg: var(--bs-primary);
+}
+.btn-outline-secondary {
+  --bs-btn-color: #8aabcc;
+  --bs-btn-border-color: rgba(255,255,255,.15);
+  --bs-btn-hover-color: #d8e8f6;
+  --bs-btn-hover-bg: #182030;
+  --bs-btn-hover-border-color: rgba(255,255,255,.25);
+}
+
+/* Pills de categoría (nav-pills) */
+.nav-pills .nav-link {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem; font-weight: 600;
+  color: #8aabcc;
+  background-color: #111820;
+  border: 1px solid rgba(255,255,255,.08);
+  margin-right: .4rem; margin-bottom: .4rem;
+}
+.nav-pills .nav-link:hover { border-color: rgba(240,160,48,.4); color: #d8e8f6; }
+.nav-pills .nav-link.active {
+  background-color: var(--bs-primary);
+  color: #0c0a06;
+  border-color: var(--bs-primary);
+}
+
+/* Inputs y textareas */
+.form-control, .form-select {
+  background-color: #0b1018;
+  border-color: rgba(255,255,255,.08);
+  color: var(--bs-body-color);
+}
+.form-control:focus, .form-select:focus {
+  background-color: #0b1018;
+  color: var(--bs-body-color);
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 .2rem rgba(240,160,48,.18);
+}
+.form-control::placeholder { color: #445a70; }
+
+/* Badges */
+.badge-cliente        { background-color: rgba(74,158,255,.18);  color: #4a9eff; }
+.badge-cliente_nuevo  { background-color: rgba(37,212,138,.18);  color: #25d48a; }
+.badge-salon          { background-color: rgba(240,160,48,.18);  color: #f0a030; }
+.badge-empresa        { background-color: rgba(255,193,88,.18);  color: #ffc158; }
+
+/* Progress bar */
+.progress { background-color: #111820; }
+.progress-bar { background-color: var(--bs-primary); }
+
+/* List group (checklist) */
+.list-group-item {
+  background-color: #0b1018;
+  border-color: rgba(255,255,255,.08);
+  color: var(--bs-body-color);
+}
+.list-group-item.list-success { border-left: 3px solid #25d48a; }
+.list-group-item.list-fail    { border-left: 3px solid #ff4d5e; }
+.list-group-item.list-pending { border-left: 3px solid #8aabcc; }
+
+/* Alert de advertencia */
+.alert-warning {
+  background-color: rgba(255,193,88,.1);
+  border-color: rgba(255,193,88,.3);
+  color: #ffc158;
+}
