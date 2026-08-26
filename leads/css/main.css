@@ -1,0 +1,23 @@
+/* ============================================================
+   main.css — bundle de estilos compartidos por las 5 páginas.
+   Reemplaza al viejo styles.css monolítico (541 líneas cargadas
+   enteras en cada página). Cada archivo es un módulo chico y con
+   un solo propósito; se importan en el mismo orden en que estaban
+   las reglas originales para no cambiar el resultado visual.
+
+   Cada página, además de este bundle, carga su propio CSS en
+   leads/css/pages/<pagina>.css con los estilos que le son propios.
+   ============================================================ */
+
+@import url("base/variables.css");
+@import url("base/reset.css");
+@import url("layout/header.css");
+@import url("components/cards.css");
+@import url("components/buttons.css");
+@import url("components/forms.css");
+@import url("components/table.css");
+@import url("components/badges.css");
+@import url("components/toast.css");
+@import url("components/log.css");
+@import url("components/progress.css");
+@import url("components/notices.css");

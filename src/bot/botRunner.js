@@ -4,15 +4,13 @@ const EventEmitter   = require('events');
 const browserManager = require('../browser/browserManager');
 const { timing }     = require('../config/config');
 
+// Nota: la personalización de {variables} en el mensaje ya viene resuelta
+// desde el frontend (leads/js/mensaje.js) al armar cada contacto — acá no
+// hace falta volver a aplicarla. La lógica compartida vive en
+// src/utils/personalize.js (usada por los scripts de validación/CLI).
+
 function randomMs() {
   return Math.floor(Math.random() * (timing.delayMax - timing.delayMin + 1) + timing.delayMin);
-}
-
-function personalize(template, contact) {
-  return template.replace(/\{(\w+)\}/g, (_, key) => {
-    const v = contact[key];
-    return v !== undefined && String(v).trim() !== '' ? String(v) : `{${key}}`;
-  });
 }
 
 function sleep(ms) {

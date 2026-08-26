@@ -29,12 +29,17 @@ function contactsPersist() {
 }
 
 // ── Validate one contact ─────────────────────────────────────
+// El nombre es opcional: un contacto se puede crear solo con el número.
 function contactValidate(nombre, numero, tipo) {
-  if (!nombre?.trim())           return 'El nombre es obligatorio';
   const digits = (numero ?? '').replace(/\D/g, '');
   if (digits.length < 10)        return 'Número inválido — mínimo 10 dígitos con código de país';
   if (!VALID_TYPES.includes(tipo)) return 'Tipo inválido: ' + tipo;
   return null;
+}
+
+// Nombre para mostrar cuando el contacto no tiene nombre cargado.
+function contactDisplayName(nombre, numero) {
+  return nombre?.trim() ? nombre.trim() : numero;
 }
 
 // ── Add (form) ───────────────────────────────────────────────
@@ -51,7 +56,7 @@ function contactAdd() {
   contactsPersist();
   contactsRender();
   contactClearForm();
-  toast(nombre + ' agregado', 'ok');
+  toast(contactDisplayName(nombre, numero) + ' agregado', 'ok');
 }
 
 function contactClearForm() {
@@ -68,7 +73,7 @@ function contactDelete(id) {
   contacts = contacts.filter(x => x.id !== id);
   contactsPersist();
   contactsRender();
-  if (c) toast(c.nombre + ' eliminado', 'info');
+  if (c) toast(contactDisplayName(c.nombre, c.numero) + ' eliminado', 'info');
 }
 
 // ── Clear all ────────────────────────────────────────────────
@@ -121,7 +126,7 @@ function contactImportCSV(raw) {
   }
 
   const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-  for (const col of ['nombre', 'numero', 'tipo']) {
+  for (const col of ['numero', 'tipo']) {   // "nombre" es opcional en el CSV
     if (!headers.includes(col)) {
       contactShowError('Columna requerida ausente: "' + col + '"');
       return;
@@ -282,9 +287,12 @@ function contactsRenderTable() {
     const badge   = isErr ? 'badge-error' : 'badge-' + c.tipo;
     const stColor = isErr ? 'var(--danger)' : 'var(--success)';
     const stText  = isErr ? '⚠ ' + c._error : '✓ OK';
+    const nombreCell = c.nombre?.trim()
+      ? esc(c.nombre)
+      : '<span class="muted">Sin nombre</span>';
     return '<tr' + (isErr ? ' style="opacity:.6"' : '') + '>' +
       '<td class="mono muted">' + (i + 1) + '</td>' +
-      '<td class="bold">' + esc(c.nombre) + '</td>' +
+      '<td class="bold">' + nombreCell + '</td>' +
       '<td class="mono muted small">' + esc(c.numero) + '</td>' +
       '<td><span class="badge ' + badge + '">' + esc(c.tipo ?? '—') + '</span></td>' +
       '<td class="small muted">' + esc(c.empresa || '—') + '</td>' +

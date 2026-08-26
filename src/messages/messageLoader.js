@@ -24,11 +24,6 @@ function loadTemplates() {
   return templates;
 }
 
-function personalize(template, contact) {
-  return template.replace(/\{(\w+)\}/g, (match, key) => {
-    const value = contact[key];
-    return value !== undefined && value !== '' ? value : match;
-  });
-}
+const { personalize } = require('../utils/personalize');
 
 module.exports = { loadTemplates, personalize };

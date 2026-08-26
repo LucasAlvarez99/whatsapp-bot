@@ -1,0 +1,104 @@
+/* ============================================================
+   layout/header.css — header, nav, status pill, page-body,
+   responsive del header. Compartido por las 5 páginas.
+   ============================================================ */
+
+/* ── Header ──────────────────────────────────────────────────── */
+.app-header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,10,16,.88);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 58px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.025),
+    inset 0 1px 0 rgba(240,160,48,.05);
+}
+
+.app-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 17px;
+  color: var(--gold);
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; white-space: nowrap;
+  letter-spacing: -.01em;
+  transition: opacity var(--t) var(--ease);
+}
+.app-logo:hover { opacity: .8; }
+
+.app-logo-emoji {
+  font-size: 19px;
+  filter: drop-shadow(0 0 6px rgba(240,160,48,.35));
+}
+
+.app-logo-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; color: var(--muted);
+  background: var(--surface2);
+  padding: 2px 8px; border-radius: 20px;
+  border: 1px solid var(--border);
+  letter-spacing: .04em;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────── */
+.header-nav { display: flex; gap: 2px; }
+
+.nav-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: var(--radius);
+  border: none; background: transparent;
+  color: var(--muted);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 500; font-size: 13px;
+  cursor: pointer;
+  transition: color var(--t) var(--ease), background var(--t) var(--ease);
+  text-decoration: none; white-space: nowrap;
+}
+.nav-btn:hover { color: var(--text-sub); background: rgba(255,255,255,.038); }
+.nav-btn.active {
+  color: var(--gold);
+  background: var(--gold-glow);
+  box-shadow: inset 0 0 0 1px var(--gold-dim);
+}
+.nav-icon { font-size: 13px; }
+
+/* ── Status pill ─────────────────────────────────────────────── */
+.status-pill {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 12px; border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  font-family: 'JetBrains Mono', monospace; font-size: 10px;
+  color: var(--muted); white-space: nowrap;
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--muted); flex-shrink: 0;
+  transition: background var(--t) var(--ease);
+}
+.status-dot.ready   { background: var(--success); box-shadow: 0 0 6px rgba(37,212,138,.5); }
+.status-dot.running { background: var(--gold); box-shadow: 0 0 6px rgba(240,160,48,.5); animation: pulse 1.2s var(--ease) infinite; }
+.status-dot.error   { background: var(--danger); }
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.4; transform:scale(.75); }
+}
+
+/* ── Page body ───────────────────────────────────────────────── */
+.page-body {
+  padding: 30px 28px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width:860px) {
+  .page-body  { padding:18px 16px; }
+  .app-header { padding:0 16px; }
+  .header-nav .nav-btn span:not(.nav-icon) { display:none; }
+  .section-title { font-size:20px; }
+}

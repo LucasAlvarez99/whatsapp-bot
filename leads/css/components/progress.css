@@ -1,0 +1,8 @@
+/* ============================================================
+   components/progress.css
+   Nota: convive con la barra de progreso de Bootstrap en
+   ejecutar.html (mismo nombre de clase .progress-bar) — se
+   mantiene tal cual estaba para no cambiar el render actual.
+   ============================================================ */
+
+.progress-bar { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }

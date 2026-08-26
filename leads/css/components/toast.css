@@ -1,0 +1,26 @@
+/* ============================================================
+   components/toast.css
+   ============================================================ */
+
+/* ── Toast ───────────────────────────────────────────────────── */
+#toast-container {
+  position: fixed; bottom: 22px; right: 22px;
+  z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+}
+.toast {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--text); display: flex; align-items: center; gap: 9px;
+  min-width: 240px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.04);
+  animation: toastIn .2s var(--ease);
+}
+.toast.ok   { border-left: 3px solid var(--success); }
+.toast.err  { border-left: 3px solid var(--danger); }
+.toast.info { border-left: 3px solid var(--gold); }
+
+@keyframes toastIn {
+  from { opacity:0; transform:translateX(14px) scale(.96); }
+  to   { opacity:1; transform:none; }
+}

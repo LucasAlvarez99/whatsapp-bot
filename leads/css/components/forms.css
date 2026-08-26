@@ -1,0 +1,42 @@
+/* ============================================================
+   components/forms.css — inputs base + upload zone
+   Nota: en las páginas con Bootstrap (contactos, ejecutar, mensaje,
+   tutorial) esto convive con .form-control de Bootstrap; contactos.html
+   redefine su propio .upload-zone en pages/contactos.css para ese caso.
+   ============================================================ */
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+select, textarea {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 400;
+  padding: 8px 12px; outline: none; width: 100%;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), background var(--t) var(--ease);
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--gold-dim);
+  background: rgba(17,24,32,.9);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+select option { background: var(--surface2); }
+
+/* ── Upload zone ─────────────────────────────────────────────── */
+.upload-zone {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px 20px; text-align: center; cursor: pointer;
+  transition: border-color var(--t) var(--ease), background var(--t) var(--ease), color var(--t) var(--ease);
+  font-size: 13px; color: var(--muted); margin-top: 12px;
+}
+.upload-zone:hover { border-color: var(--gold-dim); background: var(--gold-glow); color: var(--text-sub); }
+.upload-zone.drag  { border-color: var(--gold); background: rgba(240,160,48,.06); color: var(--gold); }
+.upload-error {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: rgba(255,77,94,.06); border: 1px solid rgba(255,77,94,.18);
+  border-radius: var(--radius); color: var(--danger); font-size: 12px;
+}

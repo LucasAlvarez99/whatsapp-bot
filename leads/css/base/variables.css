@@ -1,0 +1,44 @@
+/* ============================================================
+   base/variables.css — design tokens compartidos (paleta, radios, timing)
+   Se carga en TODAS las páginas: son las variables que usa tanto
+   el CSS custom (dashboard) como el header/nav compartido.
+   ============================================================ */
+
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
+
+/* ── Variables ──────────────────────────────────────────────── */
+:root {
+  --gold:        #f0a030;
+  --gold-light:  #ffc158;
+  --gold-dark:   #c07820;
+  --gold-dim:    rgba(240,160,48,.18);
+  --gold-glow:   rgba(240,160,48,.08);
+
+  --dark:        #060a10;
+  --surface:     #0b1018;
+  --surface2:    #111820;
+  --surface3:    #182030;
+  --surf:        #0b1018;
+  --surf2:       #111820;
+  --surf3:       #182030;
+
+  --text:        #d8e8f6;
+  --text-sub:    #8aabcc;
+  --muted:       #445a70;
+
+  --border:      rgba(255,255,255,.055);
+  --border-soft: rgba(255,255,255,.03);
+
+  --success:     #25d48a;
+  --danger:      #ff4d5e;
+  --info:        #4a9eff;
+
+  --radius:      8px;
+  --radius-lg:   14px;
+  --radius-xl:   22px;
+
+  --ease:   cubic-bezier(.4,0,.2,1);
+  --t:      .17s;
+  --t-slow: .32s;
+}

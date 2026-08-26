@@ -1,0 +1,26 @@
+/* ============================================================
+   components/notices.css — avisos, badge de guardado, warning
+   ============================================================ */
+
+.warn-bar {
+  background:rgba(255,77,94,.04); border:1px solid rgba(255,77,94,.14);
+  border-radius:var(--radius); padding:11px 16px;
+  font-size:12px; color:rgba(255,150,158,.88); line-height:1.6; margin-top:28px;
+}
+
+/* ── Saved badge ─────────────────────────────────────────────── */
+.saved-badge {
+  display:inline-flex; align-items:center; gap:5px;
+  font-size:11px; color:var(--success);
+  font-family:'JetBrains Mono',monospace;
+  padding:4px 10px; border:1px solid rgba(37,212,138,.22);
+  border-radius:20px; background:rgba(37,212,138,.05);
+  opacity:0; transition:opacity .3s var(--ease);
+}
+.saved-badge.show { opacity:1; }
+
+/* ── Storage warning ─────────────────────────────────────────── */
+.storage-warning {
+  background:rgba(255,77,94,.05); border-bottom:1px solid rgba(255,77,94,.18);
+  padding:8px 20px; font-size:12px; color:rgba(255,150,158,.88);
+}

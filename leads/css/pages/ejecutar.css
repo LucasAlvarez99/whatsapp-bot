@@ -1,4 +1,10 @@
 /* ============================================================
+   pages/ejecutar.css — específico de ejecutar.html
+   (fusiona el viejo css/ejecutar.css + el <style> inline que
+   tenía la página)
+   ============================================================ */
+
+/* ============================================================
    ejecutar.css — Página de ejecución del bot
    ============================================================ */
 
@@ -150,4 +156,20 @@
   .qr-steps li   { text-align:left; }
   .controls-bar  { flex-wrap:wrap; }
   .btn-exec      { width:100%; }
+}
+/* ── Estilos que estaban inline en ejecutar.html ─────────────── */
+.log-body {
+  background:#0b1018; border:1px solid rgba(255,255,255,.08); border-radius:.5rem;
+  padding:12px; min-height:160px; max-height:340px; overflow-y:auto;
+  font-family:'JetBrains Mono',monospace; font-size:12px; display:flex; flex-direction:column; gap:3px;
+}
+.log-line.log-placeholder { color:#445a70; }
+.log-line.log-ok    { color:#25d48a; }
+.log-line.log-error { color:#ff4d5e; }
+.log-line.log-warn  { color:#ffc158; }
+.qr-frame img { max-width:220px; border-radius:.5rem; background:#fff; padding:8px; }
+.how-num {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:20px; height:20px; border-radius:50%; background:rgba(240,160,48,.18);
+  color:#f0a030; font-size:11px; font-weight:700; margin-right:8px; flex-shrink:0;
 }

@@ -1,0 +1,16 @@
+/* ============================================================
+   components/badges.css
+   ============================================================ */
+
+/* ── Badges ──────────────────────────────────────────────────── */
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  padding: 3px 8px; border-radius: 5px;
+  white-space: nowrap; letter-spacing: .04em;
+}
+.badge-cliente       { background:rgba(74,158,255,.1);  color:#6ab4ff; border:1px solid rgba(74,158,255,.18); }
+.badge-cliente_nuevo { background:rgba(37,212,138,.1);  color:#3de09a; border:1px solid rgba(37,212,138,.18); }
+.badge-salon         { background:var(--gold-glow);     color:var(--gold); border:1px solid var(--gold-dim); }
+.badge-empresa       { background:rgba(180,100,255,.09);color:#c080ff; border:1px solid rgba(180,100,255,.18); }
+.badge-error         { background:rgba(255,77,94,.07);  color:var(--danger); border:1px solid rgba(255,77,94,.18); }

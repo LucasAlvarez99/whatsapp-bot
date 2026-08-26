@@ -4,7 +4,8 @@ const fs     = require('fs');
 const logger = require('../utils/logger');
 const { paths, types } = require('../config/config');
 
-const REQUIRED_COLUMNS = ['nombre', 'numero', 'tipo'];
+// "nombre" es opcional: un contacto se puede cargar solo con el número.
+const REQUIRED_COLUMNS = ['numero', 'tipo'];
 
 function parseCSVLine(line) {
   const fields = [];
@@ -50,7 +51,6 @@ function parseCSV(raw) {
 }
 
 function validateRow(contact) {
-  if (!contact.nombre) return `Fila ${contact._row}: falta "nombre"`;
   const digits = (contact.numero || '').replace(/\D/g, '');
   if (!digits || digits.length < 10) return `Fila ${contact._row}: número inválido "${contact.numero}"`;
   const tipo = contact.tipo?.trim().toLowerCase();

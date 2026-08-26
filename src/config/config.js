@@ -27,36 +27,4 @@ module.exports = {
     empresa:       'mensaje_empresa.txt',
   },
 
-  browser: {
-    headless: false,
-    viewport: { width: 1280, height: 800 },
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--window-size=1280,800',
-    ],
-  },
-
-  whatsapp: {
-    url: 'https://web.whatsapp.com',
-    selectors: {
-      chatList: [
-        '[data-testid="chat-list"]',
-        '#pane-side',
-        'div[aria-label="Chat list"]',
-        'div[aria-label="Lista de chats"]',
-        'div[role="grid"]',
-      ],
-      composeBox: [
-        '[data-testid="conversation-compose-box-input"]',
-        'div[contenteditable="true"][data-tab="10"]',
-        'div[contenteditable="true"][data-tab="1"]',
-        'footer div[contenteditable="true"]',
-        'div[contenteditable="true"][role="textbox"]',
-      ],
-      errorPopup: '[data-testid="popup-contents"]',
-    },
-  },
-
 };

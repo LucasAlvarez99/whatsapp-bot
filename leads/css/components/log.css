@@ -1,0 +1,17 @@
+/* ============================================================
+   components/log.css — panel de logs en vivo (usado en ejecutar.html,
+   pisado/completado por pages/ejecutar.css para esa página puntual)
+   ============================================================ */
+
+.log-body {
+  padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  line-height: 2; color: var(--muted);
+  max-height: 200px; overflow-y: auto; min-height: 80px;
+}
+.log-line  { display:block; }
+.log-ok    { color:var(--success); }
+.log-error { color:var(--danger); }
+.log-warn  { color:var(--gold); }
+.log-done  { color:var(--success); font-weight:600; }
+.log-ctrl  { color:var(--info); }
+.log-placeholder { opacity:.3; }

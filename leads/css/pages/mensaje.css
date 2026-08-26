@@ -1,0 +1,32 @@
+/* ============================================================
+   pages/mensaje.css — específico de mensaje.html
+   ============================================================ */
+
+/* Estilos puntuales que Bootstrap no cubre — preview de WhatsApp y burbuja de chat */
+.preview-card { position: sticky; top: 74px; overflow: hidden; }
+.preview-bar { padding:10px 14px; background:#1f2c34; display:flex; align-items:center; gap:8px; }
+.preview-dots { display:flex; gap:5px; }
+.preview-dot  { width:10px; height:10px; border-radius:50%; }
+.preview-bar-title { font-size:11px; color:rgba(255,255,255,.38); font-family:'JetBrains Mono',monospace; }
+.preview-chat-area {
+  background:#0b141a; padding:16px 12px 14px; min-height:220px;
+  display:flex; flex-direction:column; justify-content:flex-end; gap:8px;
+}
+.preview-contact-row { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
+.preview-avatar {
+  width:38px; height:38px; border-radius:50%;
+  background: linear-gradient(135deg, #f0a030 0%, #c07820 100%);
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; color:#0c0a06; font-weight:700;
+  font-family:'JetBrains Mono',monospace; flex-shrink:0;
+}
+.preview-name { font-size:13px; font-weight:600; color:rgba(255,255,255,.88); }
+.preview-num  { font-size:10px; color:rgba(255,255,255,.35); font-family:'JetBrains Mono',monospace; }
+.preview-bubble {
+  background:#005c4b; border-radius:12px 12px 2px 12px; padding:10px 13px 6px;
+  font-size:13px; line-height:1.7; color:#e9edef; white-space:pre-wrap;
+  word-break:break-word; align-self:flex-end; max-width:90%; position:relative;
+}
+.preview-time { font-size:10px; color:rgba(233,237,239,.5); text-align:right; margin-top:4px; }
+.msg-empty { font-size:.8rem; color:#445a70; padding:18px 10px; text-align:center; border:1px dashed rgba(255,255,255,.08); border-radius:.5rem; }
+.var-chip { cursor:pointer; }
