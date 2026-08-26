@@ -4,7 +4,7 @@
 
 .type-count-badge {
   font-family:'JetBrains Mono',monospace; font-size:11px;
-  color:var(--gold); font-weight:600;
+  color:var(--bs-primary); font-weight:600;
   background:rgba(var(--bs-primary-rgb),.14);
   border:1px solid rgba(var(--bs-primary-rgb),.25);
   padding:2px 10px; border-radius:20px;
@@ -20,7 +20,7 @@
 .upload-zone .upload-icon { font-size:2rem; opacity:.4; }
 .upload-error { font-size:.78rem; color:var(--bs-danger); margin-top:6px; }
 .stat-num {
-  font-family:'Syne',sans-serif; font-size:2.2rem; line-height:1;
+  font-family:'Inter',sans-serif; font-size:2.2rem; line-height:1;
   color:var(--bs-primary); font-weight:700; margin-bottom:4px;
 }
 /* Table */

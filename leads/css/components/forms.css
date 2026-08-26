@@ -9,21 +9,21 @@ input[type="text"],
 input[type="number"],
 input[type="email"],
 select, textarea {
-  background: var(--surface2);
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   color: var(--text);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px; font-weight: 400;
   padding: 8px 12px; outline: none; width: 100%;
   transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), background var(--t) var(--ease);
 }
 input:focus, select:focus, textarea:focus {
-  border-color: var(--gold-dim);
-  background: rgba(17,24,32,.9);
-  box-shadow: 0 0 0 3px var(--gold-glow);
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
-select option { background: var(--surface2); }
+select option { background: var(--surface); }
 
 /* ── Upload zone ─────────────────────────────────────────────── */
 .upload-zone {
@@ -33,10 +33,10 @@ select option { background: var(--surface2); }
   transition: border-color var(--t) var(--ease), background var(--t) var(--ease), color var(--t) var(--ease);
   font-size: 13px; color: var(--muted); margin-top: 12px;
 }
-.upload-zone:hover { border-color: var(--gold-dim); background: var(--gold-glow); color: var(--text-sub); }
-.upload-zone.drag  { border-color: var(--gold); background: rgba(240,160,48,.06); color: var(--gold); }
+.upload-zone:hover { border-color: var(--primary-light); background: var(--primary-dim); color: var(--text-sub); }
+.upload-zone.drag  { border-color: var(--primary); background: var(--primary-dim); color: var(--primary); }
 .upload-error {
   display: none; margin-top: 8px; padding: 8px 12px;
-  background: rgba(255,77,94,.06); border: 1px solid rgba(255,77,94,.18);
+  background: var(--danger-dim); border: 1px solid rgba(220,38,38,.22);
   border-radius: var(--radius); color: var(--danger); font-size: 12px;
 }

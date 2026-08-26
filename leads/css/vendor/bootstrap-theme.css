@@ -1,127 +1,128 @@
 /* ============================================================
    bootstrap-theme.css
-   Mapea las variables de Bootstrap 5.3 a la paleta dorado/oscuro
-   de Marketing Web-Bot. Cargar DESPUÉS de bootstrap.min.css y
-   ANTES de styles.css.
+   Mapea las variables de Bootstrap 5.3 a la paleta clara
+   azul (confianza) + naranja (CTA) de Marketing Web-Bot.
+   Cargar DESPUÉS de bootstrap.min.css y ANTES de main.css.
    ============================================================ */
 
-[data-bs-theme="dark"],
 :root {
-  --bs-body-bg:            #060a10;
-  --bs-body-color:         #d8e8f6;
-  --bs-secondary-color:    #8aabcc;
-  --bs-border-color:       rgba(255,255,255,.08);
+  --bs-body-bg:            #F8FAFC;
+  --bs-body-color:         #0F172A;
+  --bs-secondary-color:    #64748B;
+  --bs-border-color:       #E2E8F0;
   --bs-border-radius:      .5rem;
   --bs-border-radius-lg:   .85rem;
 
-  --bs-primary:            #f0a030;
-  --bs-primary-rgb:        240,160,48;
-  --bs-success:            #25d48a;
-  --bs-success-rgb:        37,212,138;
-  --bs-danger:             #ff4d5e;
-  --bs-danger-rgb:         255,77,94;
-  --bs-info:               #4a9eff;
-  --bs-info-rgb:           74,158,255;
-  --bs-warning:            #ffc158;
-  --bs-warning-rgb:        255,193,88;
+  --bs-primary:            #2563EB;
+  --bs-primary-rgb:        37,99,235;
+  --bs-success:            #16A34A;
+  --bs-success-rgb:        22,163,74;
+  --bs-danger:             #DC2626;
+  --bs-danger-rgb:         220,38,38;
+  --bs-info:               #0EA5E9;
+  --bs-info-rgb:           14,165,233;
+  --bs-warning:            #D97706;
+  --bs-warning-rgb:        217,119,6;
 
-  --bs-link-color:         #f0a030;
-  --bs-link-hover-color:   #ffc158;
+  --bs-link-color:         #2563EB;
+  --bs-link-hover-color:   #1D4ED8;
 
-  --bs-tertiary-bg:        #111820;
-  --bs-secondary-bg:       #0b1018;
+  --bs-tertiary-bg:        #F1F5F9;
+  --bs-secondary-bg:       #F1F5F9;
+
+  --app-card-bg:           #FFFFFF;
 }
 
 body { background-color: var(--bs-body-bg); }
 
-/* Tarjetas oscuras */
+/* Tarjetas */
 .card {
-  background-color: #0b1018;
-  border-color: rgba(255,255,255,.08);
+  background-color: #FFFFFF;
+  border-color: var(--bs-border-color);
   color: var(--bs-body-color);
 }
-.card-header { background-color: #111820; border-color: rgba(255,255,255,.08); }
+.card-header { background-color: #F8FAFC; border-color: var(--bs-border-color); }
 
-/* Botones dorados (override del color de texto en hover/focus para contraste) */
+/* Botón principal = CTA / conversión → naranja */
 .btn-primary {
-  --bs-btn-color: #0c0a06;
-  --bs-btn-bg: var(--bs-primary);
-  --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-color: #0c0a06;
-  --bs-btn-hover-bg: #ffc158;
-  --bs-btn-hover-border-color: #ffc158;
-  --bs-btn-active-color: #0c0a06;
-  --bs-btn-active-bg: #c07820;
+  --bs-btn-color: #fff;
+  --bs-btn-bg: #F97316;
+  --bs-btn-border-color: #F97316;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: #FB923C;
+  --bs-btn-hover-border-color: #FB923C;
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: #EA580C;
   font-weight: 600;
 }
 .btn-outline-primary {
   --bs-btn-color: var(--bs-primary);
   --bs-btn-border-color: var(--bs-primary);
-  --bs-btn-hover-color: #0c0a06;
+  --bs-btn-hover-color: #fff;
   --bs-btn-hover-bg: var(--bs-primary);
   --bs-btn-active-bg: var(--bs-primary);
 }
 .btn-outline-secondary {
-  --bs-btn-color: #8aabcc;
-  --bs-btn-border-color: rgba(255,255,255,.15);
-  --bs-btn-hover-color: #d8e8f6;
-  --bs-btn-hover-bg: #182030;
-  --bs-btn-hover-border-color: rgba(255,255,255,.25);
+  --bs-btn-color: #475569;
+  --bs-btn-border-color: #CBD5E1;
+  --bs-btn-hover-color: #0F172A;
+  --bs-btn-hover-bg: #F1F5F9;
+  --bs-btn-hover-border-color: #94A3B8;
 }
 
-/* Pills de categoría (nav-pills) */
+/* Pills de categoría (nav-pills) — usan el azul, no el naranja (es navegación, no CTA) */
 .nav-pills .nav-link {
   font-family: 'JetBrains Mono', monospace;
   font-size: .72rem; font-weight: 600;
-  color: #8aabcc;
-  background-color: #111820;
-  border: 1px solid rgba(255,255,255,.08);
+  color: #475569;
+  background-color: #F1F5F9;
+  border: 1px solid var(--bs-border-color);
   margin-right: .4rem; margin-bottom: .4rem;
 }
-.nav-pills .nav-link:hover { border-color: rgba(240,160,48,.4); color: #d8e8f6; }
+.nav-pills .nav-link:hover { border-color: rgba(37,99,235,.35); color: #0F172A; }
 .nav-pills .nav-link.active {
   background-color: var(--bs-primary);
-  color: #0c0a06;
+  color: #fff;
   border-color: var(--bs-primary);
 }
 
 /* Inputs y textareas */
 .form-control, .form-select {
-  background-color: #0b1018;
-  border-color: rgba(255,255,255,.08);
+  background-color: #FFFFFF;
+  border-color: var(--bs-border-color);
   color: var(--bs-body-color);
 }
 .form-control:focus, .form-select:focus {
-  background-color: #0b1018;
+  background-color: #FFFFFF;
   color: var(--bs-body-color);
   border-color: var(--bs-primary);
-  box-shadow: 0 0 0 .2rem rgba(240,160,48,.18);
+  box-shadow: 0 0 0 .2rem rgba(37,99,235,.16);
 }
-.form-control::placeholder { color: #445a70; }
+.form-control::placeholder { color: #94A3B8; }
 
 /* Badges */
-.badge-cliente        { background-color: rgba(74,158,255,.18);  color: #4a9eff; }
-.badge-cliente_nuevo  { background-color: rgba(37,212,138,.18);  color: #25d48a; }
-.badge-salon          { background-color: rgba(240,160,48,.18);  color: #f0a030; }
-.badge-empresa        { background-color: rgba(255,193,88,.18);  color: #ffc158; }
+.badge-cliente        { background-color: rgba(14,165,233,.12);  color: #0284C7; }
+.badge-cliente_nuevo  { background-color: rgba(22,163,74,.12);   color: #15803D; }
+.badge-salon          { background-color: rgba(249,115,22,.14);  color: #C2410C; }
+.badge-empresa        { background-color: rgba(37,99,235,.12);   color: #1D4ED8; }
 
-/* Progress bar */
-.progress { background-color: #111820; }
-.progress-bar { background-color: var(--bs-primary); }
+/* Progress bar — naranja, es el avance de una acción disparada por el CTA */
+.progress { background-color: #F1F5F9; }
+.progress-bar { background-color: #F97316; }
 
 /* List group (checklist) */
 .list-group-item {
-  background-color: #0b1018;
-  border-color: rgba(255,255,255,.08);
+  background-color: #FFFFFF;
+  border-color: var(--bs-border-color);
   color: var(--bs-body-color);
 }
-.list-group-item.list-success { border-left: 3px solid #25d48a; }
-.list-group-item.list-fail    { border-left: 3px solid #ff4d5e; }
-.list-group-item.list-pending { border-left: 3px solid #8aabcc; }
+.list-group-item.list-success { border-left: 3px solid #16A34A; }
+.list-group-item.list-fail    { border-left: 3px solid #DC2626; }
+.list-group-item.list-pending { border-left: 3px solid #94A3B8; }
 
 /* Alert de advertencia */
 .alert-warning {
-  background-color: rgba(255,193,88,.1);
-  border-color: rgba(255,193,88,.3);
-  color: #ffc158;
+  background-color: rgba(217,119,6,.08);
+  border-color: rgba(217,119,6,.3);
+  color: #B45309;
 }

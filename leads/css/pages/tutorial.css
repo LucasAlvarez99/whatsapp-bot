@@ -30,7 +30,7 @@
 }
 .tut-section { scroll-margin-top:80px; margin-bottom:40px; }
 .tut-section-num {
-  font-family:'Syne',sans-serif; font-size:2.4rem;
+  font-family:'Inter',sans-serif; font-size:2.4rem;
   color:var(--bs-primary); opacity:.3; line-height:1; font-weight:800;
 }
 .callout {
@@ -38,7 +38,7 @@
   margin:14px 0; font-size:.82rem; line-height:1.7;
 }
 .callout-tip  { background:rgba(var(--bs-primary-rgb),.06); border:1px solid rgba(var(--bs-primary-rgb),.2); border-left:3px solid var(--bs-primary); }
-.callout-warn { background:rgba(var(--bs-danger-rgb),.05); border:1px solid rgba(var(--bs-danger-rgb),.18); border-left:3px solid var(--bs-danger); color:rgba(255,150,158,.9); }
+.callout-warn { background:rgba(var(--bs-danger-rgb),.05); border:1px solid rgba(var(--bs-danger-rgb),.18); border-left:3px solid var(--bs-danger); color:#B91C1C; }
 .callout-info { background:rgba(var(--bs-info-rgb),.06); border:1px solid rgba(var(--bs-info-rgb),.2); border-left:3px solid var(--bs-info); }
 .code-block {
   background:#020407; border:1px solid var(--bs-border-color);

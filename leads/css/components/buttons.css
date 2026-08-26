@@ -1,47 +1,49 @@
 /* ============================================================
    components/buttons.css
+   .btn-primary = acción principal / CTA → naranja (conversión)
+   .btn-ghost / .btn-danger = acciones secundarias
    ============================================================ */
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center;
   gap: 7px; padding: 9px 18px;
   border-radius: var(--radius);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px; font-weight: 600;
   cursor: pointer; border: none;
   transition: background var(--t) var(--ease), transform var(--t) var(--ease), box-shadow var(--t) var(--ease), opacity var(--t) var(--ease);
   white-space: nowrap; letter-spacing: .01em;
 }
-.btn:disabled { opacity: .32; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+.btn:disabled { opacity: .4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
-  color: #0c0a06;
-  box-shadow: 0 2px 12px rgba(240,160,48,.22), inset 0 1px 0 rgba(255,255,255,.14);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(249,115,22,.28);
 }
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 100%);
   transform: translateY(-1px);
-  box-shadow: 0 6px 22px rgba(240,160,48,.32), inset 0 1px 0 rgba(255,255,255,.18);
+  box-shadow: 0 6px 18px rgba(249,115,22,.36);
 }
 .btn-primary:active:not(:disabled) { transform: translateY(0); }
 
 .btn-ghost {
-  background: transparent; color: var(--muted);
+  background: var(--surface); color: var(--text-sub);
   border: 1px solid var(--border);
 }
 .btn-ghost:hover:not(:disabled) {
-  color: var(--text-sub); border-color: rgba(255,255,255,.12);
-  background: rgba(255,255,255,.028);
+  color: var(--text); border-color: #CBD5E1;
+  background: var(--surface2);
 }
 
 .btn-danger {
   background: transparent; color: var(--danger);
-  border: 1px solid rgba(255,77,94,.22);
+  border: 1px solid rgba(220,38,38,.28);
 }
 .btn-danger:hover:not(:disabled) {
-  background: rgba(255,77,94,.07);
-  border-color: rgba(255,77,94,.38);
+  background: var(--danger-dim);
+  border-color: rgba(220,38,38,.45);
 }
 
 .btn-sm { padding: 5px 12px; font-size: 11px; font-weight: 500; }

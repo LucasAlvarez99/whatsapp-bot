@@ -11,7 +11,7 @@
 .log-line  { display:block; }
 .log-ok    { color:var(--success); }
 .log-error { color:var(--danger); }
-.log-warn  { color:var(--gold); }
+.log-warn  { color:var(--warning); }
 .log-done  { color:var(--success); font-weight:600; }
 .log-ctrl  { color:var(--info); }
 .log-placeholder { opacity:.3; }

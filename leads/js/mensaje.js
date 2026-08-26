@@ -62,17 +62,15 @@ function msgRenderList() {
   }
 
   list.innerHTML = items.map((m, i) => `
-    <div class="card bg-body-tertiary mb-2">
-      <div class="card-body py-2 px-3">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <span class="badge text-bg-secondary" style="font-family:'JetBrains Mono',monospace;">Mensaje ${i + 1}</span>
-          <div class="d-flex gap-1">
-            <button class="btn btn-sm btn-outline-secondary" onclick="msgStartEdit(${JSON.stringify(m.id)})" title="Editar">✏️</button>
-            <button class="btn btn-sm btn-outline-danger" onclick="msgDelete(${JSON.stringify(m.id)})" title="Eliminar">🗑</button>
-          </div>
+    <div class="msg-item">
+      <div class="msg-item__header">
+        <span class="msg-item__badge">Mensaje ${i + 1}</span>
+        <div class="msg-item__actions">
+          <button class="msg-item__action" onclick="msgStartEdit(${JSON.stringify(m.id)})" title="Editar">✏️</button>
+          <button class="msg-item__action msg-item__action--danger" onclick="msgDelete(${JSON.stringify(m.id)})" title="Eliminar">🗑</button>
         </div>
-        <div class="small" style="white-space:pre-wrap; line-height:1.6;">${esc(m.text)}</div>
       </div>
+      <div class="msg-item__text">${esc(m.text)}</div>
     </div>
   `).join('');
 }

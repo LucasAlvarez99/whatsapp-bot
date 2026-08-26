@@ -1,42 +1,60 @@
 /* ============================================================
-   base/variables.css — design tokens compartidos (paleta, radios, timing)
-   Se carga en TODAS las páginas: son las variables que usa tanto
-   el CSS custom (dashboard) como el header/nav compartido.
+   base/variables.css — design tokens compartidos
+   Paleta profesional clara (software / servicios digitales):
+     --primary  #2563EB azul → confianza, marca, nav, foco, links
+     --accent   #F97316 naranja → CTA / conversión (botón principal)
+   Se carga en TODAS las páginas.
    ============================================================ */
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
-
-/* ── Variables ──────────────────────────────────────────────── */
 :root {
-  --gold:        #f0a030;
-  --gold-light:  #ffc158;
-  --gold-dark:   #c07820;
-  --gold-dim:    rgba(240,160,48,.18);
-  --gold-glow:   rgba(240,160,48,.08);
+  /* Marca — azul (confianza) */
+  --primary:       #2563EB;
+  --primary-light: #3B82F6;
+  --primary-dark:  #1D4ED8;
+  --primary-dim:   rgba(37,99,235,.10);
+  --primary-glow:  rgba(37,99,235,.16);
 
-  --dark:        #060a10;
-  --surface:     #0b1018;
-  --surface2:    #111820;
-  --surface3:    #182030;
-  --surf:        #0b1018;
-  --surf2:       #111820;
-  --surf3:       #182030;
+  /* CTA / conversión — naranja */
+  --accent:        #F97316;
+  --accent-light:  #FB923C;
+  --accent-dark:   #EA580C;
+  --accent-dim:    rgba(249,115,22,.12);
+  --accent-glow:   rgba(249,115,22,.18);
 
-  --text:        #d8e8f6;
-  --text-sub:    #8aabcc;
-  --muted:       #445a70;
+  /* Superficies */
+  --page-bg:     #F8FAFC;
+  --surface:     #FFFFFF;
+  --surface2:    #F1F5F9;
+  --surface3:    #E2E8F0;
 
-  --border:      rgba(255,255,255,.055);
-  --border-soft: rgba(255,255,255,.03);
+  /* Texto */
+  --text:        #0F172A;
+  --text-sub:    #475569;
+  --muted:       #64748B;
 
-  --success:     #25d48a;
-  --danger:      #ff4d5e;
-  --info:        #4a9eff;
+  /* Bordes */
+  --border:      #E2E8F0;
+  --border-soft: #EDF2F7;
+
+  /* Estado */
+  --success:     #16A34A;
+  --success-dim: rgba(22,163,74,.10);
+  --danger:      #DC2626;
+  --danger-dim:  rgba(220,38,38,.10);
+  --warning:     #D97706;
+  --warning-dim: rgba(217,119,6,.10);
+  --info:        #0EA5E9;
+  --info-dim:    rgba(14,165,233,.10);
 
   --radius:      8px;
   --radius-lg:   14px;
   --radius-xl:   22px;
+
+  --shadow-sm: 0 1px 2px rgba(15,23,42,.06);
+  --shadow-md: 0 4px 12px rgba(15,23,42,.08);
+  --shadow-lg: 0 12px 32px rgba(15,23,42,.12);
 
   --ease:   cubic-bezier(.4,0,.2,1);
   --t:      .17s;

@@ -6,22 +6,21 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background: var(--dark);
+  background: var(--page-bg);
   color: var(--text);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 400;
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.55;
   background-image:
-    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(240,160,48,.04) 0%, transparent 70%),
-    radial-gradient(ellipse 40% 40% at 90% 100%, rgba(74,158,255,.025) 0%, transparent 60%);
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(37,99,235,.05) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 90% 100%, rgba(249,115,22,.03) 0%, transparent 60%);
   background-attachment: fixed;
 }
 
 /* ── Scrollbar ───────────────────────────────────────────────── */
-::-webkit-scrollbar          { width:5px; height:5px; }
+::-webkit-scrollbar          { width:6px; height:6px; }
 ::-webkit-scrollbar-track    { background:transparent; }
-::-webkit-scrollbar-thumb    { background:rgba(255,255,255,.07); border-radius:3px; }
-::-webkit-scrollbar-thumb:hover { background:rgba(240,160,48,.28); }
-
+::-webkit-scrollbar-thumb    { background:rgba(15,23,42,.12); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(37,99,235,.35); }

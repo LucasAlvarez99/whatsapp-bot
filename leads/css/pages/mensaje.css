@@ -2,7 +2,42 @@
    pages/mensaje.css — específico de mensaje.html
    ============================================================ */
 
-/* Estilos puntuales que Bootstrap no cubre — preview de WhatsApp y burbuja de chat */
+/* ── Lista de mensajes guardados (reemplaza al viejo bg-body-tertiary) ── */
+.msg-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 13px;
+  margin-bottom: 8px;
+  transition: border-color var(--t) var(--ease), box-shadow var(--t) var(--ease), transform var(--t) var(--ease);
+}
+.msg-item:hover { border-color: var(--primary-light); box-shadow: var(--shadow-sm); transform: translateY(-1px); }
+.msg-item__header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; gap: 8px;
+}
+.msg-item__badge {
+  font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+  color: var(--primary); background: var(--primary-dim);
+  border: 1px solid rgba(37,99,235,.2);
+  padding: 2px 9px; border-radius: 20px; white-space: nowrap;
+}
+.msg-item__actions { display: flex; gap: 4px; }
+.msg-item__action {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; font-size: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all var(--t) var(--ease);
+}
+.msg-item__action:hover { background: var(--surface2); border-color: #CBD5E1; }
+.msg-item__action--danger:hover { background: var(--danger-dim); border-color: rgba(220,38,38,.3); }
+.msg-item__text {
+  font-size: 13px; line-height: 1.6; color: var(--text-sub);
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* ── Preview de WhatsApp — imita la UI real de WhatsApp Web (queda oscura a propósito) ── */
 .preview-card { position: sticky; top: 74px; overflow: hidden; }
 .preview-bar { padding:10px 14px; background:#1f2c34; display:flex; align-items:center; gap:8px; }
 .preview-dots { display:flex; gap:5px; }
@@ -15,9 +50,9 @@
 .preview-contact-row { display:flex; align-items:center; gap:10px; margin-bottom:4px; }
 .preview-avatar {
   width:38px; height:38px; border-radius:50%;
-  background: linear-gradient(135deg, #f0a030 0%, #c07820 100%);
+  background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
   display:flex; align-items:center; justify-content:center;
-  font-size:14px; color:#0c0a06; font-weight:700;
+  font-size:14px; color:#fff; font-weight:700;
   font-family:'JetBrains Mono',monospace; flex-shrink:0;
 }
 .preview-name { font-size:13px; font-weight:600; color:rgba(255,255,255,.88); }
@@ -28,5 +63,5 @@
   word-break:break-word; align-self:flex-end; max-width:90%; position:relative;
 }
 .preview-time { font-size:10px; color:rgba(233,237,239,.5); text-align:right; margin-top:4px; }
-.msg-empty { font-size:.8rem; color:#445a70; padding:18px 10px; text-align:center; border:1px dashed rgba(255,255,255,.08); border-radius:.5rem; }
+.msg-empty { font-size:.8rem; color:var(--muted); padding:18px 10px; text-align:center; border:1px dashed var(--border); border-radius:.5rem; }
 .var-chip { cursor:pointer; }

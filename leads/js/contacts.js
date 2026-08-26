@@ -206,7 +206,7 @@ function contactExportExcel() {
     '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
     'xmlns:x="urn:schemas-microsoft-com:office:excel">' +
     '<head><meta charset="UTF-8">' +
-    '<style>th{background:#c9933a;color:#000;font-weight:bold;padding:6px 10px}' +
+    '<style>th{background:#2563EB;color:#fff;font-weight:bold;padding:6px 10px}' +
     'td{padding:5px 10px;border:1px solid #ddd}</style></head>' +
     '<body><table>' +
     '<thead><tr><th>nombre</th><th>numero</th><th>tipo</th><th>empresa</th></tr></thead>' +

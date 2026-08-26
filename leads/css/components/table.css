@@ -6,7 +6,7 @@
 .table-wrap {
   overflow-x: auto; border: 1px solid var(--border);
   border-radius: var(--radius-lg); margin-top: 18px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  box-shadow: var(--shadow-sm); background: var(--surface);
 }
 table { width: 100%; border-collapse: collapse; }
 thead th {
@@ -17,11 +17,11 @@ thead th {
 }
 tbody td {
   padding: 10px 14px; font-size: 13px;
-  border-bottom: 1px solid rgba(255,255,255,.028);
+  border-bottom: 1px solid var(--border-soft);
   vertical-align: middle;
 }
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: rgba(240,160,48,.022); }
+tbody tr:hover td { background: var(--primary-dim); }
 .mono  { font-family: 'JetBrains Mono', monospace; }
 .small { font-size: 11px; }
 .bold  { font-weight: 600; color: var(--text); }
@@ -34,8 +34,7 @@ td.muted, span.muted { color: var(--muted); }
   display: inline-flex; align-items: center; justify-content: center;
   transition: all var(--t) var(--ease);
 }
-.row-del:hover { background: rgba(255,77,94,.1); color: var(--danger); border-color: rgba(255,77,94,.2); }
+.row-del:hover { background: var(--danger-dim); color: var(--danger); border-color: rgba(220,38,38,.2); }
 
 .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; line-height: 2.2; }
-.empty-icon  { font-size: 30px; opacity: .3; margin-bottom: 8px; }
-
+.empty-icon  { font-size: 30px; opacity: .35; margin-bottom: 8px; }
