@@ -17,7 +17,7 @@ src/
   api/routes.js               - REST endpoints + SSE stream (/api/stream)
   bot/botRunner.js             - EventEmitter, orquesta el loop de envíos
   bot/progressStore.js         - Checkpoint en disco para retomar una campaña interrumpida
-  browser/browserManager.js    - Conexión a WhatsApp vía Baileys (WebSocket, sin Chromium)
+  browser/browserManager.js    - Conexión a WhatsApp vía Baileys, con reconexión automática
   contacts/contactReader.js    - Lectura/validación de contactos (CLI, contactos.csv)
   messages/messageLoader.js    - Carga de plantillas de mensaje (CLI)
   utils/personalize.js         - Reemplazo de {variables} en plantillas (fuente única)
@@ -57,9 +57,19 @@ propio CSS en `css/pages/<pagina>.css`.
 
 ## Frecuencia de envío
 
-Por defecto espera entre **5 y 15 minutos** (aleatorio) entre cada mensaje, para reducir el
-riesgo de bloqueo. Se ajusta en `src/config/config.js` (`timing.delayMin` / `timing.delayMax`,
-en milisegundos).
+Por defecto espera entre **1 y 3 minutos** (aleatorio) entre cada mensaje — se acortó a pedido
+desde el rango original de 5-15 min. Un rango más corto envía más rápido pero aumenta el riesgo
+de que WhatsApp detecte el patrón como bot; si se usa este rango más agresivo conviene probar
+primero con una lista chica de contactos de prueba. Se ajusta en `src/config/config.js`
+(`timing.delayMin` / `timing.delayMax`, en milisegundos — la fórmula es `minutos × 60_000`).
+
+## Reconexión automática
+
+Si la conexión con WhatsApp se corta durante una campaña larga (WhatsApp refresca la sesión,
+un corte de red, etc.), el bot reconecta solo y sigue desde donde estaba, en vez de quedarse
+colgado en silencio. Cada envío individual tiene además un límite de 30s (`timing.sendTimeout`):
+si un mensaje puntual no sale en ese tiempo, se marca como error y el bot continúa con el
+siguiente contacto en vez de trabarse ahí para siempre.
 
 ## Progreso persistente (retomar una campaña interrumpida)
 
