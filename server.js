@@ -8,6 +8,21 @@ const app     = express();
 const PORT    = process.env.PORT || 3000;
 const IS_PROD = process.env.NODE_ENV === 'production';
 
+// ── Red de seguridad ──────────────────────────────────────────
+// El bot de WhatsApp (Baileys) corre en el mismo proceso que el servidor
+// web. Baileys hace mucho trabajo async interno (descifrado, eventos de
+// notificación, etc.) que está fuera de nuestro control — si algo ahí
+// adentro tira una excepción no atrapada o una promesa rechazada sin
+// .catch, Node por defecto mata TODO el proceso (exit code 1), tirando
+// abajo el servidor web con él aunque el problema haya sido solo del bot.
+// Esto evita que un error puntual del bot derribe el sitio entero.
+process.on('uncaughtException', (err) => {
+  console.error('[FATAL] Excepción no capturada:', err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('[FATAL] Promesa rechazada sin catch:', reason);
+});
+
 // ── CORS ──────────────────────────────────────────────────────
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin',  '*');

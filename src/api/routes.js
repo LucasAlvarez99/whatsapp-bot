@@ -96,9 +96,15 @@ router.post('/bot/stop', async (req, res) => {
   if (!currentRunner) {
     return res.json({ ok: false, msg: 'No hay bot corriendo' });
   }
-  await currentRunner.stop();
-  _botStarting = false;
-  res.json({ ok: true });
+  try {
+    await currentRunner.stop();
+    _botStarting = false;
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[BotRunner] error al detener:', err.message);
+    _botStarting = false;
+    res.json({ ok: false, msg: 'Error al detener el bot' });
+  }
 });
 
 // ── Status ────────────────────────────────────────────────────

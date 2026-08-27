@@ -22,6 +22,9 @@ let _waVersion    = null;
 let connected     = false;  // true mientras el socket esté realmente abierto y utilizable
 let _loggedOut    = false;  // true si WhatsApp cerró la sesión (401) — no tiene sentido reintentar
 let _reconnecting = null;   // Promise en curso mientras se está reconectando, o null
+let _closing      = false;  // true mientras close() está en curso o ya terminó — cancela
+                             // cualquier reconexión programada para esa conexión (ver bug de
+                             // "Cannot read properties of null (reading 'state')" más abajo)
 
 function log(msg) {
   const line = `[BrowserManager] ${new Date().toISOString()} — ${msg}`;
@@ -66,10 +69,19 @@ async function launch(logCallback) {
 function connect({ onQR, onOpen, onFatal }) {
   if (sock) { try { sock.end(undefined); } catch (_) {} }
   connected = false;
+  _closing  = false; // arranca (o rearma) un ciclo de conexión nuevo — habilita reconexión
 
   let retries = 0;
 
   function attempt() {
+    // close() puede haber sido llamado mientras este attempt() estaba
+    // programado con setTimeout (ver bug de _authState null más abajo) —
+    // si ya estamos cerrando, no seguir.
+    if (_closing || !_authState) {
+      log('Reconexión cancelada — la conexión ya fue cerrada');
+      return;
+    }
+
     sock = makeWASocket({
       version:             _waVersion,
       auth:                _authState.state,
@@ -126,6 +138,14 @@ function connect({ onQR, onOpen, onFatal }) {
 
         // Cualquier otro corte (515/restartRequired, red, timeout, etc.) —
         // reintentar SIEMPRE, esté o no ya logueados, con backoff creciente.
+        // Excepto si el cierre fue provocado por close() (bot detenido,
+        // campaña terminada, redeploy) — ahí _closing ya está en true y no
+        // tiene sentido reconectar algo que cerramos nosotros a propósito.
+        if (_closing) {
+          log('Cierre intencional — no se reconecta');
+          return;
+        }
+
         retries++;
         if (retries <= MAX_RETRIES) {
           const wait = retries * 2_000;
@@ -203,6 +223,9 @@ async function sendMessage(rawNumber, message) {
 
 // ── Cerrar ────────────────────────────────────────────────────
 async function close() {
+  _closing = true; // primero esto — el evento 'close' que dispara sock.end()
+                    // más abajo puede llegar antes de que terminemos de limpiar,
+                    // y necesita ver esta bandera para no programar una reconexión
   if (sock) {
     log('Cerrando conexión Baileys...');
     try { sock.end(undefined); } catch (_) {}

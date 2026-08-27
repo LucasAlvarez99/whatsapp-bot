@@ -36,5 +36,27 @@ td.muted, span.muted { color: var(--muted); }
 }
 .row-del:hover { background: var(--danger-dim); color: var(--danger); border-color: rgba(220,38,38,.2); }
 
+.row-actions { display: flex; gap: 4px; white-space: nowrap; }
+
+.row-edit, .row-save, .row-cancel {
+  width: 24px; height: 24px; border-radius: 5px;
+  background: transparent; color: var(--muted);
+  border: 1px solid transparent; cursor: pointer; font-size: 11px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: all var(--t) var(--ease);
+}
+.row-edit:hover   { background: var(--primary-dim); color: var(--primary); border-color: rgba(37,99,235,.2); }
+.row-save:hover   { background: var(--success-dim, rgba(22,163,74,.1)); color: var(--success); border-color: rgba(22,163,74,.2); }
+.row-cancel:hover { background: var(--danger-dim); color: var(--danger); border-color: rgba(220,38,38,.2); }
+
+/* Fila inline de edición */
+tr.row-editing td { background: var(--primary-dim); vertical-align: middle; }
+.edit-input {
+  width: 100%; font-size: 12px; padding: 4px 7px;
+  border: 1px solid var(--border); border-radius: 5px;
+  background: var(--surface); color: var(--text);
+}
+.edit-input:focus { outline: none; border-color: var(--primary); }
+
 .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; line-height: 2.2; }
 .empty-icon  { font-size: 30px; opacity: .35; margin-bottom: 8px; }
