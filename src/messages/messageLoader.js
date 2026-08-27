@@ -18,7 +18,7 @@ function loadTemplates() {
     const content = fs.readFileSync(fullPath, 'utf-8').trim();
     if (!content) throw new Error(`Archivo vacío: ${fullPath}`);
     templates[tipo] = content;
-    logger.info(`📄 Plantilla cargada: ${filename}`);
+    logger.info(`Plantilla cargada: ${filename}`);
   }
 
   return templates;

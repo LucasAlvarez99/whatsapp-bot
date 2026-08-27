@@ -18,6 +18,7 @@ module.exports = {
     messages: path.resolve(__dirname, '../../mensajes'),
     session:  path.resolve(__dirname, '../../session'),
     log:      path.resolve(__dirname, '../../logs/envios.log'),
+    progress: path.resolve(__dirname, '../../data/campaign-progress.json'),
   },
 
   types: {

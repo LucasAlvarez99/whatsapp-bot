@@ -17,10 +17,10 @@ function toast(msg, type = 'info', ms = 3200) {
     container.id = 'toast-container';
     document.body.appendChild(container);
   }
-  const icons = { ok: '✅', err: '❌', info: '💡' };
+  const icons = { ok: 'bi-check-circle-fill', err: 'bi-x-circle-fill', info: 'bi-info-circle-fill' };
   const el = document.createElement('div');
   el.className = 'toast ' + type;
-  el.innerHTML = '<span>' + (icons[type] ?? 'ℹ️') + '</span><span>' + esc(msg) + '</span>';
+  el.innerHTML = '<i class="bi ' + (icons[type] ?? icons.info) + '"></i><span>' + esc(msg) + '</span>';
   container.appendChild(el);
   setTimeout(() => el.remove(), ms);
 }
@@ -50,7 +50,7 @@ function checkStorage() {
   if (!Store.available()) {
     const bar = document.createElement('div');
     bar.className   = 'storage-warning';
-    bar.textContent = '⚠ Almacenamiento local no disponible — los datos no se guardarán entre sesiones.';
+    bar.innerHTML   = '<i class="bi bi-exclamation-triangle-fill"></i> Almacenamiento local no disponible — los datos no se guardarán entre sesiones.';
     document.body.insertBefore(bar, document.body.firstChild);
   }
 }

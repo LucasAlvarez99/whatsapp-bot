@@ -29,7 +29,7 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   const url = `http://localhost:${PORT}`;
   console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`   🎩 Magic Show Bot — ${IS_PROD ? 'PRODUCCIÓN' : 'LOCAL'}`);
+  console.log(`   Magic Show Bot — ${IS_PROD ? 'PRODUCCIÓN' : 'LOCAL'}`);
   console.log(`   URL: ${url}`);
   console.log('   Ctrl+C para detener');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');

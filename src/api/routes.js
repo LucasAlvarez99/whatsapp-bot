@@ -1,7 +1,8 @@
 'use strict';
 
-const express   = require('express');
-const BotRunner = require('../bot/botRunner');
+const express      = require('express');
+const BotRunner     = require('../bot/botRunner');
+const progressStore = require('../bot/progressStore');
 
 const router     = express.Router();
 const sseClients = new Set();
@@ -107,6 +108,20 @@ router.get('/bot/status', (req, res) => {
       ? currentRunner.getState()
       : { running: false, paused: false }
   );
+});
+
+// ── Progreso guardado (campaña interrumpida) ─────────────────────
+// Permite consultar si hay un envío a medio terminar (por un corte de luz,
+// un crash, o el "Detener" manual) y descartarlo si el usuario prefiere
+// arrancar de cero en vez de retomarlo.
+router.get('/bot/progress', (req, res) => {
+  const saved = progressStore.load();
+  res.json({ pending: !!saved, progress: saved || null });
+});
+
+router.delete('/bot/progress', (req, res) => {
+  progressStore.clear();
+  res.json({ ok: true });
 });
 
 module.exports = router;

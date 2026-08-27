@@ -57,7 +57,7 @@ function msgRenderList() {
   const items = MessagesStore.getByCategory(msgActiveCat);
 
   if (!items.length) {
-    list.innerHTML = '<div class="msg-empty">No hay mensajes en esta categoría todavía. Agregá el primero abajo ⬇</div>';
+    list.innerHTML = '<div class="msg-empty">No hay mensajes en esta categoría todavía. Agregá el primero abajo.</div>';
     return;
   }
 
@@ -66,8 +66,8 @@ function msgRenderList() {
       <div class="msg-item__header">
         <span class="msg-item__badge">Mensaje ${i + 1}</span>
         <div class="msg-item__actions">
-          <button class="msg-item__action" onclick="msgStartEdit(${JSON.stringify(m.id)})" title="Editar">✏️</button>
-          <button class="msg-item__action msg-item__action--danger" onclick="msgDelete(${JSON.stringify(m.id)})" title="Eliminar">🗑</button>
+          <button class="msg-item__action" onclick="msgStartEdit(${JSON.stringify(m.id)})" title="Editar"><i class="bi bi-pencil-fill"></i></button>
+          <button class="msg-item__action msg-item__action--danger" onclick="msgDelete(${JSON.stringify(m.id)})" title="Eliminar"><i class="bi bi-trash-fill"></i></button>
         </div>
       </div>
       <div class="msg-item__text">${esc(m.text)}</div>
@@ -102,8 +102,8 @@ function msgStartEdit(id) {
   if (!item) return;
   msgEditingId = id;
   document.getElementById('msg-textarea').value = item.text;
-  document.getElementById('editor-mode-label').textContent = '✏️ Editando mensaje';
-  document.getElementById('btn-save-msg').textContent = '💾 Guardar cambios';
+  document.getElementById('editor-mode-label').innerHTML = '<i class="bi bi-pencil-fill"></i> Editando mensaje';
+  document.getElementById('btn-save-msg').innerHTML = '<i class="bi bi-save-fill"></i> Guardar cambios';
   document.getElementById('btn-cancel-edit').hidden = false;
   msgOnChange();
   document.getElementById('msg-textarea').scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -113,8 +113,8 @@ function msgCancelEdit() {
   msgEditingId = null;
   const ta = document.getElementById('msg-textarea');
   if (ta) ta.value = '';
-  document.getElementById('editor-mode-label').textContent = '➕ Nuevo mensaje';
-  document.getElementById('btn-save-msg').textContent = '💾 Agregar mensaje';
+  document.getElementById('editor-mode-label').innerHTML = '<i class="bi bi-plus-circle-fill"></i> Nuevo mensaje';
+  document.getElementById('btn-save-msg').innerHTML = '<i class="bi bi-save-fill"></i> Agregar mensaje';
   document.getElementById('btn-cancel-edit').hidden = true;
   msgOnChange();
 }
@@ -127,10 +127,10 @@ function msgSave() {
 
   if (msgEditingId !== null) {
     MessagesStore.update(msgActiveCat, msgEditingId, text);
-    toast('Mensaje actualizado ✓', 'ok');
+    toast('Mensaje actualizado', 'ok');
   } else {
     MessagesStore.add(msgActiveCat, text);
-    toast('Mensaje agregado ✓', 'ok');
+    toast('Mensaje agregado', 'ok');
   }
   msgCancelEdit();
   msgBuildTabs();
@@ -149,7 +149,7 @@ function msgDelete(id) {
 function msgLoadExample() {
   const ta = document.getElementById('msg-textarea');
   if (!ta) return;
-  ta.value = 'Hola {nombre}! 👋\n\nSomos un grupo de magia profesional y nos encantaría ser parte de los próximos eventos de {empresa} 🎩✨\n\nOfrecemos shows únicos adaptados a cada ocasión: cumpleaños, casamientos, corporativos y más.\n\n¿Tenés algo planeado próximamente?';
+  ta.value = 'Hola {nombre}!\n\nSomos un grupo de magia profesional y nos encantaría ser parte de los próximos eventos de {empresa}.\n\nOfrecemos shows únicos adaptados a cada ocasión: cumpleaños, casamientos, corporativos y más.\n\n¿Tenés algo planeado próximamente?';
   msgOnChange();
   toast('Ejemplo cargado', 'info');
 }

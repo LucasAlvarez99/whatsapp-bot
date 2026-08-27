@@ -8,7 +8,8 @@
   line-height: 2; color: var(--muted);
   max-height: 200px; overflow-y: auto; min-height: 80px;
 }
-.log-line  { display:block; }
+.log-line  { display:flex; align-items:flex-start; gap:6px; }
+.log-line .bi { font-size:11px; margin-top:3px; flex-shrink:0; }
 .log-ok    { color:var(--success); }
 .log-error { color:var(--danger); }
 .log-warn  { color:var(--warning); }

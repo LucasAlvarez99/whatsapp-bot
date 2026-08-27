@@ -167,7 +167,7 @@ function contactImportCSV(raw) {
 
 function contactShowError(msg) {
   const el = document.getElementById('upload-error');
-  el.textContent = '⚠ ' + msg;
+  el.innerHTML = '<i class="bi bi-exclamation-triangle-fill"></i> ' + esc(msg);
   el.style.display = 'block';
   toast(msg, 'err');
 }
@@ -286,7 +286,7 @@ function contactsRenderTable() {
     const isErr   = c._valid === false;
     const badge   = isErr ? 'badge-error' : 'badge-' + c.tipo;
     const stColor = isErr ? 'var(--danger)' : 'var(--success)';
-    const stText  = isErr ? '⚠ ' + c._error : '✓ OK';
+    const stText  = isErr ? '<i class="bi bi-exclamation-triangle-fill"></i> ' + esc(c._error) : '<i class="bi bi-check-circle-fill"></i> OK';
     const nombreCell = c.nombre?.trim()
       ? esc(c.nombre)
       : '<span class="muted">Sin nombre</span>';
@@ -297,7 +297,7 @@ function contactsRenderTable() {
       '<td><span class="badge ' + badge + '">' + esc(c.tipo ?? '—') + '</span></td>' +
       '<td class="small muted">' + esc(c.empresa || '—') + '</td>' +
       '<td class="small" style="color:' + stColor + '">' + stText + '</td>' +
-      '<td><button class="row-del" onclick="contactDelete(' + c.id + ')">✕</button></td>' +
+      '<td><button class="row-del" onclick="contactDelete(' + c.id + ')"><i class="bi bi-x-lg"></i></button></td>' +
       '</tr>';
   }).join('');
 }

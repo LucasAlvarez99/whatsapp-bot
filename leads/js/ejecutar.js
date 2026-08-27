@@ -37,7 +37,6 @@ function execBuildChecklist() {
   const hasContacts = contacts.length > 0;
   execSetChk('c',
     hasContacts ? 'ok' : 'fail',
-    hasContacts ? '✓' : '✕',
     hasContacts
       ? `${contacts.length} contacto${contacts.length !== 1 ? 's' : ''} listos`
       : 'Sin contactos — ir a Contactos'
@@ -51,7 +50,6 @@ function execBuildChecklist() {
 
   execSetChk('m',
     hasMsg ? 'ok' : 'fail',
-    hasMsg ? '✓' : '✕',
     hasMsg
       ? `${totalMsgs} mensaje${totalMsgs !== 1 ? 's' : ''} en ${tiposUsados.length} categoría${tiposUsados.length !== 1 ? 's' : ''}`
       : (tiposFaltantes.length
@@ -60,7 +58,7 @@ function execBuildChecklist() {
   );
 
   document.getElementById('sum-contacts').textContent = contacts.length ? String(contacts.length) : '—';
-  document.getElementById('sum-msg').textContent      = totalMsgs ? `${totalMsgs} mensajes ✓` : 'No guardados';
+  document.getElementById('sum-msg').textContent      = totalMsgs ? `${totalMsgs} mensajes` : 'No guardados';
 
   if (contacts.length > 0) {
     const mins = Math.round(contacts.length * 31.5 / 60);
@@ -76,13 +74,13 @@ function execConnectStream() {
 
   evtSource.onopen = () => {
     serverOk = true;
-    execSetChk('s', 'ok', '✓', 'Servidor conectado');
+    execSetChk('s', 'ok', 'Servidor conectado');
     execSyncButtons();
   };
 
   evtSource.onerror = () => {
     serverOk = false;
-    execSetChk('s', 'fail', '✕', 'Servidor no disponible — ejecutá: npm start');
+    execSetChk('s', 'fail', 'Servidor no disponible — ejecutá: npm start');
     execSyncButtons();
     setTimeout(execConnectStream, 5_000);
   };
@@ -165,13 +163,14 @@ async function botStop() {
 }
 
 /* ── UI helpers ──────────────────────────────────────────────── */
-function execSetChk(id, type, icon, sub) {
+function execSetChk(id, type, sub) {
   const el    = document.getElementById(`chk-${id}`);
   const icEl  = document.getElementById(`chk-${id}-icon`);
   const subEl = document.getElementById(`chk-${id}-sub`);
   const cls   = type === 'ok' ? 'list-success' : type === 'fail' ? 'list-fail' : 'list-pending';
-  if (el)    el.className      = `list-group-item d-flex align-items-center gap-3 ${cls}`;
-  if (icEl)  icEl.textContent  = icon;
+  const icon  = type === 'ok' ? 'bi-check-circle-fill' : type === 'fail' ? 'bi-x-circle-fill' : 'bi-hourglass-split';
+  if (el)    el.className   = `list-group-item d-flex align-items-center gap-3 ${cls}`;
+  if (icEl)  icEl.innerHTML = `<i class="bi ${icon}"></i>`;
   if (subEl) subEl.textContent = sub;
 }
 
@@ -187,13 +186,22 @@ function execSyncButtons() {
 
   const pauseBtn = document.getElementById('btn-pause');
   if (botPaused) {
-    pauseBtn.innerHTML = '<span>▶️</span> Reanudar';
+    pauseBtn.innerHTML = '<i class="bi bi-play-fill"></i> Reanudar';
     pauseBtn.classList.add('is-resumed');
   } else {
-    pauseBtn.innerHTML = '<span>⏸</span> Pausar';
+    pauseBtn.innerHTML = '<i class="bi bi-pause-fill"></i> Pausar';
     pauseBtn.classList.remove('is-resumed');
   }
 }
+
+const LOG_ICONS = {
+  info:  'bi-info-circle',
+  ok:    'bi-check-circle-fill',
+  error: 'bi-x-circle-fill',
+  warn:  'bi-exclamation-triangle-fill',
+  ctrl:  'bi-arrow-repeat',
+  done:  'bi-flag-fill',
+};
 
 function execAppendLog(msg, level = 'info') {
   const body = document.getElementById('log-body');
@@ -201,8 +209,8 @@ function execAppendLog(msg, level = 'info') {
   if (placeholder) placeholder.remove();
 
   const line = document.createElement('span');
-  line.className   = `log-line log-${level}`;
-  line.textContent = msg;
+  line.className = `log-line log-${level}`;
+  line.innerHTML = '<i class="bi ' + (LOG_ICONS[level] || LOG_ICONS.info) + '"></i> ' + esc(msg);
   body.appendChild(line);
   body.scrollTop = body.scrollHeight;
 }

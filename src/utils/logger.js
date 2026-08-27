@@ -22,7 +22,7 @@ function getStream() {
   const dir = path.dirname(paths.log);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
   _stream = fs.createWriteStream(paths.log, { flags: 'a', encoding: 'utf8' });
-  _stream.on('error', err => console.error('⚠ Error en stream de log:', err.message));
+  _stream.on('error', err => console.error('Error en stream de log:', err.message));
   return _stream;
 }
 

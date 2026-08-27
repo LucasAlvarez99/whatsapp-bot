@@ -13,14 +13,14 @@
 
 <header class="app-header">
   <a href="../magic-leads-app.html" class="app-logo">
-    <span class="app-logo-emoji">🤖</span>
+    <i class="bi bi-robot app-logo-emoji"></i>
     Marketing Web-Bot <span class="app-logo-badge">v3.2</span>
   </a>
   <nav class="header-nav">
-    <a href="contactos.html" class="nav-btn" data-page="contactos.html"><span class="nav-icon">👥</span><span>Contactos</span></a>
-    <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <span class="nav-icon">✉️</span><span>Mensaje</span></a>
-    <a href="ejecutar.html"  class="nav-btn" data-page="ejecutar.html"> <span class="nav-icon">▶️</span><span>Ejecutar</span></a>
-    <a href="tutorial.html"  class="nav-btn" data-page="tutorial.html"> <span class="nav-icon">📖</span><span>Tutorial</span></a>
+    <a href="contactos.html" class="nav-btn" data-page="contactos.html"><i class="bi bi-people-fill nav-icon"></i><span>Contactos</span></a>
+    <a href="mensaje.html"   class="nav-btn" data-page="mensaje.html">  <i class="bi bi-envelope-fill nav-icon"></i><span>Mensaje</span></a>
+    <a href="ejecutar.html"  class="nav-btn" data-page="ejecutar.html"> <i class="bi bi-play-fill nav-icon"></i><span>Ejecutar</span></a>
+    <a href="tutorial.html"  class="nav-btn" data-page="tutorial.html"> <i class="bi bi-book-fill nav-icon"></i><span>Tutorial</span></a>
   </nav>
   <div class="status-pill">
     <div class="status-dot" id="status-dot"></div>
@@ -45,7 +45,7 @@
       <div class="card mb-3">
         <div class="card-body">
           <div class="text-uppercase small text-secondary mb-2" style="font-family:'JetBrains Mono',monospace; font-size:.65rem; letter-spacing:.1em;">
-            🗂 Variables — hacé click para insertar en el cursor
+            <i class="bi bi-braces"></i> Variables — hacé click para insertar en el cursor
           </div>
           <div class="row g-2">
             <div class="col-sm-6">
@@ -77,13 +77,13 @@
       </div>
 
       <div class="card mb-3">
-        <div class="card-header fw-semibold small">📋 Mensajes guardados en esta categoría</div>
+        <div class="card-header fw-semibold small"><i class="bi bi-list-check"></i> Mensajes guardados en esta categoría</div>
         <div class="card-body" id="msg-list"></div>
       </div>
 
       <div class="card">
         <div class="card-body">
-          <div class="fw-semibold small mb-2" id="editor-mode-label" style="color:var(--bs-primary);">➕ Nuevo mensaje</div>
+          <div class="fw-semibold small mb-2" id="editor-mode-label" style="color:var(--bs-primary);"><i class="bi bi-plus-circle-fill"></i> Nuevo mensaje</div>
           <div class="d-flex flex-wrap gap-2 mb-2">
             <button class="btn btn-sm btn-outline-primary" onclick="msgInsertVar('{nombre}')">+ {nombre}</button>
             <button class="btn btn-sm btn-outline-primary" onclick="msgInsertVar('{empresa}')">+ {empresa}</button>
@@ -91,15 +91,15 @@
           </div>
           <textarea id="msg-textarea" class="form-control" rows="7"
                     style="font-family:'JetBrains Mono',monospace; font-size:13px;"
-                    placeholder="Hola {nombre}! 👋&#10;&#10;Te escribimos desde Marketing Web-Bot 🤖..."
+                    placeholder="Hola {nombre}!&#10;&#10;Te escribimos desde Marketing Web-Bot..."
                     oninput="msgOnChange()"></textarea>
           <div class="text-end small text-secondary mt-1" id="char-count">0 caracteres</div>
 
           <div class="d-flex gap-2 mt-3 align-items-center flex-wrap">
-            <button class="btn btn-outline-secondary btn-sm" onclick="msgLoadExample()">✨ Ejemplo</button>
-            <button class="btn btn-outline-secondary btn-sm" id="btn-cancel-edit" onclick="msgCancelEdit()" hidden>✕ Cancelar</button>
-            <button class="btn btn-primary btn-sm ms-auto" id="btn-save-msg" onclick="msgSave()">💾 Agregar mensaje</button>
-            <span class="badge text-bg-success" id="saved-badge" style="display:none;">✓ Guardado</span>
+            <button class="btn btn-outline-secondary btn-sm" onclick="msgLoadExample()"><i class="bi bi-stars"></i> Ejemplo</button>
+            <button class="btn btn-outline-secondary btn-sm" id="btn-cancel-edit" onclick="msgCancelEdit()" hidden><i class="bi bi-x-lg"></i> Cancelar</button>
+            <button class="btn btn-primary btn-sm ms-auto" id="btn-save-msg" onclick="msgSave()"><i class="bi bi-save-fill"></i> Agregar mensaje</button>
+            <span class="badge text-bg-success" id="saved-badge" style="display:none;"><i class="bi bi-check-lg"></i> Guardado</span>
           </div>
         </div>
       </div>

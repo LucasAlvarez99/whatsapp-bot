@@ -19,6 +19,10 @@
 .toast.ok   { border-left: 3px solid var(--success); }
 .toast.err  { border-left: 3px solid var(--danger); }
 .toast.info { border-left: 3px solid var(--primary); }
+.toast .bi     { font-size: 14px; flex-shrink: 0; }
+.toast.ok  .bi { color: var(--success); }
+.toast.err .bi { color: var(--danger); }
+.toast.info .bi { color: var(--primary); }
 
 @keyframes toastIn {
   from { opacity:0; transform:translateX(14px) scale(.96); }

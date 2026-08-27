@@ -91,7 +91,7 @@ async function waitForLoginWithQR(onQR) {
         }
 
         if (connection === 'open') {
-          log('✅ Sesión activa — conexión establecida');
+          log('Sesión activa — conexión establecida');
           done();
         }
 
@@ -104,7 +104,7 @@ async function waitForLoginWithQR(onQR) {
             retries++;
             if (retries <= MAX_RETRIES) {
               const wait = retries * 2_000;
-              log(`⚡ Restart requerido — reintento ${retries}/${MAX_RETRIES} en ${wait/1000}s...`);
+              log(`Restart requerido — reintento ${retries}/${MAX_RETRIES} en ${wait/1000}s...`);
               sleep(wait).then(connect);
             } else {
               done(new Error(`Demasiados reinicios (${MAX_RETRIES})`));
@@ -157,7 +157,7 @@ async function sendMessage(rawNumber, message) {
   log(`Enviando a ${number}...`);
   await sock.sendMessage(jid, { text: message });
   await sleep(1_000 + Math.random() * 500);
-  log(`✅ Enviado a ${number}`);
+  log(`Enviado a ${number}`);
 }
 
 // ── Cerrar ────────────────────────────────────────────────────
