@@ -8,7 +8,8 @@ const VALID_TYPES    = ['cliente', 'cliente_nuevo', 'salon', 'empresa'];
 const KEY_ALL        = 'magic_contacts_all';   // todos (para la tabla)
 const KEY_VALID      = 'magic_contacts';        // solo válidos (para el bot)
 
-let contacts = [];
+let contacts   = [];
+let editingId  = null;   // id del contacto que se está editando en la tabla (null = ninguno)
 
 // ── Init ─────────────────────────────────────────────────────
 function contactsInit() {
@@ -74,6 +75,51 @@ function contactDelete(id) {
   contactsPersist();
   contactsRender();
   if (c) toast(contactDisplayName(c.nombre, c.numero) + ' eliminado', 'info');
+}
+
+// ── Edit (inline en la tabla) ───────────────────────────────────
+function contactStartEdit(id) {
+  editingId = id;
+  contactsRenderTable();
+  // Foco automático en el campo número, que suele ser lo que hay que corregir.
+  const input = document.getElementById('e-numero-' + id);
+  if (input) { input.focus(); input.select(); }
+}
+
+function contactCancelEdit() {
+  editingId = null;
+  contactsRenderTable();
+}
+
+function contactSaveEdit(id) {
+  const nombre  = document.getElementById('e-nombre-'  + id).value.trim();
+  const numero  = document.getElementById('e-numero-'  + id).value.trim();
+  const tipo    = document.getElementById('e-tipo-'    + id).value;
+  const empresa = document.getElementById('e-empresa-' + id).value.trim();
+
+  const err     = contactValidate(nombre, numero, tipo);
+  const idx     = contacts.findIndex(c => c.id === id);
+  if (idx === -1) return;
+
+  contacts[idx] = {
+    ...contacts[idx],
+    nombre, numero, tipo, empresa,
+    _valid: err === null,
+    _error: err,
+  };
+
+  editingId = null;
+  contactsPersist();
+  contactsRender();
+  toast(
+    err ? 'Guardado con error: ' + err : contactDisplayName(nombre, numero) + ' actualizado',
+    err ? 'err' : 'ok'
+  );
+}
+
+function contactEditKeydown(e, id) {
+  if (e.key === 'Enter')  contactSaveEdit(id);
+  if (e.key === 'Escape') contactCancelEdit();
 }
 
 // ── Clear all ────────────────────────────────────────────────
@@ -283,6 +329,8 @@ function contactsRenderTable() {
   title.textContent   = 'Lista de contactos (' + contacts.length + ')';
 
   tbody.innerHTML = contacts.map((c, i) => {
+    if (c.id === editingId) return contactEditRowHTML(c, i);
+
     const isErr   = c._valid === false;
     const badge   = isErr ? 'badge-error' : 'badge-' + c.tipo;
     const stColor = isErr ? 'var(--danger)' : 'var(--success)';
@@ -297,7 +345,31 @@ function contactsRenderTable() {
       '<td><span class="badge ' + badge + '">' + esc(c.tipo ?? '—') + '</span></td>' +
       '<td class="small muted">' + esc(c.empresa || '—') + '</td>' +
       '<td class="small" style="color:' + stColor + '">' + stText + '</td>' +
-      '<td><button class="row-del" onclick="contactDelete(' + c.id + ')"><i class="bi bi-x-lg"></i></button></td>' +
+      '<td class="row-actions">' +
+        '<button class="row-edit" onclick="contactStartEdit(' + c.id + ')" title="Editar"><i class="bi bi-pencil-fill"></i></button>' +
+        '<button class="row-del" onclick="contactDelete(' + c.id + ')" title="Eliminar"><i class="bi bi-x-lg"></i></button>' +
+      '</td>' +
       '</tr>';
   }).join('');
+}
+
+// Fila en modo edición: mismos campos que el form de "Agregar contacto",
+// pero inline en la tabla — pensado para corregir rápido un número mal
+// anotado sin tener que borrar el contacto y cargarlo de nuevo.
+function contactEditRowHTML(c, i) {
+  const typeOption = t => '<option value="' + t + '"' + (c.tipo === t ? ' selected' : '') + '>' + t + '</option>';
+  return '<tr class="row-editing">' +
+    '<td class="mono muted">' + (i + 1) + '</td>' +
+    '<td><input id="e-nombre-'  + c.id + '" class="edit-input" type="text" value="' + esc(c.nombre)  + '" placeholder="Nombre (opcional)" onkeydown="contactEditKeydown(event,' + c.id + ')"></td>' +
+    '<td><input id="e-numero-'  + c.id + '" class="edit-input mono" type="text" value="' + esc(c.numero) + '" placeholder="Número" onkeydown="contactEditKeydown(event,' + c.id + ')"></td>' +
+    '<td><select id="e-tipo-'   + c.id + '" class="edit-input">' +
+      typeOption('cliente') + typeOption('cliente_nuevo') + typeOption('salon') + typeOption('empresa') +
+    '</select></td>' +
+    '<td><input id="e-empresa-' + c.id + '" class="edit-input" type="text" value="' + esc(c.empresa) + '" placeholder="Empresa" onkeydown="contactEditKeydown(event,' + c.id + ')"></td>' +
+    '<td class="small muted">Editando…</td>' +
+    '<td class="row-actions">' +
+      '<button class="row-save" onclick="contactSaveEdit(' + c.id + ')" title="Guardar"><i class="bi bi-check-lg"></i></button>' +
+      '<button class="row-cancel" onclick="contactCancelEdit()" title="Cancelar"><i class="bi bi-x-lg"></i></button>' +
+    '</td>' +
+    '</tr>';
 }
