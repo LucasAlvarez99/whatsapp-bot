@@ -14,6 +14,18 @@ function randomMs() {
   return Math.floor(Math.random() * (timing.delayMax - timing.delayMin + 1) + timing.delayMin);
 }
 
+function randomLongBreakEvery() {
+  const min = timing.longBreakEveryMin || 12;
+  const max = timing.longBreakEveryMax || 20;
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+function randomLongBreakMs() {
+  const min = timing.longBreakMinMs || 5 * 60_000;
+  const max = timing.longBreakMaxMs || 12 * 60_000;
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
 function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
@@ -85,6 +97,9 @@ class BotRunner extends EventEmitter {
       this.emit('qr-clear');
       this._log('Sesión activa — comenzando envíos', 'ok');
 
+      let sinceLongBreak  = 0;
+      let nextLongBreakAt = randomLongBreakEvery();
+
       for (let i = startIndex; i < contacts.length; i++) {
         if (this._stopped) break;
 
@@ -115,9 +130,19 @@ class BotRunner extends EventEmitter {
         this.emit('progress', { ...this._stats });
 
         if (i < contacts.length - 1 && !this._stopped) {
-          const ms = randomMs();
-          this._log(`Esperando ${(ms / 1000).toFixed(1)}s antes del próximo envío...`);
-          await sleep(ms);
+          sinceLongBreak++;
+
+          if (sinceLongBreak >= nextLongBreakAt) {
+            const breakMs = randomLongBreakMs();
+            this._log(`Pausa larga — ${(breakMs / 60_000).toFixed(1)} min (rompe el ritmo constante de envíos)`, 'ctrl');
+            await sleep(breakMs);
+            sinceLongBreak  = 0;
+            nextLongBreakAt = randomLongBreakEvery();
+          } else {
+            const ms = randomMs();
+            this._log(`Esperando ${(ms / 1000).toFixed(1)}s antes del próximo envío...`);
+            await sleep(ms);
+          }
         }
       }
 

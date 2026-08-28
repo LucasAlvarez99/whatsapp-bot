@@ -211,6 +211,23 @@ async function sendMessage(rawNumber, message) {
 
   const number = rawNumber.replace(/\D/g, '');
   const jid    = `${number}@s.whatsapp.net`;
+
+  // Simular que alguien está tipeando antes de mandar — un bot que manda
+  // en seco, mensaje tras mensaje, es una de las señales más obvias que
+  // usa WhatsApp para detectar automatización. Esto no lo elimina, pero
+  // ayuda a que el patrón de tráfico se vea más humano.
+  try {
+    await sock.presenceSubscribe(jid);
+    await sock.sendPresenceUpdate('composing', jid);
+    const typingMs = timing.typingMinMs && timing.typingMaxMs
+      ? Math.floor(Math.random() * (timing.typingMaxMs - timing.typingMinMs + 1) + timing.typingMinMs)
+      : 2_000;
+    await sleep(typingMs);
+    await sock.sendPresenceUpdate('paused', jid);
+  } catch (_) {
+    // Si falla la simulación de tipeo no es motivo para abortar el envío
+  }
+
   log(`Enviando a ${number}...`);
 
   // El envío en sí también tiene límite de tiempo — así una llamada colgada
