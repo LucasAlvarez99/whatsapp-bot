@@ -5,8 +5,8 @@ const path = require('path');
 module.exports = {
 
   timing: {
-    delayMin:     150_000,    // 
-    delayMax:     210_000,   // 
+    delayMin:     100_000,    // 
+    delayMax:     200_000,   // 
     loginTimeout: 120_000,   // 2 min máx. esperando que se escanee el QR
     sendTimeout:  30_000,    // 30s máx. por envío individual (y por reconexión antes de fallar)
     afterSend:    1_000,     // pausa fija tras cada envío exitoso (+ jitter aleatorio)

@@ -1,7 +1,7 @@
 'use strict';
 
 const { default: makeWASocket, useMultiFileAuthState,
-        DisconnectReason, fetchLatestBaileysVersion } = require('@whiskeysockets/baileys');
+        DisconnectReason, fetchLatestBaileysVersion, Browsers } = require('@whiskeysockets/baileys');
 const { Boom }   = require('@hapi/boom');
 const QRCode     = require('qrcode');
 const pino       = require('pino');
@@ -87,10 +87,13 @@ function connect({ onQR, onOpen, onFatal }) {
       auth:                _authState.state,
       printQRInTerminal:   false,
       logger:              pino({ level: 'silent' }),
-      browser:             ['Magic Show Bot', 'Chrome', '120.0.0'],
+      browser:             Browsers.ubuntu('Chrome'),
       connectTimeoutMs:    60_000,
       keepAliveIntervalMs: 25_000,
-      markOnlineOnConnect: false,
+      // Un WhatsApp Web real se muestra "en línea" mientras la pestaña está
+      // abierta — un socket que nunca aparece online, solo despierta para
+      // mandar y se queda mudo el resto del tiempo, es otra señal de bot.
+      markOnlineOnConnect: true,
     });
 
     sock.ev.on('creds.update', _authState.saveCreds);
